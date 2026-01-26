@@ -451,7 +451,10 @@ func (a *AuthModule) VerifyEmail(c *gin.Context) {
 // generateVerificationCode creates a 6-digit numeric code
 func generateVerificationCode() string {
 	bytes := make([]byte, 3)
-	rand.Read(bytes)
+	if _, err := rand.Read(bytes); err != nil {
+		// Fallback to time-based code if crypto/rand fails
+		return fmt.Sprintf("%06d", time.Now().UnixNano()%900000+100000)
+	}
 	// Convert to 6-digit number (100000-999999)
 	num := int(bytes[0])<<16 | int(bytes[1])<<8 | int(bytes[2])
 	code := 100000 + (num % 900000)

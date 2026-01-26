@@ -185,9 +185,5 @@ func isSpamMessage(message string) bool {
 
 	// Check for excessive URLs
 	urlPattern := regexp.MustCompile(`https?://`)
-	if len(urlPattern.FindAllString(message, -1)) > 3 {
-		return true
-	}
-
-	return false
+	return len(urlPattern.FindAllString(message, -1)) > 3
 }

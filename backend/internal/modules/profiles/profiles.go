@@ -235,7 +235,7 @@ func (m *ProfilesModule) SavePlayer(c *gin.Context) {
 	var req struct {
 		Notes *string `json:"notes,omitempty"`
 	}
-	c.ShouldBindJSON(&req)
+	_ = c.ShouldBindJSON(&req) // Ignore error - notes are optional
 
 	saved := domain.SavedPlayer{
 		UserID:    userID.(uuid.UUID),
