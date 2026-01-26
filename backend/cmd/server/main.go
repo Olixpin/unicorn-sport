@@ -85,6 +85,28 @@ func setupRouter(
 		c.JSON(http.StatusOK, gin.H{"status": "ok", "version": "1.0.0"})
 	})
 
+	// Serve OpenAPI spec
+	r.GET("/openapi.yaml", func(c *gin.Context) {
+		c.File("docs/openapi.yaml")
+	})
+
+	// Scalar API Documentation
+	r.GET("/docs", func(c *gin.Context) {
+		html := `<!DOCTYPE html>
+<html>
+<head>
+    <title>Unicorn Sport API Documentation</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+    <script id="api-reference" data-url="/openapi.yaml"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+</body>
+</html>`
+		c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(html))
+	})
+
 	// API v1 routes
 	v1 := r.Group("/api/v1")
 	{

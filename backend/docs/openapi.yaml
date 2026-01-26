@@ -1,0 +1,562 @@
+openapi: 3.1.0
+info:
+  title: Unicorn Sport API
+  description: |
+    API for Unicorn Sport - A platform connecting football players with scouts and talent agencies.
+
+    ## Authentication
+    Most endpoints require JWT authentication. Include the token in the Authorization header:
+    ```
+    Authorization: Bearer <your_token>
+    ```
+
+    ## User Types
+    - **player**: Football players looking for opportunities
+    - **scout**: Scouts looking for talent
+    - **agency**: Talent agencies
+    - **admin**: Platform administrators
+  version: 1.0.0
+  contact:
+    name: Unicorn Sport Support
+    email: support@unicornsport.com
+
+servers:
+- url: https://unicorn-sport-production.up.railway.app
+  description: Production server
+- url: http://localhost:8080
+  description: Local development
+
+tags:
+- name: Health
+  description: Health check endpoints
+- name: Auth
+  description: Authentication and user management
+- name: Players
+  description: Player profiles and management
+- name: Scouts
+  description: Scout profiles and management
+- name: Videos
+  description: Video uploads and management
+- name: Tournaments
+  description: Tournament management
+- name: Subscriptions
+  description: Subscription and payment management
+- name: Search
+  description: Search functionality
+- name: Contact
+  description: Contact form
+
+paths:
+  /health:
+    get:
+      tags: [ Health ]
+      summary: Health check
+      description: Check if the API is running
+      responses:
+        '200':
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  version:
+                    type: string
+                    example: 1.0.0
+
+  /api/v1/auth/register:
+    post:
+      tags: [ Auth ]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ email, password, full_name, user_type ]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: john@example.com
+                password:
+                  type: string
+                  minLength: 8
+                  example: SecurePass123!
+                full_name:
+                  type: string
+                  example: John Doe
+                user_type:
+                  type: string
+                  enum: [ player, scout, agency ]
+                  example: player
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Invalid input
+        '409':
+          description: Email already exists
+
+  /api/v1/auth/login:
+    post:
+      tags: [ Auth ]
+      summary: Login user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ email, password ]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: john@example.com
+                password:
+                  type: string
+                  example: SecurePass123!
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Invalid credentials
+
+  /api/v1/auth/refresh:
+    post:
+      tags: [ Auth ]
+      summary: Refresh access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ refresh_token ]
+              properties:
+                refresh_token:
+                  type: string
+      responses:
+        '200':
+          description: Token refreshed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+
+  /api/v1/auth/forgot-password:
+    post:
+      tags: [ Auth ]
+      summary: Request password reset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ email ]
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        '200':
+          description: Reset email sent
+
+  /api/v1/auth/reset-password:
+    post:
+      tags: [ Auth ]
+      summary: Reset password with token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ token, new_password ]
+              properties:
+                token:
+                  type: string
+                new_password:
+                  type: string
+                  minLength: 8
+      responses:
+        '200':
+          description: Password reset successful
+
+  /api/v1/auth/me:
+    get:
+      tags: [ Auth ]
+      summary: Get current user
+      security:
+      - BearerAuth: []
+      responses:
+        '200':
+          description: Current user info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /api/v1/players:
+    get:
+      tags: [ Players ]
+      summary: List all players
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          default: 1
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          default: 20
+      - name: position
+        in: query
+        schema:
+          type: string
+      - name: nationality
+        in: query
+        schema:
+          type: string
+      - name: min_age
+        in: query
+        schema:
+          type: integer
+      - name: max_age
+        in: query
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: List of players
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      players:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Player'
+                      pagination:
+                        $ref: '#/components/schemas/Pagination'
+
+  /api/v1/players/{id}:
+    get:
+      tags: [ Players ]
+      summary: Get player by ID
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Player details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Player'
+        '404':
+          description: Player not found
+
+  /api/v1/players/featured:
+    get:
+      tags: [ Players ]
+      summary: Get featured players
+      responses:
+        '200':
+          description: Featured players list
+
+  /api/v1/scouts:
+    get:
+      tags: [ Scouts ]
+      summary: List all scouts
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          default: 1
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          default: 20
+      responses:
+        '200':
+          description: List of scouts
+
+  /api/v1/scouts/{id}:
+    get:
+      tags: [ Scouts ]
+      summary: Get scout by ID
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Scout details
+
+  /api/v1/videos:
+    get:
+      tags: [ Videos ]
+      summary: List videos
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+      - name: limit
+        in: query
+        schema:
+          type: integer
+      - name: player_id
+        in: query
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: List of videos
+
+  /api/v1/videos/upload:
+    post:
+      tags: [ Videos ]
+      summary: Upload a video
+      security:
+      - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                video:
+                  type: string
+                  format: binary
+                title:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '201':
+          description: Video uploaded
+
+  /api/v1/tournaments:
+    get:
+      tags: [ Tournaments ]
+      summary: List tournaments
+      responses:
+        '200':
+          description: List of tournaments
+
+  /api/v1/tournaments/{id}:
+    get:
+      tags: [ Tournaments ]
+      summary: Get tournament by ID
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Tournament details
+
+  /api/v1/search:
+    get:
+      tags: [ Search ]
+      summary: Search players, scouts, and tournaments
+      parameters:
+      - name: q
+        in: query
+        required: true
+        schema:
+          type: string
+        description: Search query
+      - name: type
+        in: query
+        schema:
+          type: string
+          enum: [ players, scouts, tournaments, all ]
+          default: all
+      responses:
+        '200':
+          description: Search results
+
+  /api/v1/contact:
+    post:
+      tags: [ Contact ]
+      summary: Submit contact form
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ name, email, message ]
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                subject:
+                  type: string
+                message:
+                  type: string
+      responses:
+        '200':
+          description: Message sent successfully
+
+  /api/v1/subscriptions/plans:
+    get:
+      tags: [ Subscriptions ]
+      summary: List subscription plans
+      responses:
+        '200':
+          description: Available subscription plans
+
+  /api/v1/subscriptions/checkout:
+    post:
+      tags: [ Subscriptions ]
+      summary: Create checkout session
+      security:
+      - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ plan ]
+              properties:
+                plan:
+                  type: string
+                  enum: [ scout, pro, enterprise ]
+      responses:
+        '200':
+          description: Checkout session created
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        full_name:
+          type: string
+        user_type:
+          type: string
+          enum: [ player, scout, agency, admin ]
+        email_verified:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+
+    AuthResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            user:
+              $ref: '#/components/schemas/User'
+            access_token:
+              type: string
+            refresh_token:
+              type: string
+            expires_in:
+              type: integer
+
+    Player:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        full_name:
+          type: string
+        position:
+          type: string
+        nationality:
+          type: string
+        date_of_birth:
+          type: string
+          format: date
+        height:
+          type: number
+        weight:
+          type: number
+        preferred_foot:
+          type: string
+          enum: [ left, right, both ]
+        bio:
+          type: string
+        profile_image:
+          type: string
+        is_featured:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        total_pages:
+          type: integer
