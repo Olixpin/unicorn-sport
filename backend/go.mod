@@ -1,6 +1,6 @@
 module github.com/unicorn-sport/backend
 
-go 1.24.0
+go 1.23
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.41.1
@@ -12,7 +12,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/stripe/stripe-go/v76 v76.25.0
-	golang.org/x/crypto v0.47.0
+	golang.org/x/crypto v0.46.0
 	gorm.io/driver/postgres v1.6.0
 	gorm.io/gorm v1.31.1
 )
