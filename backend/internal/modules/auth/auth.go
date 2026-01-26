@@ -51,7 +51,9 @@ type Claims struct {
 type RegisterRequest struct {
 	Email            string  `json:"email" binding:"required,email"`
 	Password         string  `json:"password" binding:"required,min=8"`
-	OrganizationName string  `json:"organization_name" binding:"required"`
+	FirstName        string  `json:"first_name" binding:"required"`
+	LastName         string  `json:"last_name" binding:"required"`
+	OrganizationName *string `json:"organization_name,omitempty"`
 	OrganizationType *string `json:"organization_type,omitempty"`
 	Country          *string `json:"country,omitempty"`
 }
@@ -75,6 +77,8 @@ type AuthResponse struct {
 type UserResponse struct {
 	ID            uuid.UUID `json:"id"`
 	Email         string    `json:"email"`
+	FirstName     string    `json:"first_name"`
+	LastName      string    `json:"last_name"`
 	Role          string    `json:"role"`
 	EmailVerified bool      `json:"email_verified"`
 	CreatedAt     time.Time `json:"created_at"`
@@ -115,6 +119,8 @@ func (a *AuthModule) Register(c *gin.Context) {
 	user := domain.User{
 		Email:        req.Email,
 		PasswordHash: string(hashedPassword),
+		FirstName:    req.FirstName,
+		LastName:     req.LastName,
 		Role:         "scout",
 		IsActive:     true,
 		CreatedAt:    time.Now(),
@@ -160,6 +166,8 @@ func (a *AuthModule) Register(c *gin.Context) {
 			User: UserResponse{
 				ID:            user.ID,
 				Email:         user.Email,
+				FirstName:     user.FirstName,
+				LastName:      user.LastName,
 				Role:          user.Role,
 				EmailVerified: user.EmailVerified,
 				CreatedAt:     user.CreatedAt,
@@ -221,6 +229,8 @@ func (a *AuthModule) Login(c *gin.Context) {
 		User: UserResponse{
 			ID:            user.ID,
 			Email:         user.Email,
+			FirstName:     user.FirstName,
+			LastName:      user.LastName,
 			Role:          user.Role,
 			EmailVerified: user.EmailVerified,
 			CreatedAt:     user.CreatedAt,

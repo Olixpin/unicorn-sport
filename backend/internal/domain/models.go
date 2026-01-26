@@ -11,6 +11,8 @@ type User struct {
 	ID            uuid.UUID  `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
 	Email         string     `json:"email" gorm:"uniqueIndex;not null"`
 	PasswordHash  string     `json:"-" gorm:"not null"`
+	FirstName     string     `json:"first_name" gorm:"not null"`
+	LastName      string     `json:"last_name" gorm:"not null"`
 	Role          string     `json:"role" gorm:"not null;check:role IN ('admin', 'scout', 'player')"`
 	EmailVerified bool       `json:"email_verified" gorm:"default:false"`
 	IsActive      bool       `json:"is_active" gorm:"default:true"`
@@ -68,7 +70,7 @@ type GeneralContactRequest struct {
 type Scout struct {
 	ID               uuid.UUID `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
 	UserID           uuid.UUID `json:"user_id" gorm:"type:uuid;uniqueIndex;not null"`
-	OrganizationName string    `json:"organization_name" gorm:"not null"`
+	OrganizationName *string   `json:"organization_name,omitempty"`
 	OrganizationType *string   `json:"organization_type,omitempty"`
 	Country          *string   `json:"country,omitempty"`
 	IsVerified       bool      `json:"is_verified" gorm:"default:false"`
