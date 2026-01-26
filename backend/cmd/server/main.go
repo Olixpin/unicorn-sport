@@ -204,8 +204,12 @@ func setupRouter(
 				// Dashboard stats
 				adminRoutes.GET("/stats", adminModule.GetStats)
 
-				// Academy management (placeholder)
+				// Academy management
 				adminRoutes.GET("/academies", adminModule.ListAcademies)
+				adminRoutes.POST("/academies", adminModule.CreateAcademy)
+				adminRoutes.GET("/academies/:id", adminModule.GetAcademy)
+				adminRoutes.PUT("/academies/:id", adminModule.UpdateAcademy)
+				adminRoutes.DELETE("/academies/:id", adminModule.DeleteAcademy)
 
 				// Contact request management
 				adminRoutes.GET("/contact-requests", adminModule.ListContactRequests)

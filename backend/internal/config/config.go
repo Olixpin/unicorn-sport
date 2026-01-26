@@ -137,6 +137,7 @@ func (c *Config) InitDB() (*gorm.DB, error) {
 		&domain.SavedPlayer{},
 		&domain.VideoView{},
 		&domain.AuditLog{},
+		&domain.Academy{},
 	); err != nil {
 		return nil, fmt.Errorf("failed to migrate database: %w", err)
 	}

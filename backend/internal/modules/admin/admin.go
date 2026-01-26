@@ -57,14 +57,176 @@ func (m *AdminModule) GetStats(c *gin.Context) {
 
 // --- Academy Management ---
 
-// ListAcademies returns all academies (placeholder - academies don't exist yet)
+// CreateAcademyRequest represents the request to create an academy
+type CreateAcademyRequest struct {
+	Name        string  `json:"name" binding:"required"`
+	Description *string `json:"description,omitempty"`
+	Country     string  `json:"country" binding:"required"`
+	State       *string `json:"state,omitempty"`
+	City        *string `json:"city,omitempty"`
+	Address     *string `json:"address,omitempty"`
+	Phone       *string `json:"phone,omitempty"`
+	Email       *string `json:"email,omitempty"`
+	Website     *string `json:"website,omitempty"`
+	LogoURL     *string `json:"logo_url,omitempty"`
+	FoundedYear *int    `json:"founded_year,omitempty"`
+	IsVerified  bool    `json:"is_verified"`
+}
+
+// ListAcademies returns all academies
 func (m *AdminModule) ListAcademies(c *gin.Context) {
-	// Return empty list since academies table doesn't exist yet
+	var academies []domain.Academy
+
+	if err := m.db.Order("created_at DESC").Find(&academies).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"error":   "Failed to fetch academies",
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"data": gin.H{
-			"academies": []interface{}{},
+			"academies": academies,
 		},
+	})
+}
+
+// CreateAcademy creates a new academy
+func (m *AdminModule) CreateAcademy(c *gin.Context) {
+	var req CreateAcademyRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"error":   "Invalid request: " + err.Error(),
+		})
+		return
+	}
+
+	academy := domain.Academy{
+		Name:        req.Name,
+		Description: req.Description,
+		Country:     req.Country,
+		State:       req.State,
+		City:        req.City,
+		Address:     req.Address,
+		Phone:       req.Phone,
+		Email:       req.Email,
+		Website:     req.Website,
+		LogoURL:     req.LogoURL,
+		FoundedYear: req.FoundedYear,
+		IsVerified:  req.IsVerified,
+	}
+
+	if err := m.db.Create(&academy).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"error":   "Failed to create academy: " + err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"success": true,
+		"data": gin.H{
+			"academy": academy,
+		},
+	})
+}
+
+// GetAcademy returns a single academy by ID
+func (m *AdminModule) GetAcademy(c *gin.Context) {
+	id := c.Param("id")
+
+	var academy domain.Academy
+	if err := m.db.First(&academy, "id = ?", id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"success": false,
+			"error":   "Academy not found",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    academy,
+	})
+}
+
+// UpdateAcademy updates an existing academy
+func (m *AdminModule) UpdateAcademy(c *gin.Context) {
+	id := c.Param("id")
+
+	var academy domain.Academy
+	if err := m.db.First(&academy, "id = ?", id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"success": false,
+			"error":   "Academy not found",
+		})
+		return
+	}
+
+	var req CreateAcademyRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"error":   "Invalid request: " + err.Error(),
+		})
+		return
+	}
+
+	academy.Name = req.Name
+	academy.Description = req.Description
+	academy.Country = req.Country
+	academy.State = req.State
+	academy.City = req.City
+	academy.Address = req.Address
+	academy.Phone = req.Phone
+	academy.Email = req.Email
+	academy.Website = req.Website
+	academy.LogoURL = req.LogoURL
+	academy.FoundedYear = req.FoundedYear
+	academy.IsVerified = req.IsVerified
+
+	if err := m.db.Save(&academy).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"error":   "Failed to update academy: " + err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    academy,
+	})
+}
+
+// DeleteAcademy deletes an academy
+func (m *AdminModule) DeleteAcademy(c *gin.Context) {
+	id := c.Param("id")
+
+	result := m.db.Delete(&domain.Academy{}, "id = ?", id)
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"error":   "Failed to delete academy",
+		})
+		return
+	}
+
+	if result.RowsAffected == 0 {
+		c.JSON(http.StatusNotFound, gin.H{
+			"success": false,
+			"error":   "Academy not found",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Academy deleted successfully",
 	})
 }
 

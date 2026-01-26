@@ -260,3 +260,22 @@ func (s *Subscription) CanContactPlayers() bool {
 func (s *Subscription) CanSavePlayers() bool {
 	return s.Status == "active" && s.Tier != "free"
 }
+
+// Academy represents a football academy
+type Academy struct {
+	ID          uuid.UUID `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	Name        string    `json:"name" gorm:"not null;index"`
+	Description *string   `json:"description,omitempty"`
+	Country     string    `json:"country" gorm:"not null;index"`
+	State       *string   `json:"state,omitempty"`
+	City        *string   `json:"city,omitempty"`
+	Address     *string   `json:"address,omitempty"`
+	Phone       *string   `json:"phone,omitempty"`
+	Email       *string   `json:"email,omitempty"`
+	Website     *string   `json:"website,omitempty"`
+	LogoURL     *string   `json:"logo_url,omitempty"`
+	FoundedYear *int      `json:"founded_year,omitempty"`
+	IsVerified  bool      `json:"is_verified" gorm:"default:false"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+}
