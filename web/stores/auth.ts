@@ -5,6 +5,7 @@ interface AuthState {
   user: User | null
   accessToken: string | null
   refreshToken: string | null
+  initialized: boolean
 }
 
 export const useAuthStore = defineStore('auth', {
@@ -12,6 +13,7 @@ export const useAuthStore = defineStore('auth', {
     user: null,
     accessToken: null,
     refreshToken: null,
+    initialized: false,
   }),
 
   getters: {
@@ -87,7 +89,7 @@ export const useAuthStore = defineStore('auth', {
         return false
       } catch (error) {
         console.error('Token refresh failed:', error)
-        this.logout()
+        this.clearAuth()
         return false
       }
     },
@@ -110,7 +112,7 @@ export const useAuthStore = defineStore('auth', {
         }
       } catch (error) {
         console.error('Fetch user failed:', error)
-        this.logout()
+        this.clearAuth()
       }
     },
 
@@ -118,34 +120,93 @@ export const useAuthStore = defineStore('auth', {
       this.user = data.user
       this.accessToken = data.access_token
       this.refreshToken = data.refresh_token
+      this.initialized = true
 
-      // Persist to localStorage
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('access_token', data.access_token)
-        localStorage.setItem('refresh_token', data.refresh_token)
-      }
+      // Persist to cookies (works with SSR)
+      const accessTokenCookie = useCookie('access_token', { 
+        maxAge: 60 * 60 * 24 * 7, // 7 days
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+      })
+      const refreshTokenCookie = useCookie('refresh_token', { 
+        maxAge: 60 * 60 * 24 * 30, // 30 days
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+      })
+      
+      accessTokenCookie.value = data.access_token
+      refreshTokenCookie.value = data.refresh_token
     },
 
-    logout() {
+    // Clear auth state without using useCookie (safe to call anywhere)
+    clearAuth() {
       this.user = null
       this.accessToken = null
       this.refreshToken = null
+    },
 
+    // Full logout with cookie clearing (must be called in Nuxt context)
+    logout() {
+      this.clearAuth()
+
+      // Clear cookies - only works in Nuxt context
+      try {
+        const accessTokenCookie = useCookie('access_token')
+        const refreshTokenCookie = useCookie('refresh_token')
+        accessTokenCookie.value = null
+        refreshTokenCookie.value = null
+      } catch {
+        // If not in Nuxt context, clear via document.cookie
+        if (typeof document !== 'undefined') {
+          document.cookie = 'access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
+          document.cookie = 'refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
+        }
+      }
+      
+      // Also clear localStorage for backwards compatibility
       if (typeof window !== 'undefined') {
         localStorage.removeItem('access_token')
         localStorage.removeItem('refresh_token')
       }
     },
 
-    initFromStorage() {
+    async initFromStorage(): Promise<void> {
+      if (this.initialized) return
+      
+      // Try cookies first (works with SSR)
+      const accessTokenCookie = useCookie('access_token')
+      const refreshTokenCookie = useCookie('refresh_token')
+      
+      if (accessTokenCookie.value) {
+        this.accessToken = accessTokenCookie.value
+        this.refreshToken = refreshTokenCookie.value ?? null
+        await this.fetchCurrentUser()
+        this.initialized = true
+        return
+      }
+      
+      // Fallback to localStorage (client-side only, for migration)
       if (typeof window !== 'undefined') {
-        this.accessToken = localStorage.getItem('access_token')
-        this.refreshToken = localStorage.getItem('refresh_token')
-
-        if (this.accessToken) {
-          this.fetchCurrentUser()
+        const storedAccessToken = localStorage.getItem('access_token')
+        const storedRefreshToken = localStorage.getItem('refresh_token')
+        
+        if (storedAccessToken) {
+          this.accessToken = storedAccessToken
+          this.refreshToken = storedRefreshToken
+          
+          // Migrate to cookies
+          accessTokenCookie.value = storedAccessToken
+          refreshTokenCookie.value = storedRefreshToken
+          
+          // Clear localStorage after migration
+          localStorage.removeItem('access_token')
+          localStorage.removeItem('refresh_token')
+          
+          await this.fetchCurrentUser()
         }
       }
+      
+      this.initialized = true
     },
   },
 })

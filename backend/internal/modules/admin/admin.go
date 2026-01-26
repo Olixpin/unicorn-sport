@@ -68,6 +68,97 @@ func (m *AdminModule) ListAcademies(c *gin.Context) {
 	})
 }
 
+// --- Contact Request Management ---
+
+// ListContactRequests returns contact requests filtered by status
+func (m *AdminModule) ListContactRequests(c *gin.Context) {
+	status := c.Query("status")
+
+	var requests []domain.ContactRequest
+	query := m.db.Preload("Player")
+
+	if status != "" {
+		query = query.Where("status = ?", status)
+	}
+
+	if err := query.Order("created_at DESC").Find(&requests).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"error":   "Failed to fetch contact requests",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data": gin.H{
+			"requests": requests,
+		},
+	})
+}
+
+// ApproveContactRequest approves a contact request
+func (m *AdminModule) ApproveContactRequest(c *gin.Context) {
+	id := c.Param("id")
+
+	var request domain.ContactRequest
+	if err := m.db.First(&request, "id = ?", id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"success": false,
+			"error":   "Contact request not found",
+		})
+		return
+	}
+
+	now := time.Now()
+	request.Status = "approved"
+	request.HandledAt = &now
+
+	if err := m.db.Save(&request).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"error":   "Failed to approve contact request",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    request,
+	})
+}
+
+// RejectContactRequest rejects a contact request
+func (m *AdminModule) RejectContactRequest(c *gin.Context) {
+	id := c.Param("id")
+
+	var request domain.ContactRequest
+	if err := m.db.First(&request, "id = ?", id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"success": false,
+			"error":   "Contact request not found",
+		})
+		return
+	}
+
+	now := time.Now()
+	request.Status = "rejected"
+	request.HandledAt = &now
+
+	if err := m.db.Save(&request).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"error":   "Failed to reject contact request",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    request,
+	})
+}
+
 // --- Player Management ---
 
 // CreatePlayerRequest represents the request to create a player

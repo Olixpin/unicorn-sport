@@ -698,7 +698,7 @@
             </div>
             
             <NuxtLink 
-              to="/academies" 
+              to="/discover" 
               class="inline-flex items-center gap-2 text-primary-600 font-semibold hover:text-primary-700 transition-colors group"
             >
               View Partner Academies

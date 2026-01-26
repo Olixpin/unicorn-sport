@@ -1,140 +1,399 @@
 <template>
-  <div>
-    <div class="flex items-center justify-between mb-8">
+  <div class="max-w-7xl mx-auto">
+    <!-- Page Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
       <div>
         <h1 class="font-display text-2xl lg:text-3xl font-bold text-neutral-900">
           Contact Requests
         </h1>
-        <p class="mt-1 text-neutral-600">Manage scout contact requests to players.</p>
+        <p class="mt-1 text-neutral-600">Manage and review scout contact requests to players.</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <button
+          @click="fetchContacts"
+          class="inline-flex items-center gap-2 px-4 py-2.5 border border-neutral-300 rounded-xl text-sm font-medium text-neutral-700 bg-white hover:bg-neutral-50 transition-colors"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Refresh
+        </button>
       </div>
     </div>
 
-    <!-- Filters -->
-    <div class="bg-white rounded-lg border border-neutral-200 p-4 mb-6">
-      <div class="flex flex-col sm:flex-row gap-4">
-        <div class="flex-1">
-          <UInput
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <!-- Total Requests -->
+      <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-5 text-white shadow-lg shadow-blue-500/25">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-blue-100 text-sm font-medium">Total Requests</p>
+            <p class="text-3xl font-bold mt-1">{{ total }}</p>
+          </div>
+          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-2m-4-1v8m0 0l3-3m-3 3L9 8m-5 5h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293h3.172a1 1 0 00.707-.293l2.414-2.414a1 1 0 01.707-.293H20" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pending -->
+      <div class="bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl p-5 text-white shadow-lg shadow-amber-500/25">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-amber-100 text-sm font-medium">Pending Review</p>
+            <p class="text-3xl font-bold mt-1">{{ pendingCount }}</p>
+          </div>
+          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Approved -->
+      <div class="bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl p-5 text-white shadow-lg shadow-emerald-500/25">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-emerald-100 text-sm font-medium">Approved</p>
+            <p class="text-3xl font-bold mt-1">{{ approvedCount }}</p>
+          </div>
+          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rejected -->
+      <div class="bg-gradient-to-br from-rose-500 to-red-600 rounded-2xl p-5 text-white shadow-lg shadow-rose-500/25">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-rose-100 text-sm font-medium">Rejected</p>
+            <p class="text-3xl font-bold mt-1">{{ rejectedCount }}</p>
+          </div>
+          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters & Search -->
+    <div class="bg-white rounded-2xl border border-neutral-200 p-4 mb-6 shadow-sm">
+      <div class="flex flex-col lg:flex-row gap-4">
+        <!-- Search Input -->
+        <div class="flex-1 relative">
+          <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <input
             v-model="searchQuery"
-            placeholder="Search by player or scout..."
+            type="text"
+            placeholder="Search by player name, scout name, or email..."
+            class="w-full pl-12 pr-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
             @keyup.enter="fetchContacts"
           />
         </div>
-        <select
-          v-model="statusFilter"
-          class="px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-          @change="fetchContacts"
+
+        <!-- Status Filter -->
+        <div class="flex flex-wrap items-center gap-2">
+          <button
+            v-for="status in statusOptions"
+            :key="status.value"
+            @click="statusFilter = status.value; fetchContacts()"
+            :class="[
+              'px-4 py-2.5 rounded-xl text-sm font-medium transition-all',
+              statusFilter === status.value
+                ? status.activeClass
+                : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
+            ]"
+          >
+            {{ status.label }}
+          </button>
+        </div>
+
+        <!-- Search Button -->
+        <button
+          @click="fetchContacts"
+          class="px-6 py-2.5 bg-primary-600 text-white rounded-xl text-sm font-semibold hover:bg-primary-700 transition-colors shadow-lg shadow-primary-600/25"
         >
-          <option value="">All Status</option>
-          <option value="pending">Pending</option>
-          <option value="approved">Approved</option>
-          <option value="rejected">Rejected</option>
-        </select>
-        <UButton variant="outline" @click="fetchContacts">Search</UButton>
+          Search
+        </button>
+
+        <!-- Clear Filters -->
+        <button
+          v-if="hasActiveFilters"
+          @click="clearFilters"
+          class="px-4 py-2.5 text-neutral-600 hover:text-neutral-900 text-sm font-medium transition-colors"
+        >
+          Clear
+        </button>
       </div>
     </div>
 
-    <!-- Loading -->
-    <div v-if="loading" class="flex justify-center py-12">
-      <USpinner size="lg" />
+    <!-- Loading State -->
+    <div v-if="loading" class="flex flex-col items-center justify-center py-20">
+      <div class="w-12 h-12 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin"></div>
+      <p class="mt-4 text-neutral-600">Loading contact requests...</p>
     </div>
 
     <!-- Contacts Table -->
-    <div v-else class="bg-white rounded-lg border border-neutral-200 overflow-hidden">
-      <table class="min-w-full divide-y divide-neutral-200">
-        <thead class="bg-neutral-50">
-          <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-              Scout
-            </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-              Player
-            </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-              Message
-            </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-              Status
-            </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-              Date
-            </th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider">
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-neutral-200">
-          <tr v-for="contact in contacts" :key="contact.id" class="hover:bg-neutral-50">
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="text-sm font-medium text-neutral-900">{{ contact.scout_name }}</div>
-              <div class="text-sm text-neutral-500">{{ contact.scout_email }}</div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="text-sm font-medium text-neutral-900">{{ contact.player_name }}</div>
-            </td>
-            <td class="px-6 py-4">
-              <p class="text-sm text-neutral-600 max-w-xs truncate">
-                {{ contact.message || 'No message' }}
-              </p>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <UBadge :variant="statusVariant(contact.status)">
-                {{ contact.status }}
-              </UBadge>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
-              {{ formatDate(contact.created_at) }}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-              <div v-if="contact.status === 'pending'" class="flex items-center justify-end space-x-2">
-                <UButton size="sm" @click="updateStatus(contact.id, 'approved')">
-                  Approve
-                </UButton>
-                <UButton
-                  size="sm"
-                  variant="outline"
-                  class="text-red-600"
-                  @click="updateStatus(contact.id, 'rejected')"
-                >
-                  Reject
-                </UButton>
-              </div>
-              <span v-else class="text-neutral-400">—</span>
-            </td>
-          </tr>
-          <tr v-if="contacts.length === 0">
-            <td colspan="6" class="px-6 py-12 text-center text-neutral-500">
-              No contact requests found.
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div v-else class="bg-white rounded-2xl border border-neutral-200 overflow-hidden shadow-sm">
+      <!-- Table Header -->
+      <div class="px-6 py-4 border-b border-neutral-200 bg-neutral-50/50">
+        <div class="flex items-center justify-between">
+          <h3 class="font-semibold text-neutral-900">All Requests</h3>
+          <span class="text-sm text-neutral-500">{{ total }} total requests</span>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-neutral-200">
+          <thead>
+            <tr class="bg-neutral-50">
+              <th class="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+                Scout
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+                Player
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+                Message
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+                Status
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+                Date
+              </th>
+              <th class="px-6 py-4 text-right text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-neutral-100">
+            <tr 
+              v-for="contact in contacts" 
+              :key="contact.id" 
+              class="hover:bg-neutral-50/50 transition-colors group"
+            >
+              <!-- Scout Info -->
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center text-white font-semibold text-sm shadow-lg shadow-purple-500/25">
+                    {{ getInitials(contact.scout_name) }}
+                  </div>
+                  <div>
+                    <div class="font-medium text-neutral-900">{{ contact.scout_name || 'Unknown Scout' }}</div>
+                    <div class="text-sm text-neutral-500">{{ contact.scout_email }}</div>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Player Info -->
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-emerald-600 rounded-xl flex items-center justify-center text-white font-semibold text-sm shadow-lg shadow-primary-500/25">
+                    {{ getInitials(contact.player_name) }}
+                  </div>
+                  <div class="font-medium text-neutral-900">{{ contact.player_name || 'Unknown Player' }}</div>
+                </div>
+              </td>
+
+              <!-- Message -->
+              <td class="px-6 py-4">
+                <div class="max-w-xs">
+                  <p 
+                    v-if="contact.message" 
+                    class="text-sm text-neutral-600 truncate cursor-pointer hover:text-neutral-900 transition-colors"
+                    :title="contact.message"
+                    @click="showMessageModal(contact)"
+                  >
+                    {{ contact.message }}
+                  </p>
+                  <span v-else class="text-sm text-neutral-400 italic">No message provided</span>
+                </div>
+              </td>
+
+              <!-- Status -->
+              <td class="px-6 py-4">
+                <span :class="getStatusBadgeClass(contact.status)">
+                  <span class="w-1.5 h-1.5 rounded-full" :class="getStatusDotClass(contact.status)"></span>
+                  {{ capitalizeFirst(contact.status) }}
+                </span>
+              </td>
+
+              <!-- Date -->
+              <td class="px-6 py-4">
+                <div>
+                  <div class="text-sm font-medium text-neutral-900">{{ formatDate(contact.created_at) }}</div>
+                  <div class="text-xs text-neutral-500">{{ formatTime(contact.created_at) }}</div>
+                </div>
+              </td>
+
+              <!-- Actions -->
+              <td class="px-6 py-4 text-right">
+                <div v-if="contact.status === 'pending'" class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    @click="updateStatus(contact.id, 'approved')"
+                    :disabled="updating === contact.id"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-lg text-sm font-medium hover:bg-emerald-100 transition-colors disabled:opacity-50"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Approve
+                  </button>
+                  <button
+                    @click="updateStatus(contact.id, 'rejected')"
+                    :disabled="updating === contact.id"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 text-rose-700 rounded-lg text-sm font-medium hover:bg-rose-100 transition-colors disabled:opacity-50"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Reject
+                  </button>
+                </div>
+                <div v-else class="flex items-center justify-end">
+                  <span v-if="contact.status === 'approved'" class="inline-flex items-center gap-1.5 text-emerald-600 text-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Approved
+                  </span>
+                  <span v-else class="inline-flex items-center gap-1.5 text-rose-600 text-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Rejected
+                  </span>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Empty State -->
+      <div v-if="contacts.length === 0 && !loading" class="px-6 py-16 text-center">
+        <div class="w-16 h-16 bg-neutral-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <svg class="w-8 h-8 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-2m-4-1v8m0 0l3-3m-3 3L9 8m-5 5h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293h3.172a1 1 0 00.707-.293l2.414-2.414a1 1 0 01.707-.293H20" />
+          </svg>
+        </div>
+        <h3 class="font-semibold text-neutral-900 mb-1">No contact requests found</h3>
+        <p class="text-neutral-500 text-sm mb-6">
+          {{ hasActiveFilters ? 'Try adjusting your filters to see more results.' : 'Contact requests from scouts will appear here.' }}
+        </p>
+        <button
+          v-if="hasActiveFilters"
+          @click="clearFilters"
+          class="inline-flex items-center gap-2 px-4 py-2 text-primary-600 hover:text-primary-700 font-medium text-sm transition-colors"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Clear filters
+        </button>
+      </div>
 
       <!-- Pagination -->
-      <div v-if="totalPages > 1" class="bg-white px-4 py-3 flex items-center justify-between border-t border-neutral-200">
-        <div class="text-sm text-neutral-700">
-          Showing {{ (page - 1) * perPage + 1 }} to {{ Math.min(page * perPage, total) }} of {{ total }} requests
-        </div>
-        <div class="flex space-x-2">
-          <UButton
-            size="sm"
-            variant="outline"
-            :disabled="page === 1"
-            @click="page--; fetchContacts()"
-          >
-            Previous
-          </UButton>
-          <UButton
-            size="sm"
-            variant="outline"
-            :disabled="page === totalPages"
-            @click="page++; fetchContacts()"
-          >
-            Next
-          </UButton>
+      <div v-if="totalPages > 1" class="px-6 py-4 border-t border-neutral-200 bg-neutral-50/50">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p class="text-sm text-neutral-600">
+            Showing <span class="font-medium">{{ (page - 1) * perPage + 1 }}</span> to 
+            <span class="font-medium">{{ Math.min(page * perPage, total) }}</span> of 
+            <span class="font-medium">{{ total }}</span> requests
+          </p>
+          <div class="flex items-center gap-2">
+            <button
+              :disabled="page === 1"
+              @click="page--; fetchContacts()"
+              class="inline-flex items-center gap-1 px-3 py-2 border border-neutral-300 rounded-lg text-sm font-medium text-neutral-700 bg-white hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+              </svg>
+              Previous
+            </button>
+            
+            <div class="hidden sm:flex items-center gap-1">
+              <button
+                v-for="pageNum in visiblePages"
+                :key="pageNum"
+                @click="page = pageNum; fetchContacts()"
+                :class="[
+                  'w-10 h-10 rounded-lg text-sm font-medium transition-colors',
+                  page === pageNum
+                    ? 'bg-primary-600 text-white shadow-lg shadow-primary-600/25'
+                    : 'text-neutral-700 hover:bg-neutral-100'
+                ]"
+              >
+                {{ pageNum }}
+              </button>
+            </div>
+
+            <button
+              :disabled="page === totalPages"
+              @click="page++; fetchContacts()"
+              class="inline-flex items-center gap-1 px-3 py-2 border border-neutral-300 rounded-lg text-sm font-medium text-neutral-700 bg-white hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              Next
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- Message Modal -->
+    <Teleport to="body">
+      <div 
+        v-if="selectedContact" 
+        class="fixed inset-0 z-50 flex items-center justify-center p-4"
+        @click.self="selectedContact = null"
+      >
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6">
+          <button
+            @click="selectedContact = null"
+            class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-neutral-100 transition-colors"
+          >
+            <svg class="w-5 h-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          
+          <div class="mb-4">
+            <h3 class="text-lg font-semibold text-neutral-900">Contact Message</h3>
+            <p class="text-sm text-neutral-500">From {{ selectedContact.scout_name }} to {{ selectedContact.player_name }}</p>
+          </div>
+          
+          <div class="bg-neutral-50 rounded-xl p-4 mb-6">
+            <p class="text-neutral-700 whitespace-pre-wrap">{{ selectedContact.message || 'No message provided' }}</p>
+          </div>
+          
+          <div class="flex items-center justify-between text-sm text-neutral-500">
+            <span>{{ formatDate(selectedContact.created_at) }} at {{ formatTime(selectedContact.created_at) }}</span>
+            <span :class="getStatusBadgeClass(selectedContact.status)">
+              {{ capitalizeFirst(selectedContact.status) }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -164,12 +423,87 @@ const toast = useToast()
 
 const contacts = ref<ContactRequest[]>([])
 const loading = ref(true)
+const updating = ref<string | null>(null)
 const searchQuery = ref('')
 const statusFilter = ref('')
 const page = ref(1)
 const perPage = ref(20)
 const total = ref(0)
+const selectedContact = ref<ContactRequest | null>(null)
+
 const totalPages = computed(() => Math.ceil(total.value / perPage.value))
+
+const pendingCount = computed(() => contacts.value.filter(c => c.status === 'pending').length)
+const approvedCount = computed(() => contacts.value.filter(c => c.status === 'approved').length)
+const rejectedCount = computed(() => contacts.value.filter(c => c.status === 'rejected').length)
+
+const hasActiveFilters = computed(() => searchQuery.value || statusFilter.value)
+
+const statusOptions = [
+  { value: '', label: 'All', activeClass: 'bg-neutral-900 text-white' },
+  { value: 'pending', label: 'Pending', activeClass: 'bg-amber-500 text-white' },
+  { value: 'approved', label: 'Approved', activeClass: 'bg-emerald-500 text-white' },
+  { value: 'rejected', label: 'Rejected', activeClass: 'bg-rose-500 text-white' },
+]
+
+const visiblePages = computed(() => {
+  const pages: number[] = []
+  const maxVisible = 5
+  let start = Math.max(1, page.value - Math.floor(maxVisible / 2))
+  const end = Math.min(totalPages.value, start + maxVisible - 1)
+  
+  if (end - start < maxVisible - 1) {
+    start = Math.max(1, end - maxVisible + 1)
+  }
+  
+  for (let i = start; i <= end; i++) {
+    pages.push(i)
+  }
+  return pages
+})
+
+function clearFilters() {
+  searchQuery.value = ''
+  statusFilter.value = ''
+  page.value = 1
+  fetchContacts()
+}
+
+function getInitials(name?: string): string {
+  if (!name) return '?'
+  return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+}
+
+function getStatusBadgeClass(status: string): string {
+  const baseClass = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium'
+  switch (status) {
+    case 'approved':
+      return `${baseClass} bg-emerald-50 text-emerald-700`
+    case 'rejected':
+      return `${baseClass} bg-rose-50 text-rose-700`
+    default:
+      return `${baseClass} bg-amber-50 text-amber-700`
+  }
+}
+
+function getStatusDotClass(status: string): string {
+  switch (status) {
+    case 'approved':
+      return 'bg-emerald-500'
+    case 'rejected':
+      return 'bg-rose-500'
+    default:
+      return 'bg-amber-500'
+  }
+}
+
+function capitalizeFirst(str: string): string {
+  return str.charAt(0).toUpperCase() + str.slice(1)
+}
+
+function showMessageModal(contact: ContactRequest) {
+  selectedContact.value = contact
+}
 
 async function fetchContacts() {
   loading.value = true
@@ -203,6 +537,7 @@ async function fetchContacts() {
 }
 
 async function updateStatus(contactId: string, status: 'approved' | 'rejected') {
+  updating.value = contactId
   try {
     const response = await $fetch<ApiResponse<null>>(`/admin/contacts/${contactId}/status`, {
       baseURL: config.public.apiBase,
@@ -220,17 +555,8 @@ async function updateStatus(contactId: string, status: 'approved' | 'rejected') 
   } catch (error: unknown) {
     const err = error as { data?: { message?: string } }
     toast.error('Error', err.data?.message || 'Failed to update status')
-  }
-}
-
-function statusVariant(status: string) {
-  switch (status) {
-    case 'approved':
-      return 'success'
-    case 'rejected':
-      return 'error'
-    default:
-      return 'warning'
+  } finally {
+    updating.value = null
   }
 }
 
@@ -239,6 +565,13 @@ function formatDate(dateString: string): string {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
+  })
+}
+
+function formatTime(dateString: string): string {
+  return new Date(dateString).toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
   })
 }
 

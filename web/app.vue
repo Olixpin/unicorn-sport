@@ -4,7 +4,9 @@
   </NuxtLayout>
   
   <!-- Global Toast Notifications -->
-  <UToast />
+  <ClientOnly>
+    <UiToast />
+  </ClientOnly>
 </template>
 
 <script setup lang="ts">
@@ -12,13 +14,11 @@
 const authStore = useAuthStore()
 const subscriptionStore = useSubscriptionStore()
 
-onMounted(() => {
-  // Check for stored token and initialize auth
-  authStore.initFromStorage()
-  
-  // If authenticated, fetch subscription status
-  if (authStore.isAuthenticated) {
-    subscriptionStore.fetchSubscription()
-  }
-})
+// Initialize auth from cookies (works on both server and client)
+await authStore.initFromStorage()
+
+// If authenticated, fetch subscription status
+if (authStore.isAuthenticated) {
+  subscriptionStore.fetchSubscription()
+}
 </script>

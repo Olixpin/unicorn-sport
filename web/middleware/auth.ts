@@ -1,8 +1,13 @@
 import { useAuthStore } from '~/stores/auth'
 import type { RouteLocationNormalized } from 'vue-router'
 
-export default defineNuxtRouteMiddleware((to: RouteLocationNormalized) => {
+export default defineNuxtRouteMiddleware(async (to: RouteLocationNormalized) => {
   const authStore = useAuthStore()
+  
+  // Initialize auth from cookies/storage
+  if (!authStore.initialized) {
+    await authStore.initFromStorage()
+  }
   
   // Check if user is authenticated
   if (!authStore.isAuthenticated) {

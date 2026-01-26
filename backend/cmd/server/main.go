@@ -207,6 +207,11 @@ func setupRouter(
 				// Academy management (placeholder)
 				adminRoutes.GET("/academies", adminModule.ListAcademies)
 
+				// Contact request management
+				adminRoutes.GET("/contact-requests", adminModule.ListContactRequests)
+				adminRoutes.PUT("/contact-requests/:id/approve", adminModule.ApproveContactRequest)
+				adminRoutes.PUT("/contact-requests/:id/reject", adminModule.RejectContactRequest)
+
 				// Player management
 				adminRoutes.GET("/players", adminModule.ListPlayers)
 				adminRoutes.POST("/players", adminModule.CreatePlayer)

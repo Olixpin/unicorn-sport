@@ -1,162 +1,445 @@
 <template>
-  <div>
+  <div class="max-w-6xl mx-auto">
+    <!-- Page Header -->
     <div class="mb-8">
-      <div class="flex items-center">
-        <NuxtLink to="/admin/players" class="text-neutral-500 hover:text-neutral-700">
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-          </svg>
-        </NuxtLink>
-        <h1 class="ml-4 font-display text-2xl lg:text-3xl font-bold text-neutral-900">
-          Add New Player
-        </h1>
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <NuxtLink 
+            to="/admin/players" 
+            class="w-10 h-10 flex items-center justify-center rounded-xl bg-neutral-100 hover:bg-neutral-200 text-neutral-600 transition-colors"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+          </NuxtLink>
+          <div>
+            <h1 class="font-display text-2xl lg:text-3xl font-bold text-neutral-900">
+              Add New Player
+            </h1>
+            <p class="mt-1 text-neutral-600">Create a new player profile in the system.</p>
+          </div>
+        </div>
+        
+        <!-- Progress Indicator -->
+        <div class="flex items-center gap-2 px-4 py-2 bg-neutral-100 rounded-xl">
+          <div class="flex items-center gap-1.5">
+            <div :class="[
+              'w-2.5 h-2.5 rounded-full transition-colors',
+              form.first_name && form.last_name ? 'bg-emerald-500' : 'bg-neutral-300'
+            ]"></div>
+            <span class="text-xs font-medium text-neutral-600">Identity</span>
+          </div>
+          <div class="w-4 h-px bg-neutral-300"></div>
+          <div class="flex items-center gap-1.5">
+            <div :class="[
+              'w-2.5 h-2.5 rounded-full transition-colors',
+              form.position && form.date_of_birth ? 'bg-emerald-500' : 'bg-neutral-300'
+            ]"></div>
+            <span class="text-xs font-medium text-neutral-600">Details</span>
+          </div>
+          <div class="w-4 h-px bg-neutral-300"></div>
+          <div class="flex items-center gap-1.5">
+            <div :class="[
+              'w-2.5 h-2.5 rounded-full transition-colors',
+              form.country ? 'bg-emerald-500' : 'bg-neutral-300'
+            ]"></div>
+            <span class="text-xs font-medium text-neutral-600">Location</span>
+          </div>
+        </div>
       </div>
-      <p class="mt-2 text-neutral-600 ml-9">Create a new player profile in the system.</p>
     </div>
 
-    <form @submit.prevent="handleSubmit" class="max-w-3xl">
-      <!-- Basic Information -->
-      <UCard class="mb-6">
-        <template #header>
-          <h2 class="font-semibold text-neutral-900">Basic Information</h2>
-        </template>
+    <!-- Form -->
+    <form @submit.prevent="handleSubmit">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Content -->
+        <div class="lg:col-span-2 space-y-6">
+          <!-- Basic Information -->
+          <div class="bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-neutral-200 bg-gradient-to-r from-primary-50 to-emerald-50">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-emerald-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary-500/25">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+                <div>
+                  <h2 class="font-semibold text-neutral-900">Basic Information</h2>
+                  <p class="text-sm text-neutral-500">Player identity and personal details</p>
+                </div>
+              </div>
+            </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <UInput
-            v-model="form.first_name"
-            label="First Name *"
-            placeholder="John"
-            :error="errors.first_name"
-          />
-          <UInput
-            v-model="form.last_name"
-            label="Last Name *"
-            placeholder="Doe"
-            :error="errors.last_name"
-          />
-        </div>
+            <div class="p-6 space-y-5">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                  <label class="block text-sm font-medium text-neutral-700 mb-2">First Name *</label>
+                  <input
+                    v-model="form.first_name"
+                    type="text"
+                    placeholder="John"
+                    :class="[
+                      'w-full px-4 py-3 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all',
+                      errors.first_name ? 'border-red-300 bg-red-50' : 'border-neutral-200 bg-neutral-50'
+                    ]"
+                  />
+                  <p v-if="errors.first_name" class="mt-1.5 text-sm text-red-600">{{ errors.first_name }}</p>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-neutral-700 mb-2">Last Name *</label>
+                  <input
+                    v-model="form.last_name"
+                    type="text"
+                    placeholder="Doe"
+                    :class="[
+                      'w-full px-4 py-3 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all',
+                      errors.last_name ? 'border-red-300 bg-red-50' : 'border-neutral-200 bg-neutral-50'
+                    ]"
+                  />
+                  <p v-if="errors.last_name" class="mt-1.5 text-sm text-red-600">{{ errors.last_name }}</p>
+                </div>
+              </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-          <UInput
-            v-model="form.date_of_birth"
-            label="Date of Birth *"
-            type="date"
-            :error="errors.date_of_birth"
-          />
-          <div>
-            <label class="block text-sm font-medium text-neutral-700 mb-1">Position *</label>
-            <select
-              v-model="form.position"
-              class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-              :class="{ 'border-red-500': errors.position }"
-            >
-              <option value="">Select position</option>
-              <option v-for="pos in PLAYER_POSITIONS" :key="pos" :value="pos">
-                {{ pos }}
-              </option>
-            </select>
-            <p v-if="errors.position" class="mt-1 text-sm text-red-500">{{ errors.position }}</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                  <label class="block text-sm font-medium text-neutral-700 mb-2">Date of Birth *</label>
+                  <input
+                    v-model="form.date_of_birth"
+                    type="date"
+                    :class="[
+                      'w-full px-4 py-3 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all',
+                      errors.date_of_birth ? 'border-red-300 bg-red-50' : 'border-neutral-200 bg-neutral-50'
+                    ]"
+                  />
+                  <p v-if="errors.date_of_birth" class="mt-1.5 text-sm text-red-600">{{ errors.date_of_birth }}</p>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-neutral-700 mb-2">Position *</label>
+                  <div class="relative">
+                    <select
+                      v-model="form.position"
+                      class="appearance-none w-full px-4 py-3 pr-10 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                    >
+                      <option value="">Select position</option>
+                      <option v-for="pos in PLAYER_POSITIONS" :key="pos" :value="pos">
+                        {{ pos }}
+                      </option>
+                    </select>
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                      <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                <div>
+                  <label class="block text-sm font-medium text-neutral-700 mb-2">Preferred Foot</label>
+                  <div class="relative">
+                    <select
+                      v-model="form.preferred_foot"
+                      class="appearance-none w-full px-4 py-3 pr-10 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                    >
+                      <option value="">Select</option>
+                      <option value="right">Right</option>
+                      <option value="left">Left</option>
+                      <option value="both">Both</option>
+                    </select>
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                      <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-neutral-700 mb-2">Height (cm)</label>
+                  <input
+                    v-model.number="form.height_cm"
+                    type="number"
+                    placeholder="175"
+                    min="100"
+                    max="250"
+                    class="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-neutral-700 mb-2">Weight (kg)</label>
+                  <input
+                    v-model.number="form.weight_kg"
+                    type="number"
+                    placeholder="70"
+                    min="30"
+                    max="150"
+                    class="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Location -->
+          <div class="bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-neutral-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-500/25">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <h2 class="font-semibold text-neutral-900">Location</h2>
+                  <p class="text-sm text-neutral-500">Where the player is based</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="p-6 space-y-5">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                  <label class="block text-sm font-medium text-neutral-700 mb-2">Country *</label>
+                  <div class="relative">
+                    <select
+                      v-model="form.country"
+                      class="appearance-none w-full px-4 py-3 pr-10 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                    >
+                      <option value="">Select country</option>
+                      <option v-for="country in AFRICAN_COUNTRIES" :key="country" :value="country">
+                        {{ country }}
+                      </option>
+                    </select>
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                      <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-neutral-700 mb-2">State/Region</label>
+                  <input
+                    v-model="form.state"
+                    type="text"
+                    placeholder="Lagos State"
+                    class="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                  />
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                  <label class="block text-sm font-medium text-neutral-700 mb-2">City</label>
+                  <input
+                    v-model="form.city"
+                    type="text"
+                    placeholder="Lagos"
+                    class="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-neutral-700 mb-2">School Name</label>
+                  <input
+                    v-model="form.school_name"
+                    type="text"
+                    placeholder="Secondary School"
+                    class="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Academy Assignment -->
+          <div class="bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-neutral-200 bg-gradient-to-r from-amber-50 to-orange-50">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-amber-500/25">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                </div>
+                <div>
+                  <h2 class="font-semibold text-neutral-900">Academy Assignment</h2>
+                  <p class="text-sm text-neutral-500">Optionally assign to a partner academy</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="p-6">
+              <div class="relative">
+                <select
+                  v-model="form.academy_id"
+                  class="appearance-none w-full px-4 py-3 pr-10 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                >
+                  <option value="">No academy assigned</option>
+                  <option v-for="academy in academies" :key="academy.id" :value="academy.id">
+                    {{ academy.name }}
+                  </option>
+                </select>
+                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                  <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+              <p class="mt-3 text-xs text-neutral-500 flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                This links the player to an academy for tracking and management purposes.
+              </p>
+            </div>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
-          <div>
-            <label class="block text-sm font-medium text-neutral-700 mb-1">Preferred Foot</label>
-            <select
-              v-model="form.preferred_foot"
-              class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-            >
-              <option value="">Select</option>
-              <option value="right">Right</option>
-              <option value="left">Left</option>
-              <option value="both">Both</option>
-            </select>
+        <!-- Sidebar -->
+        <div class="space-y-6">
+          <!-- Player Preview Card -->
+          <div class="bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-neutral-200">
+              <h3 class="font-semibold text-neutral-900">Player Preview</h3>
+            </div>
+            <div class="p-6 flex flex-col items-center">
+              <!-- Avatar with initials -->
+              <div class="w-20 h-20 bg-gradient-to-br from-primary-500 to-emerald-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-primary-500/25">
+                {{ getInitials(form.first_name, form.last_name) }}
+              </div>
+              <h4 class="mt-4 font-semibold text-neutral-900 text-center">
+                {{ form.first_name || 'First' }} {{ form.last_name || 'Last' }}
+              </h4>
+              <p class="text-sm text-neutral-500">{{ form.position || 'Position' }}</p>
+              
+              <!-- Stats Preview -->
+              <div class="mt-4 w-full grid grid-cols-3 gap-3">
+                <div class="text-center p-2 bg-neutral-50 rounded-lg">
+                  <p class="text-xs text-neutral-500">Age</p>
+                  <p class="font-semibold text-neutral-900">{{ playerAge || '—' }}</p>
+                </div>
+                <div class="text-center p-2 bg-neutral-50 rounded-lg">
+                  <p class="text-xs text-neutral-500">Height</p>
+                  <p class="font-semibold text-neutral-900">{{ form.height_cm || '—' }}</p>
+                </div>
+                <div class="text-center p-2 bg-neutral-50 rounded-lg">
+                  <p class="text-xs text-neutral-500">Weight</p>
+                  <p class="font-semibold text-neutral-900">{{ form.weight_kg || '—' }}</p>
+                </div>
+              </div>
+
+              <!-- Location Preview -->
+              <div class="mt-4 flex items-center gap-2 text-xs text-neutral-400">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                </svg>
+                <span>{{ form.city || 'City' }}, {{ form.country || 'Country' }}</span>
+              </div>
+
+              <!-- Foot indicator -->
+              <div v-if="form.preferred_foot" class="mt-3 flex items-center gap-1.5 px-3 py-1 bg-neutral-100 rounded-full">
+                <svg class="w-4 h-4 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 17l-4 4m0 0l-4-4m4 4V3" />
+                </svg>
+                <span class="text-xs font-medium text-neutral-600 capitalize">{{ form.preferred_foot }} Foot</span>
+              </div>
+            </div>
           </div>
-          <UInput
-            v-model.number="form.height_cm"
-            label="Height (cm)"
-            type="number"
-            placeholder="175"
-          />
-          <UInput
-            v-model.number="form.weight_kg"
-            label="Weight (kg)"
-            type="number"
-            placeholder="70"
-          />
-        </div>
-      </UCard>
 
-      <!-- Location -->
-      <UCard class="mb-6">
-        <template #header>
-          <h2 class="font-semibold text-neutral-900">Location</h2>
-        </template>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-neutral-700 mb-1">Country *</label>
-            <select
-              v-model="form.country"
-              class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-              :class="{ 'border-red-500': errors.country }"
-            >
-              <option value="">Select country</option>
-              <option v-for="country in AFRICAN_COUNTRIES" :key="country" :value="country">
-                {{ country }}
-              </option>
-            </select>
-            <p v-if="errors.country" class="mt-1 text-sm text-red-500">{{ errors.country }}</p>
+          <!-- Verification Status -->
+          <div class="bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-neutral-200 bg-gradient-to-r from-emerald-50 to-green-50">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-gradient-to-br from-emerald-500 to-green-600 rounded-lg flex items-center justify-center text-white shadow-lg shadow-emerald-500/25">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                  </svg>
+                </div>
+                <h3 class="font-semibold text-neutral-900">Verification</h3>
+              </div>
+            </div>
+            <div class="p-6">
+              <label class="flex items-center gap-3 cursor-pointer">
+                <div class="relative">
+                  <input
+                    v-model="form.is_verified"
+                    type="checkbox"
+                    class="sr-only peer"
+                  />
+                  <div class="w-11 h-6 bg-neutral-200 rounded-full peer-checked:bg-emerald-500 transition-colors"></div>
+                  <div class="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow peer-checked:translate-x-5 transition-transform"></div>
+                </div>
+                <div>
+                  <span class="text-sm font-medium text-neutral-900">Verified Player</span>
+                  <p class="text-xs text-neutral-500">Player will be visible to scouts</p>
+                </div>
+              </label>
+            </div>
           </div>
-          <UInput
-            v-model="form.state"
-            label="State/Region"
-            placeholder="Lagos State"
-          />
+
+          <!-- Tips Card -->
+          <div class="bg-gradient-to-br from-violet-50 to-purple-50 rounded-2xl border border-violet-100 p-5">
+            <div class="flex items-start gap-3">
+              <div class="w-8 h-8 bg-violet-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <svg class="w-4 h-4 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+              </div>
+              <div>
+                <h4 class="font-medium text-violet-900 mb-1">Tips for Better Profiles</h4>
+                <ul class="text-xs text-violet-700 space-y-1.5">
+                  <li class="flex items-start gap-1.5">
+                    <span class="text-violet-400 mt-0.5">•</span>
+                    Complete all required fields for visibility
+                  </li>
+                  <li class="flex items-start gap-1.5">
+                    <span class="text-violet-400 mt-0.5">•</span>
+                    Accurate height and weight attract scouts
+                  </li>
+                  <li class="flex items-start gap-1.5">
+                    <span class="text-violet-400 mt-0.5">•</span>
+                    Verify players after document review
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden">
+            <div class="p-6 space-y-3">
+              <button
+                type="submit"
+                :disabled="submitting"
+                class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-primary-600 to-emerald-600 text-white rounded-xl text-sm font-semibold hover:from-primary-700 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-primary-600/25"
+              >
+                <svg v-if="submitting" class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" />
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                {{ submitting ? 'Creating...' : 'Create Player' }}
+              </button>
+              
+              <NuxtLink to="/admin/players" class="block">
+                <button
+                  type="button"
+                  class="w-full px-6 py-3 border border-neutral-300 text-neutral-700 rounded-xl text-sm font-medium hover:bg-neutral-50 transition-colors"
+                >
+                  Cancel
+                </button>
+              </NuxtLink>
+            </div>
+          </div>
+
+          <!-- Keyboard Shortcuts -->
+          <div class="text-center text-xs text-neutral-400 space-y-1">
+            <p><kbd class="px-1.5 py-0.5 bg-neutral-100 rounded text-neutral-500">⌘</kbd> + <kbd class="px-1.5 py-0.5 bg-neutral-100 rounded text-neutral-500">Enter</kbd> to submit</p>
+            <p><kbd class="px-1.5 py-0.5 bg-neutral-100 rounded text-neutral-500">Esc</kbd> to cancel</p>
+          </div>
         </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-          <UInput
-            v-model="form.city"
-            label="City"
-            placeholder="Lagos"
-          />
-          <UInput
-            v-model="form.school_name"
-            label="School Name"
-            placeholder="Secondary School"
-          />
-        </div>
-      </UCard>
-
-      <!-- Academy Assignment -->
-      <UCard class="mb-6">
-        <template #header>
-          <h2 class="font-semibold text-neutral-900">Academy Assignment</h2>
-        </template>
-
-        <div>
-          <label class="block text-sm font-medium text-neutral-700 mb-1">Academy</label>
-          <select
-            v-model="form.academy_id"
-            class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-          >
-            <option value="">No academy assigned</option>
-            <option v-for="academy in academies" :key="academy.id" :value="academy.id">
-              {{ academy.name }}
-            </option>
-          </select>
-        </div>
-      </UCard>
-
-      <!-- Actions -->
-      <div class="flex justify-end space-x-4">
-        <NuxtLink to="/admin/players">
-          <UButton variant="ghost">Cancel</UButton>
-        </NuxtLink>
-        <UButton type="submit" :loading="submitting">
-          Create Player
-        </UButton>
       </div>
     </form>
   </div>
@@ -193,11 +476,32 @@ const form = reactive({
   city: '',
   school_name: '',
   academy_id: '',
+  is_verified: false,
 })
 
 const errors = reactive<Record<string, string>>({})
 const submitting = ref(false)
 const academies = ref<Academy[]>([])
+
+// Computed player age from DOB
+const playerAge = computed(() => {
+  if (!form.date_of_birth) return null
+  const dob = new Date(form.date_of_birth)
+  const today = new Date()
+  let age = today.getFullYear() - dob.getFullYear()
+  const monthDiff = today.getMonth() - dob.getMonth()
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+    age--
+  }
+  return age
+})
+
+// Generate initials from name
+function getInitials(firstName: string, lastName: string): string {
+  const f = firstName?.charAt(0)?.toUpperCase() || ''
+  const l = lastName?.charAt(0)?.toUpperCase() || ''
+  return f + l || '??'
+}
 
 // Fetch academies for dropdown
 onMounted(async () => {
@@ -214,19 +518,51 @@ onMounted(async () => {
   } catch (error) {
     console.error('Failed to fetch academies:', error)
   }
+
+  // Add keyboard shortcuts
+  window.addEventListener('keydown', handleKeyDown)
 })
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeyDown)
+})
+
+function handleKeyDown(e: KeyboardEvent) {
+  // Cmd/Ctrl + Enter to submit
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+    e.preventDefault()
+    handleSubmit()
+  }
+  // Escape to cancel
+  if (e.key === 'Escape') {
+    router.push('/admin/players')
+  }
+}
 
 function validateForm(): boolean {
   // Clear previous errors
   Object.keys(errors).forEach((key) => delete errors[key])
 
-  const result = playerSchema.safeParse({
-    ...form,
+  // Build validation object, converting empty strings to undefined for optional fields
+  const validationData = {
+    first_name: form.first_name,
+    last_name: form.last_name,
+    date_of_birth: form.date_of_birth,
+    position: form.position || undefined,
     preferred_foot: form.preferred_foot || undefined,
+    height_cm: form.height_cm || undefined,
+    weight_kg: form.weight_kg || undefined,
+    country: form.country,
+    state: form.state || undefined,
+    city: form.city || undefined,
+    school_name: form.school_name || undefined,
     academy_id: form.academy_id || undefined,
-  })
+  }
+
+  const result = playerSchema.safeParse(validationData)
 
   if (!result.success) {
+    console.log('Validation errors:', result.error.errors)
     result.error.errors.forEach((err) => {
       const field = err.path[0] as string
       errors[field] = err.message
@@ -247,11 +583,27 @@ async function handleSubmit() {
 
   try {
     const authStore = useAuthStore()
-    const payload = {
-      ...form,
-      preferred_foot: form.preferred_foot || undefined,
-      academy_id: form.academy_id || undefined,
+    
+    // Build payload, converting empty strings to undefined
+    const payload: Record<string, unknown> = {
+      first_name: form.first_name,
+      last_name: form.last_name,
+      date_of_birth: form.date_of_birth,
+      position: form.position,
+      country: form.country,
+      is_verified: form.is_verified,
     }
+    
+    // Only include optional fields if they have values
+    if (form.preferred_foot) payload.preferred_foot = form.preferred_foot
+    if (form.height_cm) payload.height_cm = form.height_cm
+    if (form.weight_kg) payload.weight_kg = form.weight_kg
+    if (form.state) payload.state = form.state
+    if (form.city) payload.city = form.city
+    if (form.school_name) payload.school_name = form.school_name
+    if (form.academy_id) payload.academy_id = form.academy_id
+
+    console.log('Submitting payload:', payload)
 
     const response = await $fetch<ApiResponse<{ player: { id: string } }>>('/admin/players', {
       baseURL: config.public.apiBase,
@@ -269,6 +621,7 @@ async function handleSubmit() {
       toast.error('Error', response.message || 'Failed to create player')
     }
   } catch (error: unknown) {
+    console.error('Submit error:', error)
     const err = error as { data?: { message?: string } }
     toast.error('Error', err.data?.message || 'An unexpected error occurred')
   } finally {
