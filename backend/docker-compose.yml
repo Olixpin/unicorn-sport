@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - ENVIRONMENT=development
+      - PORT=8080
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=unicorn
+      - DB_PASSWORD=localdev
+      - DB_NAME=unicorn_sport
+      - DB_SSLMODE=disable
+      - JWT_SECRET=dev-jwt-secret-not-for-production-256-bits-long
+      - JWT_ACCESS_TTL_MINUTES=15
+      - JWT_REFRESH_TTL_DAYS=7
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_S3_BUCKET=unicorn-sport-media
+      - AWS_CLOUDFRONT_URL=http://localhost:8080/static
+      - STRIPE_SECRET_KEY=sk_test_placeholder
+      - STRIPE_WEBHOOK_SECRET=whsec_placeholder
+      - STRIPE_PRICE_SCOUT=price_scout
+      - STRIPE_PRICE_PRO=price_pro
+      - STRIPE_PRICE_ENTERPRISE=price_enterprise
+      - STRIPE_SUCCESS_URL=http://localhost:3000/subscription/success
+      - STRIPE_CANCEL_URL=http://localhost:3000/subscription/cancel
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    ports:
+      - "5434:5432"
+    environment:
+      - POSTGRES_DB=unicorn_sport
+      - POSTGRES_USER=unicorn
+      - POSTGRES_PASSWORD=localdev
+    volumes:
+      - postgres_dev:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U unicorn -d unicorn_sport"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  postgres_dev:
