@@ -201,6 +201,12 @@ func setupRouter(
 			adminRoutes := protected.Group("/admin")
 			adminRoutes.Use(middleware.AdminMiddleware())
 			{
+				// Dashboard stats
+				adminRoutes.GET("/stats", adminModule.GetStats)
+
+				// Academy management (placeholder)
+				adminRoutes.GET("/academies", adminModule.ListAcademies)
+
 				// Player management
 				adminRoutes.GET("/players", adminModule.ListPlayers)
 				adminRoutes.POST("/players", adminModule.CreatePlayer)

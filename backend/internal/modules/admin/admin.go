@@ -27,6 +27,47 @@ func NewAdminModule(db *gorm.DB) *AdminModule {
 	return &AdminModule{db: db}
 }
 
+// --- Dashboard Stats ---
+
+// GetStats returns dashboard statistics for admin
+func (m *AdminModule) GetStats(c *gin.Context) {
+	var totalPlayers int64
+	var verifiedPlayers int64
+	var totalScouts int64
+	var totalVideos int64
+	var totalTournaments int64
+
+	m.db.Model(&domain.Player{}).Count(&totalPlayers)
+	m.db.Model(&domain.Player{}).Where("is_verified = ?", true).Count(&verifiedPlayers)
+	m.db.Model(&domain.User{}).Where("role = ?", "scout").Count(&totalScouts)
+	m.db.Model(&domain.Video{}).Count(&totalVideos)
+	m.db.Model(&domain.Tournament{}).Count(&totalTournaments)
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data": gin.H{
+			"total_players":    totalPlayers,
+			"verified_players": verifiedPlayers,
+			"total_scouts":     totalScouts,
+			"total_videos":     totalVideos,
+			"total_events":     totalTournaments,
+		},
+	})
+}
+
+// --- Academy Management ---
+
+// ListAcademies returns all academies (placeholder - academies don't exist yet)
+func (m *AdminModule) ListAcademies(c *gin.Context) {
+	// Return empty list since academies table doesn't exist yet
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data": gin.H{
+			"academies": []interface{}{},
+		},
+	})
+}
+
 // --- Player Management ---
 
 // CreatePlayerRequest represents the request to create a player
