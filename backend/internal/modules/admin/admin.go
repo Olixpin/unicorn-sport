@@ -97,9 +97,9 @@ func (m *AdminModule) ListAcademies(c *gin.Context) {
 		query = query.Where("LOWER(name) LIKE ? OR LOWER(city) LIKE ?", searchPattern, searchPattern)
 	}
 
-	// Country filter
+	// Country filter (case-insensitive)
 	if country := c.Query("country"); country != "" {
-		query = query.Where("country = ?", country)
+		query = query.Where("LOWER(country) = LOWER(?)", country)
 	}
 
 	// Status filter

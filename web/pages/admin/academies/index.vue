@@ -138,9 +138,25 @@
             v-model="searchQuery"
             type="text"
             placeholder="Search by academy name, city..."
-            class="w-full pl-12 pr-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
-            @keyup.enter="fetchAcademies"
+            class="w-full pl-12 pr-10 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
           />
+          <!-- Loading indicator for search -->
+          <div v-if="isSearching" class="absolute inset-y-0 right-0 pr-4 flex items-center">
+            <svg class="w-4 h-4 text-neutral-400 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </div>
+          <!-- Clear search button -->
+          <button 
+            v-else-if="searchQuery" 
+            @click="searchQuery = ''"
+            class="absolute inset-y-0 right-0 pr-4 flex items-center text-neutral-400 hover:text-neutral-600"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
 
         <!-- Country Filter -->
@@ -148,7 +164,7 @@
           <select
             v-model="countryFilter"
             class="appearance-none px-4 py-3 pr-10 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all min-w-[180px]"
-            @change="fetchAcademies"
+            @change="page = 1; fetchAcademies()"
           >
             <option value="">All Countries</option>
             <option v-for="country in AFRICAN_COUNTRIES" :key="country" :value="country">
@@ -416,6 +432,7 @@ const toast = useToast()
 
 const academies = ref<Academy[]>([])
 const loading = ref(true)
+const isSearching = ref(false)
 const searchQuery = ref('')
 const countryFilter = ref('')
 const statusFilter = ref('')
@@ -423,6 +440,19 @@ const page = ref(1)
 const perPage = ref(12)
 const total = ref(0)
 const totalPages = computed(() => Math.ceil(total.value / perPage.value))
+
+// Debounced search - auto-search as user types
+let searchTimeout: ReturnType<typeof setTimeout> | null = null
+watch(searchQuery, (newVal, oldVal) => {
+  if (newVal !== oldVal) {
+    if (searchTimeout) clearTimeout(searchTimeout)
+    isSearching.value = true
+    searchTimeout = setTimeout(() => {
+      page.value = 1
+      fetchAcademies()
+    }, 400)
+  }
+})
 
 // Stats from API
 const stats = reactive({
@@ -581,6 +611,7 @@ async function fetchAcademies() {
     console.error('Failed to fetch academies:', error)
   } finally {
     loading.value = false
+    isSearching.value = false
   }
 }
 
