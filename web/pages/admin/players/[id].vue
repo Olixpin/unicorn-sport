@@ -20,9 +20,9 @@
           </div>
         </div>
         <div v-if="player" class="flex items-center gap-3">
-          <span :class="getVerificationBadgeClass(player.is_verified)">
-            <span class="w-2 h-2 rounded-full" :class="player.is_verified ? 'bg-emerald-500' : 'bg-amber-500'"></span>
-            {{ player.is_verified ? 'Verified Player' : 'Pending Verification' }}
+          <span :class="getVerificationBadgeClass(player.verification_status === 'verified')">
+            <span class="w-2 h-2 rounded-full" :class="player.verification_status === 'verified' ? 'bg-emerald-500' : 'bg-amber-500'"></span>
+            {{ player.verification_status === 'verified' ? 'Verified Player' : 'Pending Verification' }}
           </span>
         </div>
       </div>
@@ -296,8 +296,9 @@
             <label class="flex items-center gap-3 cursor-pointer">
               <div class="relative">
                 <input
-                  v-model="form.is_verified"
                   type="checkbox"
+                  :checked="form.verification_status === 'verified'"
+                  @change="form.verification_status = form.verification_status === 'verified' ? 'pending' : 'verified'"
                   class="sr-only peer"
                 />
                 <div class="w-11 h-6 bg-neutral-200 rounded-full peer-checked:bg-emerald-500 transition-colors"></div>
@@ -455,7 +456,7 @@ const form = reactive({
   state: '',
   city: '',
   school_name: '',
-  is_verified: false,
+  verification_status: 'pending' as 'pending' | 'verified' | 'rejected',
 })
 
 function getInitials(firstName?: string, lastName?: string): string {
@@ -496,7 +497,7 @@ onMounted(async () => {
         state: player.value.state || '',
         city: player.value.city || '',
         school_name: player.value.school_name || '',
-        is_verified: player.value.is_verified || false,
+        verification_status: player.value.verification_status || 'pending',
       })
     }
   } catch (error) {

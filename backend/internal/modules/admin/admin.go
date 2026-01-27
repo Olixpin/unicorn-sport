@@ -621,7 +621,7 @@ func (m *AdminModule) GetPlayer(c *gin.Context) {
 	}
 
 	var player domain.Player
-	if err := m.db.Preload("Academy").Preload("Tournament").Where("deleted_at IS NULL").First(&player, "id = ?", pid).Error; err != nil {
+	if err := m.db.Preload("Tournament").Where("deleted_at IS NULL").First(&player, "id = ?", pid).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"success": false, "error": gin.H{"code": "NOT_FOUND", "message": "Player not found"}})
 		return
 	}
@@ -777,14 +777,14 @@ func (m *AdminModule) ListPlayers(c *gin.Context) {
 		query = query.Where("position = ?", position)
 	}
 	if verified := c.Query("verified"); verified != "" {
-		isVerified := verified == "true"
-		query = query.Where("is_verified = ?", isVerified)
+		if verified == "true" {
+			query = query.Where("verification_status = ?", "verified")
+		} else {
+			query = query.Where("verification_status != ?", "verified")
+		}
 	}
 	if tournamentID := c.Query("tournament_id"); tournamentID != "" {
 		query = query.Where("tournament_id = ?", tournamentID)
-	}
-	if academyID := c.Query("academy_id"); academyID != "" {
-		query = query.Where("academy_id = ?", academyID)
 	}
 
 	query.Count(&total)
@@ -793,7 +793,7 @@ func (m *AdminModule) ListPlayers(c *gin.Context) {
 	// Get stats (unfiltered counts)
 	var totalPlayers, verifiedCount, pendingCount int64
 	m.db.Model(&domain.Player{}).Where("deleted_at IS NULL").Count(&totalPlayers)
-	m.db.Model(&domain.Player{}).Where("deleted_at IS NULL AND is_verified = ?", true).Count(&verifiedCount)
+	m.db.Model(&domain.Player{}).Where("deleted_at IS NULL AND verification_status = ?", "verified").Count(&verifiedCount)
 	pendingCount = totalPlayers - verifiedCount
 
 	c.JSON(http.StatusOK, gin.H{

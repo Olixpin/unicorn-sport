@@ -128,25 +128,6 @@
           </div>
         </div>
 
-        <!-- Academy Filter -->
-        <div class="relative">
-          <select
-            v-model="academyFilter"
-            class="appearance-none px-4 py-3 pr-10 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all min-w-[180px]"
-            @change="page = 1; fetchPlayers()"
-          >
-            <option value="">All Academies</option>
-            <option v-for="academy in academies" :key="academy.id" :value="academy.id">
-              {{ academy.name }}
-            </option>
-          </select>
-          <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-            <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
-          </div>
-        </div>
-
         <!-- Clear Filters -->
         <button
           v-if="hasActiveFilters"
@@ -197,7 +178,6 @@
             <tr class="border-b border-neutral-200 bg-neutral-50">
               <th class="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">Player</th>
               <th class="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">Position</th>
-              <th class="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider hidden lg:table-cell">Academy</th>
               <th class="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">Status</th>
               <th class="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider hidden md:table-cell">Videos</th>
               <th class="px-6 py-4 text-right text-xs font-semibold text-neutral-500 uppercase tracking-wider">Actions</th>
@@ -233,20 +213,17 @@
                   {{ player.position || 'N/A' }}
                 </span>
               </td>
-              <td class="px-6 py-4 hidden lg:table-cell">
-                <span class="text-sm text-neutral-600">{{ player.academy_name || 'Unassigned' }}</span>
-              </td>
               <td class="px-6 py-4">
                 <span 
                   :class="[
                     'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium',
-                    player.is_verified 
+                    player.verification_status === 'verified' 
                       ? 'bg-emerald-100 text-emerald-700' 
                       : 'bg-amber-100 text-amber-700'
                   ]"
                 >
-                  <span :class="['w-1.5 h-1.5 rounded-full', player.is_verified ? 'bg-emerald-500' : 'bg-amber-500']"></span>
-                  {{ player.is_verified ? 'Verified' : 'Pending' }}
+                  <span :class="['w-1.5 h-1.5 rounded-full', player.verification_status === 'verified' ? 'bg-emerald-500' : 'bg-amber-500']"></span>
+                  {{ player.verification_status === 'verified' ? 'Verified' : 'Pending' }}
                 </span>
               </td>
               <td class="px-6 py-4 hidden md:table-cell">
@@ -417,11 +394,6 @@
 import type { Player, ApiResponse } from '~/types'
 import { AFRICAN_COUNTRIES } from '~/schemas/player'
 
-interface Academy {
-  id: string
-  name: string
-}
-
 definePageMeta({
   layout: 'admin',
   middleware: 'admin',
@@ -430,7 +402,6 @@ definePageMeta({
 const api = useApi()
 
 const players = ref<Player[]>([])
-const academies = ref<Academy[]>([])
 const loading = ref(true)
 const isSearching = ref(false)
 const page = ref(1)
@@ -449,10 +420,9 @@ const stats = reactive({
 const searchQuery = ref('')
 const countryFilter = ref('')
 const statusFilter = ref('')
-const academyFilter = ref('')
 
 const hasActiveFilters = computed(() => {
-  return searchQuery.value || countryFilter.value || statusFilter.value || academyFilter.value
+  return searchQuery.value || countryFilter.value || statusFilter.value
 })
 
 // Debounced search - auto-search as user types
@@ -492,7 +462,6 @@ function clearFilters() {
   searchQuery.value = ''
   countryFilter.value = ''
   statusFilter.value = ''
-  academyFilter.value = ''
   page.value = 1
   fetchPlayers()
 }
@@ -519,7 +488,6 @@ async function fetchPlayers() {
     if (searchQuery.value) params.append('search', searchQuery.value)
     if (statusFilter.value) params.append('verified', statusFilter.value === 'verified' ? 'true' : 'false')
     if (countryFilter.value) params.append('country', countryFilter.value)
-    if (academyFilter.value) params.append('academy_id', academyFilter.value)
 
     const response = await api.get<ApiResponse<{ 
       players: Player[]
@@ -554,17 +522,6 @@ async function fetchPlayers() {
   }
 }
 
-async function fetchAcademies() {
-  try {
-    const response = await api.get<ApiResponse<{ academies: Academy[] }>>('/admin/academies', {}, true)
-    if (response.success && response.data) {
-      academies.value = response.data.academies || []
-    }
-  } catch (error) {
-    console.error('Failed to fetch academies:', error)
-  }
-}
-
 function confirmDelete(player: Player) {
   playerToDelete.value = player
   showDeleteModal.value = true
@@ -591,6 +548,5 @@ async function deletePlayer() {
 
 onMounted(() => {
   fetchPlayers()
-  fetchAcademies()
 })
 </script>
