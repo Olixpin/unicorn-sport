@@ -25,7 +25,7 @@
         <div class="flex items-center justify-between">
           <div>
             <p class="text-violet-100 text-sm font-medium">Total Academies</p>
-            <p class="text-3xl font-bold mt-1">{{ total }}</p>
+            <p class="text-3xl font-bold mt-1">{{ stats.totalAcademies }}</p>
           </div>
           <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -36,11 +36,15 @@
       </div>
 
       <!-- Verified -->
-      <div class="bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl p-5 text-white shadow-lg shadow-emerald-500/25">
+      <button 
+        @click="setStatusFilter('verified')"
+        class="bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl p-5 text-white shadow-lg shadow-emerald-500/25 text-left transition-all hover:scale-[1.02] hover:shadow-xl"
+        :class="{ 'ring-4 ring-white/50': statusFilter === 'verified' }"
+      >
         <div class="flex items-center justify-between">
           <div>
             <p class="text-emerald-100 text-sm font-medium">Verified</p>
-            <p class="text-3xl font-bold mt-1">{{ verifiedCount }}</p>
+            <p class="text-3xl font-bold mt-1">{{ stats.verifiedCount }}</p>
           </div>
           <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -48,14 +52,18 @@
             </svg>
           </div>
         </div>
-      </div>
+      </button>
 
       <!-- Pending -->
-      <div class="bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl p-5 text-white shadow-lg shadow-amber-500/25">
+      <button 
+        @click="setStatusFilter('pending')"
+        class="bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl p-5 text-white shadow-lg shadow-amber-500/25 text-left transition-all hover:scale-[1.02] hover:shadow-xl"
+        :class="{ 'ring-4 ring-white/50': statusFilter === 'pending' }"
+      >
         <div class="flex items-center justify-between">
           <div>
             <p class="text-amber-100 text-sm font-medium">Pending Review</p>
-            <p class="text-3xl font-bold mt-1">{{ pendingCount }}</p>
+            <p class="text-3xl font-bold mt-1">{{ stats.pendingCount }}</p>
           </div>
           <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -63,14 +71,14 @@
             </svg>
           </div>
         </div>
-      </div>
+      </button>
 
       <!-- Total Players -->
       <div class="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl p-5 text-white shadow-lg shadow-blue-500/25">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-blue-100 text-sm font-medium">Total Players</p>
-            <p class="text-3xl font-bold mt-1">{{ totalPlayers }}</p>
+            <p class="text-3xl font-bold mt-1">{{ stats.totalPlayers }}</p>
           </div>
           <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -79,6 +87,41 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- Active Filters Indicator -->
+    <div v-if="hasActiveFilters" class="mb-4 flex items-center gap-2 flex-wrap">
+      <span class="text-sm text-neutral-500">Filtering by:</span>
+      <span v-if="searchQuery" class="inline-flex items-center gap-1 px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-medium">
+        Search: "{{ searchQuery }}"
+        <button @click="searchQuery = ''; fetchAcademies()" class="hover:text-primary-900">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </span>
+      <span v-if="countryFilter" class="inline-flex items-center gap-1 px-3 py-1 bg-violet-100 text-violet-700 rounded-full text-sm font-medium">
+        {{ countryFilter }}
+        <button @click="countryFilter = ''; fetchAcademies()" class="hover:text-violet-900">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </span>
+      <span v-if="statusFilter" class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium"
+        :class="statusFilter === 'verified' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'"
+      >
+        {{ statusFilter === 'verified' ? 'Verified' : 'Pending' }}
+        <button @click="statusFilter = ''; fetchAcademies()" :class="statusFilter === 'verified' ? 'hover:text-emerald-900' : 'hover:text-amber-900'">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </span>
+      <button @click="clearFilters" class="text-sm text-neutral-500 hover:text-neutral-700 underline">
+        Clear all
+      </button>
+      <span class="text-sm text-neutral-400 ml-auto">{{ total }} result{{ total !== 1 ? 's' : '' }}</span>
     </div>
 
     <!-- Filters & Search -->
@@ -246,10 +289,17 @@
               </NuxtLink>
               <button
                 v-if="!academy.is_verified"
-                @click="verifyAcademy(academy.id)"
+                @click="openVerifyModal(academy)"
                 class="px-4 py-2.5 bg-emerald-50 text-emerald-700 rounded-xl text-sm font-medium hover:bg-emerald-100 transition-colors"
               >
                 Verify
+              </button>
+              <button
+                v-else
+                @click="openRevokeModal(academy)"
+                class="px-4 py-2.5 bg-amber-50 text-amber-700 rounded-xl text-sm font-medium hover:bg-amber-100 transition-colors"
+              >
+                Revoke
               </button>
             </div>
           </div>
@@ -337,6 +387,16 @@
         </div>
       </div>
     </div>
+
+    <!-- Verification Modal (handles both verify and revoke) -->
+    <AdminAcademyVerificationModal
+      v-model="showModal"
+      :academy="selectedAcademy"
+      :mode="modalMode"
+      :loading="verifying"
+      @confirm="handleConfirmVerification"
+      @close="closeModal"
+    />
   </div>
 </template>
 
@@ -364,9 +424,19 @@ const perPage = ref(12)
 const total = ref(0)
 const totalPages = computed(() => Math.ceil(total.value / perPage.value))
 
-const verifiedCount = computed(() => academies.value.filter(a => a.is_verified).length)
-const pendingCount = computed(() => academies.value.filter(a => !a.is_verified).length)
-const totalPlayers = computed(() => academies.value.reduce((sum, a) => sum + (a.player_count || 0), 0))
+// Stats from API
+const stats = reactive({
+  totalAcademies: 0,
+  verifiedCount: 0,
+  pendingCount: 0,
+  totalPlayers: 0,
+})
+
+// Modal state - unified for both verify and revoke
+const showModal = ref(false)
+const selectedAcademy = ref<Academy | null>(null)
+const modalMode = ref<'verify' | 'revoke'>('verify')
+const verifying = ref(false)
 
 const hasActiveFilters = computed(() => searchQuery.value || countryFilter.value || statusFilter.value)
 
@@ -400,6 +470,71 @@ function clearFilters() {
   fetchAcademies()
 }
 
+function setStatusFilter(status: string) {
+  // Toggle off if same filter clicked again
+  if (statusFilter.value === status) {
+    statusFilter.value = ''
+  } else {
+    statusFilter.value = status
+  }
+  page.value = 1
+  fetchAcademies()
+}
+
+function openVerifyModal(academy: Academy) {
+  selectedAcademy.value = academy
+  modalMode.value = 'verify'
+  showModal.value = true
+}
+
+function openRevokeModal(academy: Academy) {
+  selectedAcademy.value = academy
+  modalMode.value = 'revoke'
+  showModal.value = true
+}
+
+function closeModal() {
+  showModal.value = false
+  selectedAcademy.value = null
+}
+
+async function handleConfirmVerification(data: { academy: Academy; reason?: string }) {
+  verifying.value = true
+  const isVerify = modalMode.value === 'verify'
+
+  try {
+    const response = await $fetch<ApiResponse<Academy>>(`/admin/academies/${data.academy.id}`, {
+      baseURL: config.public.apiBase,
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${authStore.accessToken}`,
+      },
+      body: {
+        ...data.academy,
+        is_verified: isVerify,
+      },
+    })
+
+    if (response.success) {
+      toast.success(
+        isVerify ? 'Academy Verified' : 'Verification Revoked',
+        isVerify 
+          ? 'The academy has been successfully verified.' 
+          : 'The academy verification has been revoked.'
+      )
+      fetchAcademies()
+    } else {
+      toast.error('Error', response.message || `Failed to ${isVerify ? 'verify' : 'revoke'} academy`)
+    }
+  } catch (error: unknown) {
+    const err = error as { data?: { message?: string } }
+    toast.error('Error', err.data?.message || `Failed to ${isVerify ? 'verify' : 'revoke'} academy`)
+  } finally {
+    verifying.value = false
+    closeModal()
+  }
+}
+
 async function fetchAcademies() {
   loading.value = true
 
@@ -411,7 +546,16 @@ async function fetchAcademies() {
     if (countryFilter.value) params.append('country', countryFilter.value)
     if (statusFilter.value) params.append('status', statusFilter.value)
 
-    const response = await $fetch<ApiResponse<{ academies: Academy[]; total: number }>>(
+    const response = await $fetch<ApiResponse<{ 
+      academies: Academy[]
+      total: number
+      stats?: {
+        total_academies: number
+        verified_count: number
+        pending_count: number
+        total_players: number
+      }
+    }>>(
       `/admin/academies?${params.toString()}`,
       {
         baseURL: config.public.apiBase,
@@ -424,31 +568,19 @@ async function fetchAcademies() {
     if (response.success && response.data) {
       academies.value = response.data.academies || []
       total.value = response.data.total || 0
+      
+      // Update stats from API
+      if (response.data.stats) {
+        stats.totalAcademies = response.data.stats.total_academies
+        stats.verifiedCount = response.data.stats.verified_count
+        stats.pendingCount = response.data.stats.pending_count
+        stats.totalPlayers = response.data.stats.total_players
+      }
     }
   } catch (error) {
     console.error('Failed to fetch academies:', error)
   } finally {
     loading.value = false
-  }
-}
-
-async function verifyAcademy(academyId: string) {
-  try {
-    const response = await $fetch<ApiResponse<null>>(`/admin/academies/${academyId}/verify`, {
-      baseURL: config.public.apiBase,
-      method: 'PATCH',
-      headers: {
-        Authorization: `Bearer ${authStore.accessToken}`,
-      },
-    })
-
-    if (response.success) {
-      toast.success('Academy Verified', 'The academy has been successfully verified.')
-      fetchAcademies()
-    }
-  } catch (error: unknown) {
-    const err = error as { data?: { message?: string } }
-    toast.error('Error', err.data?.message || 'Failed to verify academy')
   }
 }
 

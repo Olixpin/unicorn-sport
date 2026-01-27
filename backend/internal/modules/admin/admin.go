@@ -73,11 +73,57 @@ type CreateAcademyRequest struct {
 	IsVerified  bool    `json:"is_verified"`
 }
 
-// ListAcademies returns all academies
+// ListAcademies returns all academies with optional filtering and pagination
 func (m *AdminModule) ListAcademies(c *gin.Context) {
 	var academies []domain.Academy
 
-	if err := m.db.Order("created_at DESC").Find(&academies).Error; err != nil {
+	// Pagination
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	perPage, _ := strconv.Atoi(c.DefaultQuery("per_page", "12"))
+	if page < 1 {
+		page = 1
+	}
+	if perPage < 1 || perPage > 100 {
+		perPage = 12
+	}
+	offset := (page - 1) * perPage
+
+	// Build query
+	query := m.db.Model(&domain.Academy{})
+
+	// Search filter (name or city)
+	if search := c.Query("q"); search != "" {
+		searchPattern := "%" + strings.ToLower(search) + "%"
+		query = query.Where("LOWER(name) LIKE ? OR LOWER(city) LIKE ?", searchPattern, searchPattern)
+	}
+
+	// Country filter
+	if country := c.Query("country"); country != "" {
+		query = query.Where("country = ?", country)
+	}
+
+	// Status filter
+	if status := c.Query("status"); status != "" {
+		switch status {
+		case "verified":
+			query = query.Where("is_verified = ?", true)
+		case "pending":
+			query = query.Where("is_verified = ?", false)
+		}
+	}
+
+	// Get total count before pagination
+	var total int64
+	if err := query.Count(&total).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"error":   "Failed to count academies",
+		})
+		return
+	}
+
+	// Fetch academies with pagination
+	if err := query.Order("created_at DESC").Offset(offset).Limit(perPage).Find(&academies).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
 			"error":   "Failed to fetch academies",
@@ -85,10 +131,37 @@ func (m *AdminModule) ListAcademies(c *gin.Context) {
 		return
 	}
 
+	// Get global stats (unfiltered) for dashboard cards
+	var totalAcademies int64
+	var verifiedCount int64
+	var pendingCount int64
+	var totalPlayers int64
+
+	m.db.Model(&domain.Academy{}).Count(&totalAcademies)
+	m.db.Model(&domain.Academy{}).Where("is_verified = ?", true).Count(&verifiedCount)
+	m.db.Model(&domain.Academy{}).Where("is_verified = ?", false).Count(&pendingCount)
+
+	// Sum player counts from all academies
+	type PlayerCountResult struct {
+		Total int64
+	}
+	var playerResult PlayerCountResult
+	m.db.Model(&domain.Academy{}).Select("COALESCE(SUM(player_count), 0) as total").Scan(&playerResult)
+	totalPlayers = playerResult.Total
+
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"data": gin.H{
 			"academies": academies,
+			"total":     total,
+			"page":      page,
+			"per_page":  perPage,
+			"stats": gin.H{
+				"total_academies": totalAcademies,
+				"verified_count":  verifiedCount,
+				"pending_count":   pendingCount,
+				"total_players":   totalPlayers,
+			},
 		},
 	})
 }
