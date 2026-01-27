@@ -275,10 +275,66 @@ func (m *Module) GetMatch(c *gin.Context) {
 		}
 	}
 
+	// Build match response with video URL
+	matchResponse := gin.H{
+		"id":            match.ID,
+		"title":         match.Title,
+		"description":   match.Description,
+		"match_date":    match.MatchDate,
+		"location":      match.Location,
+		"stage":         match.Stage,
+		"home_team":     match.HomeTeam,
+		"away_team":     match.AwayTeam,
+		"home_score":    match.HomeScore,
+		"away_score":    match.AwayScore,
+		"status":        match.Status,
+		"tournament_id": match.TournamentID,
+		"created_at":    match.CreatedAt,
+		"updated_at":    match.UpdatedAt,
+	}
+
+	// Add video with playable URL if exists
+	if match.Video != nil {
+		var videoURL string
+		// Generate presigned URL for S3 (valid for 1 hour)
+		if m.CDNHost != "" {
+			// Use CloudFront if configured
+			videoURL = fmt.Sprintf("%s/%s", m.CDNHost, match.Video.VideoURL)
+		} else {
+			// Generate presigned S3 URL
+			presigner := s3.NewPresignClient(m.S3Client)
+			presignedReq, err := presigner.PresignGetObject(c.Request.Context(), &s3.GetObjectInput{
+				Bucket: aws.String(m.S3Bucket),
+				Key:    aws.String(match.Video.VideoURL),
+			}, s3.WithPresignExpires(1*time.Hour))
+			if err != nil {
+				fmt.Printf("Warning: Failed to generate presigned URL: %v\n", err)
+				videoURL = "" // Will show error in frontend
+			} else {
+				videoURL = presignedReq.URL
+			}
+		}
+
+		matchResponse["video"] = gin.H{
+			"id":               match.Video.ID,
+			"match_id":         match.Video.MatchID,
+			"video_url":        videoURL,
+			"thumbnail_url":    match.Video.ThumbnailURL,
+			"duration_seconds": match.Video.DurationSeconds,
+			"file_size_bytes":  match.Video.FileSizeBytes,
+			"status":           match.Video.Status,
+			"price_cents":      match.Video.PriceCents,
+			"currency":         match.Video.Currency,
+			"view_count":       match.Video.ViewCount,
+			"purchase_count":   match.Video.PurchaseCount,
+			"created_at":       match.Video.CreatedAt,
+		}
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"data": gin.H{
-			"match":   match,
+			"match":   matchResponse,
 			"players": players,
 		},
 	})

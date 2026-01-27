@@ -401,6 +401,110 @@
         </div>
       </div>
     </Teleport>
+
+    <!-- Edit Tournament Modal -->
+    <Teleport to="body">
+      <div v-if="showEditModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="fixed inset-0 bg-black/50" @click="showEditModal = false"></div>
+        <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+          <div class="sticky top-0 bg-white px-6 py-4 border-b border-neutral-200 flex items-center justify-between">
+            <h3 class="text-xl font-semibold text-neutral-900">Edit Tournament</h3>
+            <button
+              @click="showEditModal = false"
+              class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-neutral-100 text-neutral-500"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          
+          <form @submit.prevent="updateTournament" class="p-6 space-y-5">
+            <div>
+              <label class="block text-sm font-medium text-neutral-700 mb-1">Tournament Name *</label>
+              <input
+                v-model="editForm.name"
+                type="text"
+                class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                placeholder="e.g., Africa Youth Cup 2026"
+                required
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-neutral-700 mb-1">Description</label>
+              <textarea
+                v-model="editForm.description"
+                rows="3"
+                class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+                placeholder="Brief description of the tournament..."
+              ></textarea>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-neutral-700 mb-1">Start Date *</label>
+                <input
+                  v-model="editForm.start_date"
+                  type="date"
+                  class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  required
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-neutral-700 mb-1">End Date *</label>
+                <input
+                  v-model="editForm.end_date"
+                  type="date"
+                  class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-neutral-700 mb-1">Location</label>
+              <input
+                v-model="editForm.location"
+                type="text"
+                class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                placeholder="e.g., Lagos, Nigeria"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-neutral-700 mb-1">Status</label>
+              <select
+                v-model="editForm.status"
+                class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
+              >
+                <option value="draft">Draft</option>
+                <option value="upcoming">Upcoming</option>
+                <option value="active">Active</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-4">
+              <button
+                type="button"
+                @click="showEditModal = false"
+                class="px-4 py-2.5 border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                :disabled="updatingTournament"
+                class="px-6 py-2.5 bg-gradient-to-r from-primary-500 to-emerald-600 text-white rounded-xl font-medium hover:from-primary-600 hover:to-emerald-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {{ updatingTournament ? 'Saving...' : 'Save Changes' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -591,6 +695,7 @@ const availableVenues = computed(() => {
 const showEditModal = ref(false)
 const showCreateMatchModal = ref(false)
 const creatingMatch = ref(false)
+const updatingTournament = ref(false)
 
 const matchForm = reactive({
   title: '',
@@ -600,6 +705,28 @@ const matchForm = reactive({
   stage: '',
   venue_name: '',
   city: '',
+})
+
+// Edit tournament form
+const editForm = reactive({
+  name: '',
+  description: '',
+  start_date: '',
+  end_date: '',
+  location: '',
+  status: 'draft',
+})
+
+// Initialize edit form when modal opens
+watch(showEditModal, (isOpen) => {
+  if (isOpen && tournament.value) {
+    editForm.name = tournament.value.name
+    editForm.description = tournament.value.description || ''
+    editForm.start_date = tournament.value.start_date?.split('T')[0] || ''
+    editForm.end_date = tournament.value.end_date?.split('T')[0] || ''
+    editForm.location = tournament.value.location || ''
+    editForm.status = tournament.value.status || 'draft'
+  }
 })
 
 // For custom venue entry when user selects "Enter custom venue..."
@@ -703,6 +830,34 @@ async function createMatch() {
     toast.error('Error', error.data?.message || 'Failed to create match')
   } finally {
     creatingMatch.value = false
+  }
+}
+
+async function updateTournament() {
+  updatingTournament.value = true
+  try {
+    const response = await $fetch<ApiResponse<Tournament>>(`/admin/events/${tournamentId}`, {
+      baseURL: config.public.apiBase,
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${authStore.accessToken}` },
+      body: {
+        name: editForm.name,
+        description: editForm.description || undefined,
+        start_date: editForm.start_date,
+        end_date: editForm.end_date,
+        location: editForm.location || undefined,
+        status: editForm.status,
+      },
+    })
+    if (response.success) {
+      toast.success('Tournament Updated', 'Tournament details have been saved')
+      showEditModal.value = false
+      await fetchTournament()
+    }
+  } catch (error: any) {
+    toast.error('Error', error.data?.message || 'Failed to update tournament')
+  } finally {
+    updatingTournament.value = false
   }
 }
 

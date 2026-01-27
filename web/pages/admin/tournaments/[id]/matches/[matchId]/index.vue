@@ -690,6 +690,182 @@
         </div>
       </div>
     </Teleport>
+
+    <!-- Edit Match Modal -->
+    <Teleport to="body">
+      <div v-if="showEditModal" class="fixed inset-0 z-50 overflow-y-auto">
+        <div class="fixed inset-0 bg-black/50" @click="showEditModal = false"></div>
+        <div class="relative min-h-screen flex items-center justify-center p-4">
+          <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-lg p-6">
+            <h3 class="text-xl font-semibold mb-4">Edit Match</h3>
+
+            <form @submit.prevent="updateMatch" class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-neutral-700 mb-1">Title *</label>
+                <input
+                  v-model="editMatchForm.title"
+                  type="text"
+                  class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  placeholder="e.g., Group Stage - Match 1"
+                  required
+                />
+              </div>
+
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-neutral-700 mb-1">Home Team</label>
+                  <input
+                    v-model="editMatchForm.home_team"
+                    type="text"
+                    class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    placeholder="Home team"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-neutral-700 mb-1">Away Team</label>
+                  <input
+                    v-model="editMatchForm.away_team"
+                    type="text"
+                    class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    placeholder="Away team"
+                  />
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-neutral-700 mb-1">Home Score</label>
+                  <input
+                    v-model="editMatchForm.home_score"
+                    type="number"
+                    min="0"
+                    class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    placeholder="0"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-neutral-700 mb-1">Away Score</label>
+                  <input
+                    v-model="editMatchForm.away_score"
+                    type="number"
+                    min="0"
+                    class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    placeholder="0"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-neutral-700 mb-1">Match Date *</label>
+                <input
+                  v-model="editMatchForm.match_date"
+                  type="date"
+                  class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  required
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-neutral-700 mb-1">Location</label>
+                <input
+                  v-model="editMatchForm.location"
+                  type="text"
+                  class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  placeholder="e.g., National Stadium, Lagos"
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-neutral-700 mb-1">Stage</label>
+                <select
+                  v-model="editMatchForm.stage"
+                  class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
+                >
+                  <option value="">Select stage</option>
+                  <option value="group">Group Stage</option>
+                  <option value="round_of_16">Round of 16</option>
+                  <option value="quarterfinal">Quarterfinal</option>
+                  <option value="semifinal">Semifinal</option>
+                  <option value="final">Final</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-neutral-700 mb-1">Status</label>
+                <select
+                  v-model="editMatchForm.status"
+                  class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
+                >
+                  <option value="scheduled">Scheduled</option>
+                  <option value="in_progress">In Progress</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+
+              <div class="flex justify-end gap-3 pt-4">
+                <button
+                  type="button"
+                  @click="showEditModal = false"
+                  class="px-4 py-2.5 border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  :disabled="updatingMatch"
+                  class="px-6 py-2.5 bg-gradient-to-r from-primary-500 to-emerald-600 text-white rounded-xl font-medium hover:from-primary-600 hover:to-emerald-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {{ updatingMatch ? 'Saving...' : 'Save Changes' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- Video Preview Modal -->
+    <Teleport to="body">
+      <div v-if="showVideoPreviewModal" class="fixed inset-0 z-50 overflow-y-auto">
+        <div class="fixed inset-0 bg-black/80" @click="showVideoPreviewModal = false"></div>
+        <div class="relative min-h-screen flex items-center justify-center p-4">
+          <div class="relative bg-black rounded-2xl shadow-xl w-full max-w-4xl overflow-hidden">
+            <!-- Close button -->
+            <button
+              @click="showVideoPreviewModal = false"
+              class="absolute top-4 right-4 z-10 p-2 bg-black/50 hover:bg-black/70 text-white rounded-full transition-colors"
+            >
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            <!-- Video Player -->
+            <div class="aspect-video bg-black">
+              <video
+                v-if="matchVideo?.video_url"
+                :src="matchVideo.video_url"
+                controls
+                autoplay
+                class="w-full h-full"
+              >
+                Your browser does not support the video tag.
+              </video>
+            </div>
+
+            <!-- Video Info -->
+            <div class="p-4 bg-neutral-900 text-white">
+              <h3 class="font-semibold">{{ match?.title }}</h3>
+              <div class="flex items-center gap-4 mt-2 text-sm text-neutral-400">
+                <span v-if="matchVideo?.duration_seconds">{{ formatDuration(matchVideo.duration_seconds) }}</span>
+                <span v-if="matchVideo?.file_size_bytes">{{ formatFileSize(matchVideo.file_size_bytes) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -788,6 +964,35 @@ const showAddPlayerModal = ref(false)
 const showHighlightUploadModal = ref(false)
 const showUploadVideoModal = ref(false)
 const showReplaceVideoModal = ref(false)
+const updatingMatch = ref(false)
+
+// Edit match form
+const editMatchForm = reactive({
+  title: '',
+  home_team: '',
+  away_team: '',
+  home_score: null as number | null,
+  away_score: null as number | null,
+  match_date: '',
+  location: '',
+  stage: '',
+  status: 'scheduled',
+})
+
+// Initialize edit form when modal opens
+watch(showEditModal, (isOpen) => {
+  if (isOpen && match.value) {
+    editMatchForm.title = match.value.title || ''
+    editMatchForm.home_team = match.value.home_team || ''
+    editMatchForm.away_team = match.value.away_team || ''
+    editMatchForm.home_score = match.value.home_score ?? null
+    editMatchForm.away_score = match.value.away_score ?? null
+    editMatchForm.match_date = match.value.match_date?.split('T')[0] || ''
+    editMatchForm.location = match.value.location || ''
+    editMatchForm.stage = match.value.stage || ''
+    editMatchForm.status = match.value.status || 'scheduled'
+  }
+})
 
 // Player search
 const playerSearch = ref('')
@@ -877,6 +1082,37 @@ async function fetchMatch() {
   } catch (error) {
     console.error('Failed to fetch match:', error)
     toast.error('Error', 'Failed to load match')
+  }
+}
+
+async function updateMatch() {
+  updatingMatch.value = true
+  try {
+    const response = await $fetch<ApiResponse<Match>>(`/admin/matches/${matchId}`, {
+      baseURL: config.public.apiBase,
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${authStore.accessToken}` },
+      body: {
+        title: editMatchForm.title,
+        home_team: editMatchForm.home_team || undefined,
+        away_team: editMatchForm.away_team || undefined,
+        home_score: editMatchForm.home_score,
+        away_score: editMatchForm.away_score,
+        match_date: editMatchForm.match_date,
+        location: editMatchForm.location || undefined,
+        stage: editMatchForm.stage || undefined,
+        status: editMatchForm.status,
+      },
+    })
+    if (response.success) {
+      toast.success('Match Updated', 'Match details have been saved')
+      showEditModal.value = false
+      await fetchMatch()
+    }
+  } catch (error: any) {
+    toast.error('Error', error.data?.message || 'Failed to update match')
+  } finally {
+    updatingMatch.value = false
   }
 }
 
@@ -1229,9 +1465,15 @@ function viewHighlight(highlight: PlayerHighlight) {
   console.log('View highlight:', highlight)
 }
 
+// Video preview modal state
+const showVideoPreviewModal = ref(false)
+
 function previewVideo() {
-  // Could open video player modal
-  console.log('Preview video')
+  if (matchVideo.value?.video_url) {
+    showVideoPreviewModal.value = true
+  } else {
+    toast.error('Error', 'Video URL not available')
+  }
 }
 
 // Helpers
