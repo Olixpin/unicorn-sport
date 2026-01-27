@@ -1488,27 +1488,44 @@ function handleVideoFileDrop(e: DragEvent) {
 async function generateThumbnailFromFile(videoFile: File, timeInSeconds: number = 2): Promise<Blob | null> {
   return new Promise((resolve) => {
     const video = document.createElement('video')
-    video.preload = 'metadata'
+    video.preload = 'auto'
     video.muted = true
     video.playsInline = true
+    video.crossOrigin = 'anonymous'
     
     const url = URL.createObjectURL(videoFile)
     video.src = url
     
-    video.onloadedmetadata = () => {
+    let resolved = false
+    
+    const cleanup = () => {
+      if (!resolved) {
+        resolved = true
+        URL.revokeObjectURL(url)
+      }
+    }
+    
+    video.onloadeddata = () => {
       // Seek to the specified time or 10% of video if too short
       const seekTime = Math.min(timeInSeconds, video.duration * 0.1)
       video.currentTime = seekTime
     }
     
     video.onseeked = () => {
+      if (video.videoWidth === 0 || video.videoHeight === 0) {
+        cleanup()
+        resolve(null)
+        return
+      }
+      
       const canvas = document.createElement('canvas')
       canvas.width = video.videoWidth
       canvas.height = video.videoHeight
       
       const ctx = canvas.getContext('2d')
       if (!ctx) {
-        URL.revokeObjectURL(url)
+        console.error('Failed to get canvas context')
+        cleanup()
         resolve(null)
         return
       }
@@ -1516,21 +1533,28 @@ async function generateThumbnailFromFile(videoFile: File, timeInSeconds: number 
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
       
       canvas.toBlob((blob) => {
-        URL.revokeObjectURL(url)
+        cleanup()
         resolve(blob)
       }, 'image/jpeg', 0.85)
     }
     
-    video.onerror = () => {
-      URL.revokeObjectURL(url)
+    video.onerror = (e) => {
+      console.error('Video load error:', e)
+      cleanup()
       resolve(null)
     }
     
-    // Timeout fallback
+    // Start loading
+    video.load()
+    
+    // Timeout fallback (15 seconds for large files)
     setTimeout(() => {
-      URL.revokeObjectURL(url)
-      resolve(null)
-    }, 10000)
+      if (!resolved) {
+        console.warn('Thumbnail generation timed out')
+        cleanup()
+        resolve(null)
+      }
+    }, 15000)
   })
 }
 
