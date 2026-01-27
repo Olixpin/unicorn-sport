@@ -105,13 +105,17 @@ func (m *MediaModule) InitUpload(c *gin.Context) {
 		} else {
 			maxSize = 25 * 1024 * 1024 * 1024 // 25GB for full matches
 		}
-	case "thumbnail":
+	case "thumbnail", "profile_photo":
 		allowedTypes = map[string]bool{
 			"image/jpeg": true,
 			"image/png":  true,
 			"image/webp": true,
 		}
-		maxSize = 10 * 1024 * 1024 // 10MB for thumbnails
+		if req.UploadType == "profile_photo" {
+			maxSize = 5 * 1024 * 1024 // 5MB for profile photos
+		} else {
+			maxSize = 10 * 1024 * 1024 // 10MB for thumbnails
+		}
 	default:
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": gin.H{"code": "INVALID_UPLOAD_TYPE", "message": "Invalid upload type"}})
 		return
@@ -141,6 +145,8 @@ func (m *MediaModule) InitUpload(c *gin.Context) {
 		s3Key = fmt.Sprintf("matches/%d/%02d/%s/%s", now.Year(), now.Month(), sessionID.String(), sanitizeFileName(req.FileName))
 	case "thumbnail":
 		s3Key = fmt.Sprintf("thumbnails/%s/%s", sessionID.String(), sanitizeFileName(req.FileName))
+	case "profile_photo":
+		s3Key = fmt.Sprintf("players/photos/%s/%s", sessionID.String(), sanitizeFileName(req.FileName))
 	}
 
 	expiresIn := 3600 // 1 hour

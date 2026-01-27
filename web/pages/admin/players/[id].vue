@@ -433,14 +433,77 @@
 
       <!-- Sidebar -->
       <div class="hidden lg:block space-y-6 lg:sticky lg:top-6 lg:self-start">
+        <!-- Profile Photo Upload -->
+        <div class="bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden">
+          <div class="px-6 py-4 border-b border-neutral-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-500/25">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div>
+                <h2 class="font-semibold text-neutral-900">Profile Photo</h2>
+                <p class="text-sm text-neutral-500">Player headshot or action photo</p>
+              </div>
+            </div>
+          </div>
+          <div class="p-6">
+            <!-- Current Photo Preview -->
+            <div class="relative w-full aspect-square rounded-2xl overflow-hidden bg-neutral-100 mb-4">
+              <img 
+                v-if="profilePhotoUrl"
+                :src="profilePhotoUrl"
+                :alt="`${form.first_name} ${form.last_name}`"
+                class="w-full h-full object-cover"
+              />
+              <div v-else class="w-full h-full flex flex-col items-center justify-center text-neutral-400">
+                <svg class="w-16 h-16 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <span class="text-sm">No photo</span>
+              </div>
+              <!-- Upload Progress Overlay -->
+              <div v-if="uploadingPhoto" class="absolute inset-0 bg-black/50 flex items-center justify-center">
+                <div class="text-center text-white">
+                  <svg class="w-8 h-8 animate-spin mx-auto mb-2" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                  </svg>
+                  <span class="text-sm">Uploading...</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Upload Button -->
+            <label class="block">
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                class="hidden"
+                @change="handlePhotoUpload"
+                :disabled="uploadingPhoto"
+              />
+              <div class="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-neutral-300 rounded-xl cursor-pointer hover:border-primary-400 hover:bg-primary-50/50 transition-all">
+                <svg class="w-5 h-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                </svg>
+                <span class="text-sm font-medium text-neutral-700">{{ profilePhotoUrl ? 'Change Photo' : 'Upload Photo' }}</span>
+              </div>
+            </label>
+            <p class="mt-2 text-xs text-neutral-500 text-center">JPEG, PNG or WebP. Max 5MB.</p>
+          </div>
+        </div>
+
         <!-- Player Preview -->
         <div class="bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden">
           <div class="px-6 py-4 border-b border-neutral-200">
             <h3 class="font-semibold text-neutral-900">Player Preview</h3>
           </div>
           <div class="p-6 flex flex-col items-center">
-            <div class="w-20 h-20 bg-gradient-to-br from-primary-500 to-emerald-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-primary-500/25">
-              {{ getInitials(form.first_name, form.last_name) }}
+            <div class="w-20 h-20 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-lg overflow-hidden" :class="profilePhotoUrl ? '' : 'bg-gradient-to-br from-primary-500 to-emerald-600 shadow-primary-500/25'">
+              <img v-if="profilePhotoUrl" :src="profilePhotoUrl" class="w-full h-full object-cover" />
+              <span v-else>{{ getInitials(form.first_name, form.last_name) }}</span>
             </div>
             <h4 class="mt-4 font-semibold text-neutral-900">
               {{ form.first_name || 'First' }} {{ form.last_name || 'Last' }}
@@ -559,6 +622,10 @@ const deleting = ref(false)
 const showDeleteModal = ref(false)
 const errors = reactive<Record<string, string>>({})
 
+// Profile photo state
+const profilePhotoUrl = ref<string | null>(null)
+const uploadingPhoto = ref(false)
+
 const form = reactive({
   first_name: '',
   last_name: '',
@@ -648,6 +715,8 @@ onMounted(async () => {
 
     if (response.success && response.data?.player) {
       player.value = response.data.player
+      // Set profile photo URL
+      profilePhotoUrl.value = player.value.profile_photo_url || null
       // Populate form
       Object.assign(form, {
         first_name: player.value.first_name,
@@ -761,6 +830,86 @@ async function deletePlayer() {
   } finally {
     deleting.value = false
     showDeleteModal.value = false
+  }
+}
+
+// Handle profile photo upload
+async function handlePhotoUpload(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+
+  // Validate file type
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
+  if (!allowedTypes.includes(file.type)) {
+    toast.error('Invalid File', 'Please upload a JPEG, PNG, or WebP image')
+    return
+  }
+
+  // Validate file size (5MB max)
+  if (file.size > 5 * 1024 * 1024) {
+    toast.error('File Too Large', 'Maximum file size is 5MB')
+    return
+  }
+
+  uploadingPhoto.value = true
+
+  try {
+    // Step 1: Get presigned URL
+    const initResponse = await $fetch<ApiResponse<{ upload_url: string; s3_key: string; session_id: string }>>('/admin/upload/init', {
+      baseURL: config.public.apiBase,
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${authStore.accessToken}`,
+      },
+      body: {
+        upload_type: 'profile_photo',
+        content_type: file.type,
+        file_name: file.name,
+        file_size: file.size,
+      },
+    })
+
+    if (!initResponse.success || !initResponse.data) {
+      throw new Error('Failed to initialize upload')
+    }
+
+    const { upload_url, s3_key } = initResponse.data
+
+    // Step 2: Upload directly to S3
+    await fetch(upload_url, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': file.type,
+      },
+      body: file,
+    })
+
+    // Step 3: Update player with new photo URL
+    const s3Url = `s3://unicorn-sport-media/${s3_key}`
+    const updateResponse = await $fetch<ApiResponse<{ player: Player }>>(`/admin/players/${playerId}`, {
+      baseURL: config.public.apiBase,
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${authStore.accessToken}`,
+      },
+      body: {
+        profile_photo_url: s3Url,
+      },
+    })
+
+    if (updateResponse.success && updateResponse.data?.player) {
+      // Generate a presigned URL for display (or use the direct URL if available)
+      profilePhotoUrl.value = updateResponse.data.player.profile_photo_url || null
+      toast.success('Photo Uploaded', 'Profile photo has been updated successfully')
+    }
+  } catch (error) {
+    console.error('Photo upload failed:', error)
+    toast.error('Upload Failed', 'Failed to upload profile photo')
+  } finally {
+    uploadingPhoto.value = false
+    // Reset the input
+    input.value = ''
   }
 }
 </script>

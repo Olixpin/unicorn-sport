@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"context"
 	"crypto/rand"
 	"fmt"
 	"math/big"
@@ -9,6 +10,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -19,12 +22,18 @@ import (
 
 // AdminModule handles admin operations
 type AdminModule struct {
-	db *gorm.DB
+	db       *gorm.DB
+	s3Client *s3.Client
+	s3Bucket string
 }
 
 // NewAdminModule creates a new admin module
-func NewAdminModule(db *gorm.DB) *AdminModule {
-	return &AdminModule{db: db}
+func NewAdminModule(db *gorm.DB, s3Client *s3.Client, s3Bucket string) *AdminModule {
+	return &AdminModule{
+		db:       db,
+		s3Client: s3Client,
+		s3Bucket: s3Bucket,
+	}
 }
 
 // --- Dashboard Stats ---
@@ -676,6 +685,36 @@ type UpdatePlayerRequest struct {
 	ThumbnailURL       *string `json:"thumbnail_url,omitempty"`
 }
 
+// getPresignedURL converts an s3:// URL to a presigned URL for direct access
+func (m *AdminModule) getPresignedURL(s3Url string) string {
+	if s3Url == "" || m.s3Client == nil {
+		return s3Url
+	}
+
+	// Handle s3://bucket/key format
+	if strings.HasPrefix(s3Url, "s3://") {
+		parts := strings.SplitN(strings.TrimPrefix(s3Url, "s3://"), "/", 2)
+		if len(parts) != 2 {
+			return s3Url
+		}
+		bucket := parts[0]
+		key := parts[1]
+
+		presigner := s3.NewPresignClient(m.s3Client)
+		presignedReq, err := presigner.PresignGetObject(context.Background(), &s3.GetObjectInput{
+			Bucket: aws.String(bucket),
+			Key:    aws.String(key),
+		}, s3.WithPresignExpires(time.Hour))
+		if err != nil {
+			return s3Url
+		}
+		return presignedReq.URL
+	}
+
+	// Already a direct URL or CloudFront URL
+	return s3Url
+}
+
 // GetPlayer returns a single player by ID
 func (m *AdminModule) GetPlayer(c *gin.Context) {
 	playerID := c.Param("id")
@@ -691,10 +730,42 @@ func (m *AdminModule) GetPlayer(c *gin.Context) {
 		return
 	}
 
+	// Convert profile photo URL to presigned URL
+	var profilePhotoURL *string
+	if player.ProfilePhotoURL != nil && *player.ProfilePhotoURL != "" {
+		url := m.getPresignedURL(*player.ProfilePhotoURL)
+		profilePhotoURL = &url
+	}
+
+	// Build response with presigned URL
+	playerResponse := gin.H{
+		"id":                  player.ID,
+		"first_name":          player.FirstName,
+		"last_name":           player.LastName,
+		"date_of_birth":       player.DateOfBirth,
+		"position":            player.Position,
+		"preferred_foot":      player.PreferredFoot,
+		"height_cm":           player.HeightCm,
+		"weight_kg":           player.WeightKg,
+		"country":             player.Country,
+		"state":               player.State,
+		"city":                player.City,
+		"school_name":         player.SchoolName,
+		"verification_status": player.VerificationStatus,
+		"profile_photo_url":   profilePhotoURL,
+		"thumbnail_url":       player.ThumbnailURL,
+		"academy_id":          player.AcademyID,
+		"tournament_id":       player.TournamentID,
+		"tournament":          player.Tournament,
+		"academy":             player.Academy,
+		"created_at":          player.CreatedAt,
+		"updated_at":          player.UpdatedAt,
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"data": gin.H{
-			"player": player,
+			"player": playerResponse,
 		},
 	})
 }
@@ -793,15 +864,28 @@ func (m *AdminModule) UpdatePlayer(c *gin.Context) {
 		return
 	}
 
+	// Reload the player to get updated values
+	m.db.First(&player, "id = ?", pid)
+
+	// Convert profile photo URL to presigned URL
+	var profilePhotoURL *string
+	if player.ProfilePhotoURL != nil && *player.ProfilePhotoURL != "" {
+		url := m.getPresignedURL(*player.ProfilePhotoURL)
+		profilePhotoURL = &url
+	}
+
 	m.logAudit(c, "update_player", "player", &pid, nil)
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"data": gin.H{
-			"id":         player.ID,
-			"first_name": player.FirstName,
-			"last_name":  player.LastName,
-			"updated_at": time.Now(),
+			"player": gin.H{
+				"id":                player.ID,
+				"first_name":        player.FirstName,
+				"last_name":         player.LastName,
+				"profile_photo_url": profilePhotoURL,
+				"updated_at":        player.UpdatedAt,
+			},
 		},
 	})
 }
