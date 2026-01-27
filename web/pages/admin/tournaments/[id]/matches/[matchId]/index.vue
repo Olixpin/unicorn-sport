@@ -1484,11 +1484,110 @@ function handleVideoFileDrop(e: DragEvent) {
   }
 }
 
+// Auto-generate thumbnail from video file at specified time (in seconds)
+async function generateThumbnailFromFile(videoFile: File, timeInSeconds: number = 2): Promise<Blob | null> {
+  return new Promise((resolve) => {
+    const video = document.createElement('video')
+    video.preload = 'metadata'
+    video.muted = true
+    video.playsInline = true
+    
+    const url = URL.createObjectURL(videoFile)
+    video.src = url
+    
+    video.onloadedmetadata = () => {
+      // Seek to the specified time or 10% of video if too short
+      const seekTime = Math.min(timeInSeconds, video.duration * 0.1)
+      video.currentTime = seekTime
+    }
+    
+    video.onseeked = () => {
+      const canvas = document.createElement('canvas')
+      canvas.width = video.videoWidth
+      canvas.height = video.videoHeight
+      
+      const ctx = canvas.getContext('2d')
+      if (!ctx) {
+        URL.revokeObjectURL(url)
+        resolve(null)
+        return
+      }
+      
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+      
+      canvas.toBlob((blob) => {
+        URL.revokeObjectURL(url)
+        resolve(blob)
+      }, 'image/jpeg', 0.85)
+    }
+    
+    video.onerror = () => {
+      URL.revokeObjectURL(url)
+      resolve(null)
+    }
+    
+    // Timeout fallback
+    setTimeout(() => {
+      URL.revokeObjectURL(url)
+      resolve(null)
+    }, 10000)
+  })
+}
+
+// Upload thumbnail blob to S3
+async function uploadThumbnailBlob(thumbnailBlob: Blob): Promise<boolean> {
+  try {
+    const fileName = `thumbnail_${Date.now()}.jpg`
+    
+    // Get presigned URL for thumbnail upload
+    const initResponse = await $fetch<ApiResponse<{ upload_url: string; s3_key: string }>>(`/admin/matches/${matchId}/video/thumbnail/upload`, {
+      baseURL: config.public.apiBase,
+      method: 'POST',
+      headers: { Authorization: `Bearer ${authStore.accessToken}` },
+      body: {
+        file_name: fileName,
+        file_size: thumbnailBlob.size,
+        content_type: 'image/jpeg',
+      },
+    })
+
+    if (!initResponse.success || !initResponse.data?.upload_url) {
+      return false
+    }
+
+    // Upload to S3
+    const uploadRes = await fetch(initResponse.data.upload_url, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'image/jpeg' },
+      body: thumbnailBlob,
+    })
+
+    if (!uploadRes.ok) return false
+
+    // Save thumbnail URL
+    await $fetch(`/admin/matches/${matchId}/video/thumbnail`, {
+      baseURL: config.public.apiBase,
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${authStore.accessToken}` },
+      body: { s3_key: initResponse.data.s3_key },
+    })
+
+    return true
+  } catch (error) {
+    console.error('Failed to upload thumbnail:', error)
+    return false
+  }
+}
+
 async function uploadMatchVideo() {
   if (!matchVideoFile.value) return
   uploadingMatchVideo.value = true
 
   try {
+    // 0. Auto-generate thumbnail from video
+    matchVideoUploadProgress.value = 0
+    const thumbnailBlob = await generateThumbnailFromFile(matchVideoFile.value, 2)
+    
     // 1. Init upload
     const initResponse = await $fetch<ApiResponse<{ session_id: string; upload_url?: string; s3_key: string; upload_method: string }>>(`/admin/matches/${matchId}/video/upload`, {
       baseURL: config.public.apiBase,
@@ -1538,6 +1637,11 @@ async function uploadMatchVideo() {
         file_size_bytes: matchVideoFile.value.size,
       },
     })
+
+    // 4. Upload auto-generated thumbnail (if available)
+    if (thumbnailBlob) {
+      await uploadThumbnailBlob(thumbnailBlob)
+    }
 
     toast.success('Video Uploaded', 'Full match video has been uploaded successfully')
     showUploadVideoModal.value = false
@@ -1603,6 +1707,11 @@ async function replaceMatchVideo() {
   replacingVideo.value = true
 
   try {
+    // Step 0: Generate thumbnail from new video
+    replaceVideoStep.value = 'Generating thumbnail...'
+    replaceVideoUploadProgress.value = 5
+    const thumbnailBlob = await generateThumbnailFromFile(replaceVideoFile.value, 2)
+
     // Step 1: Delete old video
     replaceVideoStep.value = 'Removing old video...'
     replaceVideoUploadProgress.value = 10
@@ -1640,8 +1749,8 @@ async function replaceMatchVideo() {
         const xhr = new XMLHttpRequest()
         xhr.upload.onprogress = (e) => {
           if (e.lengthComputable) {
-            // Progress from 25% to 90%
-            replaceVideoUploadProgress.value = 25 + Math.round((e.loaded / e.total) * 65)
+            // Progress from 25% to 85%
+            replaceVideoUploadProgress.value = 25 + Math.round((e.loaded / e.total) * 60)
           }
         }
         xhr.onload = () => {
@@ -1659,8 +1768,8 @@ async function replaceMatchVideo() {
     }
 
     // Step 4: Save video record
-    replaceVideoStep.value = 'Finalizing...'
-    replaceVideoUploadProgress.value = 95
+    replaceVideoStep.value = 'Saving video...'
+    replaceVideoUploadProgress.value = 90
 
     await $fetch(`/admin/matches/${matchId}/video`, {
       baseURL: config.public.apiBase,
@@ -1671,6 +1780,13 @@ async function replaceMatchVideo() {
         file_size_bytes: replaceVideoFile.value.size,
       },
     })
+
+    // Step 5: Upload auto-generated thumbnail
+    if (thumbnailBlob) {
+      replaceVideoStep.value = 'Uploading thumbnail...'
+      replaceVideoUploadProgress.value = 95
+      await uploadThumbnailBlob(thumbnailBlob)
+    }
 
     replaceVideoUploadProgress.value = 100
     toast.success('Video Replaced', 'Match video has been replaced successfully')
