@@ -1641,16 +1641,16 @@ func (m *AdminModule) GetAnalytics(c *gin.Context) {
 		Order("date").
 		Find(&contactRequests)
 
-	// Subscription breakdown
+	// Subscription breakdown - query the Subscription model
 	type tierCount struct {
 		Tier  string `json:"subscription_tier"`
 		Count int    `json:"count"`
 	}
 	var subscriptionTiers []tierCount
-	m.db.Model(&domain.User{}).
-		Select("subscription_tier as tier, COUNT(*) as count").
-		Where("subscription_tier IS NOT NULL AND subscription_tier != ''").
-		Group("subscription_tier").
+	m.db.Model(&domain.Subscription{}).
+		Select("tier, COUNT(*) as count").
+		Where("tier IS NOT NULL AND tier != ''").
+		Group("tier").
 		Find(&subscriptionTiers)
 
 	// Player positions breakdown
