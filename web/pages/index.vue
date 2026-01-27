@@ -108,41 +108,51 @@
               <div class="absolute -inset-1 bg-gradient-to-r from-primary-500 via-emerald-500 to-primary-500 rounded-3xl blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
               
               <div class="relative bg-neutral-900 rounded-2xl overflow-hidden border border-white/10">
-                <!-- Video Preview Area with Animated Action -->
+                <!-- Video Preview Area - Shows real thumbnail if available -->
                 <div class="aspect-video bg-gradient-to-br from-neutral-800 to-neutral-900 relative overflow-hidden">
-                  <!-- Animated Stadium Background -->
-                  <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMjAgMEw0MCAyMEwyMCA0MEwwIDIwTDIwIDBaIiBmaWxsPSJub25lIiBzdHJva2U9InJnYmEoMjU1LDI1NSwyNTUsMC4wMykiIHN0cm9rZS13aWR0aD0iMSIvPjwvc3ZnPg==')] opacity-50"></div>
+                  <!-- Real Thumbnail from Featured Highlight -->
+                  <img 
+                    v-if="heroHighlight?.thumbnail_url" 
+                    :src="heroHighlight.thumbnail_url" 
+                    :alt="heroHighlight.playerName"
+                    class="absolute inset-0 w-full h-full object-cover"
+                  />
                   
-                  <!-- Animated Player Silhouette -->
-                  <div class="absolute inset-0 flex items-center justify-center">
-                    <div class="relative w-48 h-48">
-                      <!-- Running player animation container -->
-                      <div class="absolute inset-0 flex items-center justify-center animate-player-run">
-                        <svg class="w-32 h-32 text-white/20" viewBox="0 0 100 100" fill="currentColor">
-                          <ellipse cx="50" cy="85" rx="20" ry="5" class="animate-pulse opacity-30" />
-                          <circle cx="50" cy="25" r="12" />
-                          <path d="M50 37 L50 60 M35 45 L50 50 L65 45 M40 80 L50 60 L60 80" stroke="currentColor" stroke-width="6" stroke-linecap="round" fill="none" />
-                        </svg>
-                      </div>
-                      
-                      <!-- Animated football -->
-                      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-ball-bounce">
-                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-white to-neutral-300 shadow-lg flex items-center justify-center">
-                          <svg class="w-6 h-6 text-neutral-800" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <circle cx="12" cy="12" r="10"/>
-                            <path d="M12 2v4M12 18v4M2 12h4M18 12h4M5.64 5.64l2.83 2.83M15.54 15.54l2.83 2.83M5.64 18.36l2.83-2.83M15.54 8.46l2.83-2.83"/>
+                  <!-- Fallback: Animated Stadium Background when no thumbnail -->
+                  <template v-else>
+                    <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMjAgMEw0MCAyMEwyMCA0MEwwIDIwTDIwIDBaIiBmaWxsPSJub25lIiBzdHJva2U9InJnYmEoMjU1LDI1NSwyNTUsMC4wMykiIHN0cm9rZS13aWR0aD0iMSIvPjwvc3ZnPg==')] opacity-50"></div>
+                    
+                    <!-- Animated Player Silhouette -->
+                    <div class="absolute inset-0 flex items-center justify-center">
+                      <div class="relative w-48 h-48">
+                        <!-- Running player animation container -->
+                        <div class="absolute inset-0 flex items-center justify-center animate-player-run">
+                          <svg class="w-32 h-32 text-white/20" viewBox="0 0 100 100" fill="currentColor">
+                            <ellipse cx="50" cy="85" rx="20" ry="5" class="animate-pulse opacity-30" />
+                            <circle cx="50" cy="25" r="12" />
+                            <path d="M50 37 L50 60 M35 45 L50 50 L65 45 M40 80 L50 60 L60 80" stroke="currentColor" stroke-width="6" stroke-linecap="round" fill="none" />
                           </svg>
                         </div>
-                      </div>
-                      
-                      <!-- Skill move trail effect -->
-                      <div class="absolute inset-0">
-                        <div class="absolute top-1/4 left-1/4 w-2 h-2 rounded-full bg-primary-400/50 animate-trail-1"></div>
-                        <div class="absolute top-1/3 left-1/3 w-1.5 h-1.5 rounded-full bg-emerald-400/40 animate-trail-2"></div>
-                        <div class="absolute top-1/2 left-1/2 w-1 h-1 rounded-full bg-white/30 animate-trail-3"></div>
+                        
+                        <!-- Animated football -->
+                        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-ball-bounce">
+                          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-white to-neutral-300 shadow-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-neutral-800" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                              <circle cx="12" cy="12" r="10"/>
+                              <path d="M12 2v4M12 18v4M2 12h4M18 12h4M5.64 5.64l2.83 2.83M15.54 15.54l2.83 2.83M5.64 18.36l2.83-2.83M15.54 8.46l2.83-2.83"/>
+                            </svg>
+                          </div>
+                        </div>
+                        
+                        <!-- Skill move trail effect -->
+                        <div class="absolute inset-0">
+                          <div class="absolute top-1/4 left-1/4 w-2 h-2 rounded-full bg-primary-400/50 animate-trail-1"></div>
+                          <div class="absolute top-1/3 left-1/3 w-1.5 h-1.5 rounded-full bg-emerald-400/40 animate-trail-2"></div>
+                          <div class="absolute top-1/2 left-1/2 w-1 h-1 rounded-full bg-white/30 animate-trail-3"></div>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  </template>
                   
                   <!-- Live indicator -->
                   <div class="absolute top-4 left-4 flex items-center gap-2 px-3 py-1.5 bg-red-500/90 backdrop-blur-sm rounded-full">
@@ -153,9 +163,9 @@
                     <span class="text-white text-xs font-semibold">HIGHLIGHT REEL</span>
                   </div>
                   
-                  <!-- Play Button - Opens Video Modal -->
+                  <!-- Play Button - Opens Video Modal with hero highlight -->
                   <button 
-                    @click="videoModal.open()"
+                    @click="heroHighlight ? openHighlight(heroHighlight as FeaturedHighlight) : videoModal.open()"
                     class="absolute inset-0 flex items-center justify-center group/play"
                     aria-label="Play highlight reel"
                   >
@@ -179,25 +189,35 @@
                           <div class="h-full w-1/3 bg-primary-500 rounded-full"></div>
                         </div>
                       </div>
-                      <span class="text-white/60 text-sm font-mono">2:34</span>
+                      <span class="text-white/60 text-sm font-mono">{{ heroHighlight?.duration_seconds ? formatDuration(heroHighlight.duration_seconds) : '0:00' }}</span>
                     </div>
                   </div>
                 </div>
                 
-                <!-- Player Info Bar -->
-                <div class="p-4 flex items-center gap-4 bg-neutral-900/80 border-t border-white/5">
+                <!-- Player Info Bar - Dynamic from API -->
+                <div v-if="heroHighlight" class="p-4 flex items-center gap-4 bg-neutral-900/80 border-t border-white/5">
                   <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-emerald-500 flex items-center justify-center text-white font-bold text-lg">
-                    AK
+                    {{ heroHighlight.playerInitials }}
                   </div>
                   <div class="flex-1">
-                    <div class="text-white font-semibold">Amara Koné</div>
-                    <div class="text-neutral-400 text-sm">Striker • 18 years • Ghana</div>
+                    <div class="text-white font-semibold">{{ heroHighlight.playerName }}</div>
+                    <div class="text-neutral-400 text-sm">{{ heroHighlight.playerPosition }} • {{ getHighlightIcon(heroHighlight.highlight_type) }} {{ heroHighlight.highlight_type.replace('_', ' ') }}</div>
                   </div>
                   <div class="flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary-500/20 text-primary-400 text-sm font-medium">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                     </svg>
                     Verified
+                  </div>
+                </div>
+                <!-- Fallback when no highlight loaded -->
+                <div v-else class="p-4 flex items-center gap-4 bg-neutral-900/80 border-t border-white/5">
+                  <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-emerald-500 flex items-center justify-center text-white font-bold text-lg">
+                    US
+                  </div>
+                  <div class="flex-1">
+                    <div class="text-white font-semibold">Unicorn Sport</div>
+                    <div class="text-neutral-400 text-sm">Discover African Talent</div>
                   </div>
                 </div>
               </div>
@@ -1053,6 +1073,22 @@ const featuredVideoPlayer = computed<FeaturedVideoPlayer | undefined>(() => {
     position: player.position,
     country: player.country,
     avatarUrl: player.profile_photo_url,
+  }
+})
+
+// Hero section highlight - use first featured highlight
+const heroHighlight = computed(() => {
+  const highlight = featuredHighlights.value[0]
+  if (!highlight) return null
+  return {
+    ...highlight,
+    playerInitials: highlight.player 
+      ? `${highlight.player.first_name[0]}${highlight.player.last_name[0]}`
+      : 'US',
+    playerName: highlight.player 
+      ? `${highlight.player.first_name} ${highlight.player.last_name}`
+      : 'Unknown Player',
+    playerPosition: highlight.player?.position || 'Player'
   }
 })
 
