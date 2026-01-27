@@ -34,6 +34,20 @@ type PlayerListResponse struct {
 	IsVerified   bool      `json:"is_verified"`
 }
 
+// FeaturedPlayerResponse is the response for featured players on homepage
+type FeaturedPlayerResponse struct {
+	ID              uuid.UUID `json:"id"`
+	FirstName       string    `json:"first_name"`
+	LastName        string    `json:"last_name"`
+	DateOfBirth     string    `json:"date_of_birth,omitempty"`
+	Age             int       `json:"age"`
+	Position        string    `json:"position"`
+	Country         string    `json:"country"`
+	ProfilePhotoURL *string   `json:"profile_photo_url,omitempty"`
+	AcademyName     *string   `json:"academy_name,omitempty"`
+	IsVerified      bool      `json:"is_verified"`
+}
+
 // PlayerDetailResponse is the detailed player response
 type PlayerDetailResponse struct {
 	ID              uuid.UUID       `json:"id"`
@@ -409,25 +423,35 @@ func (m *ProfilesModule) GetFeaturedPlayers(c *gin.Context) {
 	}
 
 	var players []domain.Player
-	// Get verified players with videos, ordered by recent activity
+	// Get verified players with photos, ordered by recent activity
+	// Also include approved players if not enough verified
 	m.db.Model(&domain.Player{}).
-		Where("deleted_at IS NULL AND verification_status = ?", "verified").
-		Where("profile_photo_url IS NOT NULL").
-		Order("created_at DESC").
+		Preload("Academy").
+		Where("deleted_at IS NULL").
+		Where("verification_status IN (?, ?)", "verified", "approved").
+		Where("profile_photo_url IS NOT NULL AND profile_photo_url != ''").
+		Order("CASE WHEN verification_status = 'verified' THEN 0 ELSE 1 END, created_at DESC").
 		Limit(limit).
 		Find(&players)
 
-	response := make([]PlayerListResponse, len(players))
+	response := make([]FeaturedPlayerResponse, len(players))
 	for i, p := range players {
-		response[i] = PlayerListResponse{
-			ID:           p.ID,
-			FirstName:    p.FirstName,
-			LastNameInit: p.GetLastNameInit(),
-			Age:          p.GetAge(),
-			Position:     p.Position,
-			Country:      p.Country,
-			ThumbnailURL: p.ThumbnailURL,
-			IsVerified:   p.IsVerified(),
+		dob := p.DateOfBirth.Format("2006-01-02")
+		var academyName *string
+		if p.Academy != nil {
+			academyName = &p.Academy.Name
+		}
+		response[i] = FeaturedPlayerResponse{
+			ID:              p.ID,
+			FirstName:       p.FirstName,
+			LastName:        p.LastName,
+			DateOfBirth:     dob,
+			Age:             p.GetAge(),
+			Position:        p.Position,
+			Country:         p.Country,
+			ProfilePhotoURL: p.ProfilePhotoURL,
+			AcademyName:     academyName,
+			IsVerified:      p.IsVerified(),
 		}
 	}
 
