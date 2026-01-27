@@ -36,12 +36,13 @@ func main() {
 	// Initialize modules
 	authModule := auth.NewAuthModule(db, cfg.JWT.Secret, cfg.JWT.AccessTokenTTL, cfg.JWT.RefreshTokenTTL)
 	mediaModule := media.NewMediaModule(db, cfg.AWS.Region, cfg.AWS.AccessKeyID, cfg.AWS.SecretAccessKey, cfg.AWS.S3Bucket, cfg.AWS.CloudFrontURL)
-	profilesModule := profiles.NewProfilesModule(db)
+
+	// Initialize S3 client for matches/highlights/admin/profiles modules
+	s3Client := mediaModule.GetS3Client()
+	profilesModule := profiles.NewProfilesModule(db, s3Client, cfg.AWS.S3Bucket)
 	searchModule := search.NewSearchModule(db)
 	contactModule := contact.NewContactModule(db)
 
-	// Initialize S3 client for matches/highlights/admin modules
-	s3Client := mediaModule.GetS3Client()
 	adminModule := admin.NewAdminModule(db, s3Client, cfg.AWS.S3Bucket)
 	matchesModule := matches.NewModule(db, s3Client, cfg.AWS.S3Bucket, cfg.AWS.CloudFrontURL)
 	highlightsModule := highlights.NewModule(db, s3Client, cfg.AWS.S3Bucket, cfg.AWS.CloudFrontURL)

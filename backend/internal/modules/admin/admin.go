@@ -967,10 +967,43 @@ func (m *AdminModule) ListPlayers(c *gin.Context) {
 	m.db.Model(&domain.Player{}).Where("deleted_at IS NULL AND verification_status = ?", "verified").Count(&verifiedCount)
 	pendingCount = totalPlayers - verifiedCount
 
+	// Convert profile photo URLs to presigned URLs
+	playerResponses := make([]gin.H, len(players))
+	for i, p := range players {
+		var profilePhotoURL *string
+		if p.ProfilePhotoURL != nil && *p.ProfilePhotoURL != "" {
+			url := m.getPresignedURL(*p.ProfilePhotoURL)
+			profilePhotoURL = &url
+		}
+		playerResponses[i] = gin.H{
+			"id":                  p.ID,
+			"first_name":          p.FirstName,
+			"last_name":           p.LastName,
+			"date_of_birth":       p.DateOfBirth,
+			"position":            p.Position,
+			"preferred_foot":      p.PreferredFoot,
+			"height_cm":           p.HeightCm,
+			"weight_kg":           p.WeightKg,
+			"country":             p.Country,
+			"state":               p.State,
+			"city":                p.City,
+			"school_name":         p.SchoolName,
+			"verification_status": p.VerificationStatus,
+			"profile_photo_url":   profilePhotoURL,
+			"thumbnail_url":       p.ThumbnailURL,
+			"academy_id":          p.AcademyID,
+			"tournament_id":       p.TournamentID,
+			"tournament":          p.Tournament,
+			"academy":             p.Academy,
+			"created_at":          p.CreatedAt,
+			"updated_at":          p.UpdatedAt,
+		}
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"data": gin.H{
-			"players": players,
+			"players": playerResponses,
 			"total":   total,
 			"stats": gin.H{
 				"total_players":  totalPlayers,

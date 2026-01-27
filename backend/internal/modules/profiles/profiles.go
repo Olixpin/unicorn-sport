@@ -1,10 +1,14 @@
 package profiles
 
 import (
+	"context"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -14,12 +18,45 @@ import (
 
 // ProfilesModule handles player profile viewing
 type ProfilesModule struct {
-	db *gorm.DB
+	db       *gorm.DB
+	s3Client *s3.Client
+	s3Bucket string
 }
 
 // NewProfilesModule creates a new profiles module
-func NewProfilesModule(db *gorm.DB) *ProfilesModule {
-	return &ProfilesModule{db: db}
+func NewProfilesModule(db *gorm.DB, s3Client *s3.Client, s3Bucket string) *ProfilesModule {
+	return &ProfilesModule{
+		db:       db,
+		s3Client: s3Client,
+		s3Bucket: s3Bucket,
+	}
+}
+
+// getPresignedURL converts an s3:// URL to a presigned URL
+func (m *ProfilesModule) getPresignedURL(s3URL string) string {
+	if s3URL == "" || !strings.HasPrefix(s3URL, "s3://") {
+		return s3URL
+	}
+
+	// Parse s3://bucket/key format
+	withoutPrefix := strings.TrimPrefix(s3URL, "s3://")
+	parts := strings.SplitN(withoutPrefix, "/", 2)
+	if len(parts) != 2 {
+		return s3URL
+	}
+
+	key := parts[1]
+
+	presignClient := s3.NewPresignClient(m.s3Client)
+	presignedReq, err := presignClient.PresignGetObject(context.Background(), &s3.GetObjectInput{
+		Bucket: aws.String(m.s3Bucket),
+		Key:    aws.String(key),
+	}, s3.WithPresignExpires(time.Hour))
+	if err != nil {
+		return s3URL
+	}
+
+	return presignedReq.URL
 }
 
 // PlayerListResponse is the public player list response
@@ -182,6 +219,13 @@ func (m *ProfilesModule) GetPlayer(c *gin.Context) {
 			Find(&fullMatchVideos)
 	}
 
+	// Convert profile photo URL to presigned URL
+	var profilePhotoURL *string
+	if player.ProfilePhotoURL != nil && *player.ProfilePhotoURL != "" {
+		url := m.getPresignedURL(*player.ProfilePhotoURL)
+		profilePhotoURL = &url
+	}
+
 	// Build response
 	response := PlayerDetailResponse{
 		ID:              player.ID,
@@ -195,7 +239,7 @@ func (m *ProfilesModule) GetPlayer(c *gin.Context) {
 		Country:         player.Country,
 		State:           player.State,
 		SchoolName:      player.SchoolName,
-		ProfilePhotoURL: player.ProfilePhotoURL,
+		ProfilePhotoURL: profilePhotoURL,
 		IsVerified:      player.IsVerified(),
 		HighlightVideos: make([]VideoResponse, len(highlightVideos)),
 		FullMatchVideos: make([]VideoResponse, len(fullMatchVideos)),
@@ -441,6 +485,14 @@ func (m *ProfilesModule) GetFeaturedPlayers(c *gin.Context) {
 		if p.Academy != nil {
 			academyName = &p.Academy.Name
 		}
+
+		// Convert profile photo URL to presigned URL
+		var profilePhotoURL *string
+		if p.ProfilePhotoURL != nil && *p.ProfilePhotoURL != "" {
+			url := m.getPresignedURL(*p.ProfilePhotoURL)
+			profilePhotoURL = &url
+		}
+
 		response[i] = FeaturedPlayerResponse{
 			ID:              p.ID,
 			FirstName:       p.FirstName,
@@ -449,7 +501,7 @@ func (m *ProfilesModule) GetFeaturedPlayers(c *gin.Context) {
 			Age:             p.GetAge(),
 			Position:        p.Position,
 			Country:         p.Country,
-			ProfilePhotoURL: p.ProfilePhotoURL,
+			ProfilePhotoURL: profilePhotoURL,
 			AcademyName:     academyName,
 			IsVerified:      p.IsVerified(),
 		}
