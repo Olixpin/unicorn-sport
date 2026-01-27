@@ -286,6 +286,10 @@ func setupRouter(
 				adminRoutes.POST("/matches/:id/video", matchesModule.SaveMatchVideo)
 				adminRoutes.DELETE("/matches/:id/video", matchesModule.DeleteMatchVideo)
 
+				// Match video thumbnail
+				adminRoutes.POST("/matches/:id/video/thumbnail/upload", matchesModule.InitThumbnailUpload)
+				adminRoutes.PUT("/matches/:id/video/thumbnail", matchesModule.UpdateThumbnail)
+
 				// Multipart upload for large videos
 				adminRoutes.POST("/matches/upload/part-url", matchesModule.GetMultipartPartURL)
 				adminRoutes.POST("/matches/upload/complete", matchesModule.CompleteMultipartUpload)

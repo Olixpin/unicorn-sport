@@ -96,15 +96,15 @@
 
         <!-- Video Exists -->
         <div v-if="matchVideo" class="flex flex-col md:flex-row gap-6">
-          <div class="w-full md:w-72 h-40 bg-neutral-100 rounded-xl overflow-hidden relative">
+          <div class="w-full md:w-72 h-40 bg-neutral-100 rounded-xl overflow-hidden relative group">
             <img
               v-if="matchVideo.thumbnail_url"
               :src="matchVideo.thumbnail_url"
               alt="Video thumbnail"
               class="w-full h-full object-cover"
             />
-            <div v-else class="w-full h-full flex items-center justify-center">
-              <svg class="w-12 h-12 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div v-else class="w-full h-full flex items-center justify-center bg-gradient-to-br from-neutral-200 to-neutral-300">
+              <svg class="w-12 h-12 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
               </svg>
             </div>
@@ -118,6 +118,23 @@
                 </svg>
               </button>
             </div>
+            <!-- Upload thumbnail button overlay -->
+            <button
+              @click="thumbnailInput?.click()"
+              class="absolute bottom-2 right-2 p-1.5 bg-black/60 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity text-xs flex items-center gap-1"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              {{ matchVideo.thumbnail_url ? 'Change' : 'Add' }} Thumbnail
+            </button>
+            <input
+              ref="thumbnailInput"
+              type="file"
+              accept="image/*"
+              class="hidden"
+              @change="handleThumbnailUpload"
+            />
           </div>
           <div class="flex-1">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -691,6 +708,81 @@
       </div>
     </Teleport>
 
+    <!-- Replace Video Modal -->
+    <Teleport to="body">
+      <div v-if="showReplaceVideoModal" class="fixed inset-0 z-50 overflow-y-auto">
+        <div class="fixed inset-0 bg-black/50" @click="showReplaceVideoModal = false"></div>
+        <div class="relative min-h-screen flex items-center justify-center p-4">
+          <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-lg p-6">
+            <h3 class="text-xl font-semibold mb-4">Replace Match Video</h3>
+            <p class="text-sm text-neutral-600 mb-4">
+              The current video will be deleted and replaced with the new one.
+            </p>
+
+            <div
+              @click="replaceVideoInput?.click()"
+              @drop.prevent="handleReplaceVideoFileDrop"
+              @dragover.prevent
+              class="border-2 border-dashed border-neutral-300 rounded-xl p-8 text-center cursor-pointer hover:border-neutral-400 transition-colors"
+            >
+              <input
+                ref="replaceVideoInput"
+                type="file"
+                accept="video/*"
+                class="hidden"
+                @change="handleReplaceVideoFileSelect"
+              />
+              <div v-if="!replaceVideoFile">
+                <svg class="w-12 h-12 text-neutral-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                <p class="text-neutral-900 font-medium mb-1">Select new video file</p>
+                <p class="text-sm text-neutral-500">MP4, MOV, WebM (max 25GB)</p>
+              </div>
+              <div v-else class="flex flex-col items-center">
+                <svg class="w-10 h-10 text-emerald-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <p class="font-medium">{{ replaceVideoFile.name }}</p>
+                <p class="text-sm text-neutral-500">{{ formatFileSize(replaceVideoFile.size) }}</p>
+              </div>
+            </div>
+
+            <!-- Upload Progress -->
+            <div v-if="replaceVideoUploadProgress !== null" class="mt-4">
+              <div class="flex items-center justify-between text-sm mb-1">
+                <span>{{ replaceVideoStep }}</span>
+                <span>{{ replaceVideoUploadProgress }}%</span>
+              </div>
+              <div class="h-3 bg-neutral-200 rounded-full overflow-hidden">
+                <div
+                  class="h-full bg-gradient-to-r from-primary-500 to-emerald-600 transition-all"
+                  :style="{ width: `${replaceVideoUploadProgress}%` }"
+                ></div>
+              </div>
+            </div>
+
+            <div class="flex justify-end gap-3 mt-6">
+              <button
+                @click="closeReplaceVideoModal"
+                :disabled="replacingVideo"
+                class="px-4 py-2 border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                @click="replaceMatchVideo"
+                :disabled="!replaceVideoFile || replacingVideo"
+                class="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50"
+              >
+                {{ replacingVideo ? 'Replacing...' : 'Replace Video' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
     <!-- Edit Match Modal -->
     <Teleport to="body">
       <div v-if="showEditModal" class="fixed inset-0 z-50 overflow-y-auto">
@@ -842,24 +934,60 @@
             </button>
 
             <!-- Video Player -->
-            <div class="aspect-video bg-black">
+            <div class="aspect-video bg-black relative">
               <video
+                ref="videoPlayerRef"
                 v-if="matchVideo?.video_url"
                 :src="matchVideo.video_url"
                 controls
                 autoplay
+                crossorigin="anonymous"
                 class="w-full h-full"
+                @loadeddata="onVideoLoaded"
               >
                 Your browser does not support the video tag.
               </video>
+              
+              <!-- Capture Thumbnail Button (overlay) -->
+              <button
+                v-if="videoLoaded && !capturingThumbnail"
+                @click="captureThumbnail"
+                class="absolute bottom-16 left-4 px-3 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-medium flex items-center gap-2 transition-colors shadow-lg"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Capture as Thumbnail
+              </button>
+              <div
+                v-if="capturingThumbnail"
+                class="absolute bottom-16 left-4 px-3 py-2 bg-neutral-700 text-white rounded-lg text-sm flex items-center gap-2"
+              >
+                <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Capturing...
+              </div>
             </div>
+
+            <!-- Hidden canvas for thumbnail capture -->
+            <canvas ref="thumbnailCanvas" class="hidden"></canvas>
 
             <!-- Video Info -->
             <div class="p-4 bg-neutral-900 text-white">
-              <h3 class="font-semibold">{{ match?.title }}</h3>
-              <div class="flex items-center gap-4 mt-2 text-sm text-neutral-400">
-                <span v-if="matchVideo?.duration_seconds">{{ formatDuration(matchVideo.duration_seconds) }}</span>
-                <span v-if="matchVideo?.file_size_bytes">{{ formatFileSize(matchVideo.file_size_bytes) }}</span>
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="font-semibold">{{ match?.title }}</h3>
+                  <div class="flex items-center gap-4 mt-2 text-sm text-neutral-400">
+                    <span v-if="matchVideo?.duration_seconds">{{ formatDuration(matchVideo.duration_seconds) }}</span>
+                    <span v-if="matchVideo?.file_size_bytes">{{ formatFileSize(matchVideo.file_size_bytes) }}</span>
+                  </div>
+                </div>
+                <div class="text-xs text-neutral-500">
+                  Pause video and click "Capture as Thumbnail" to set cover image
+                </div>
               </div>
             </div>
           </div>
@@ -1023,6 +1151,27 @@ const matchVideoFile = ref<File | null>(null)
 const matchVideoUploadProgress = ref<number | null>(null)
 const uploadingMatchVideo = ref(false)
 const videoInput = ref<HTMLInputElement | null>(null)
+
+// Replace video
+const replaceVideoFile = ref<File | null>(null)
+const replaceVideoUploadProgress = ref<number | null>(null)
+const replaceVideoStep = ref('Uploading...')
+const replacingVideo = ref(false)
+const replaceVideoInput = ref<HTMLInputElement | null>(null)
+
+// Thumbnail upload
+const thumbnailInput = ref<HTMLInputElement | null>(null)
+const uploadingThumbnail = ref(false)
+
+// Video player for thumbnail capture
+const videoPlayerRef = ref<HTMLVideoElement | null>(null)
+const thumbnailCanvas = ref<HTMLCanvasElement | null>(null)
+const videoLoaded = ref(false)
+const capturingThumbnail = ref(false)
+
+function onVideoLoaded() {
+  videoLoaded.value = true
+}
 
 // Highlight types
 const highlightTypes = [
@@ -1428,6 +1577,247 @@ async function deleteMatchVideo() {
   }
 }
 
+// Replace video handlers
+function handleReplaceVideoFileSelect(e: Event) {
+  const input = e.target as HTMLInputElement
+  if (input.files && input.files[0]) {
+    replaceVideoFile.value = input.files[0]
+  }
+}
+
+function handleReplaceVideoFileDrop(e: DragEvent) {
+  if (e.dataTransfer?.files && e.dataTransfer.files[0]) {
+    replaceVideoFile.value = e.dataTransfer.files[0]
+  }
+}
+
+function closeReplaceVideoModal() {
+  showReplaceVideoModal.value = false
+  replaceVideoFile.value = null
+  replaceVideoUploadProgress.value = null
+  replaceVideoStep.value = 'Uploading...'
+}
+
+async function replaceMatchVideo() {
+  if (!replaceVideoFile.value) return
+  replacingVideo.value = true
+
+  try {
+    // Step 1: Delete old video
+    replaceVideoStep.value = 'Removing old video...'
+    replaceVideoUploadProgress.value = 10
+    
+    await $fetch(`/admin/matches/${matchId}/video`, {
+      baseURL: config.public.apiBase,
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${authStore.accessToken}` },
+    })
+
+    // Step 2: Init new upload
+    replaceVideoStep.value = 'Preparing upload...'
+    replaceVideoUploadProgress.value = 20
+
+    const initResponse = await $fetch<ApiResponse<{ session_id: string; upload_url?: string; s3_key: string; upload_method: string }>>(`/admin/matches/${matchId}/video/upload`, {
+      baseURL: config.public.apiBase,
+      method: 'POST',
+      headers: { Authorization: `Bearer ${authStore.accessToken}` },
+      body: {
+        file_name: replaceVideoFile.value.name,
+        file_size: replaceVideoFile.value.size,
+        content_type: replaceVideoFile.value.type,
+      },
+    })
+
+    if (!initResponse.success || !initResponse.data) {
+      throw new Error('Failed to initialize upload')
+    }
+
+    // Step 3: Upload to S3
+    replaceVideoStep.value = 'Uploading new video...'
+    
+    if (initResponse.data.upload_url) {
+      await new Promise<void>((resolve, reject) => {
+        const xhr = new XMLHttpRequest()
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable) {
+            // Progress from 25% to 90%
+            replaceVideoUploadProgress.value = 25 + Math.round((e.loaded / e.total) * 65)
+          }
+        }
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            resolve()
+          } else {
+            reject(new Error('Upload failed'))
+          }
+        }
+        xhr.onerror = () => reject(new Error('Upload failed'))
+        xhr.open('PUT', initResponse.data!.upload_url!)
+        xhr.setRequestHeader('Content-Type', replaceVideoFile.value!.type)
+        xhr.send(replaceVideoFile.value)
+      })
+    }
+
+    // Step 4: Save video record
+    replaceVideoStep.value = 'Finalizing...'
+    replaceVideoUploadProgress.value = 95
+
+    await $fetch(`/admin/matches/${matchId}/video`, {
+      baseURL: config.public.apiBase,
+      method: 'POST',
+      headers: { Authorization: `Bearer ${authStore.accessToken}` },
+      body: {
+        s3_key: initResponse.data.s3_key,
+        file_size_bytes: replaceVideoFile.value.size,
+      },
+    })
+
+    replaceVideoUploadProgress.value = 100
+    toast.success('Video Replaced', 'Match video has been replaced successfully')
+    closeReplaceVideoModal()
+    fetchMatch()
+  } catch (error: any) {
+    toast.error('Replace Failed', error.message || 'Failed to replace video')
+  } finally {
+    replacingVideo.value = false
+  }
+}
+
+// Thumbnail upload handler
+async function handleThumbnailUpload(e: Event) {
+  const input = e.target as HTMLInputElement
+  if (!input.files || !input.files[0]) return
+  
+  const file = input.files[0]
+  if (!file.type.startsWith('image/')) {
+    toast.error('Invalid File', 'Please select an image file')
+    return
+  }
+
+  uploadingThumbnail.value = true
+  try {
+    // Get presigned URL for thumbnail upload
+    const initResponse = await $fetch<ApiResponse<{ upload_url: string; s3_key: string }>>(`/admin/matches/${matchId}/video/thumbnail/upload`, {
+      baseURL: config.public.apiBase,
+      method: 'POST',
+      headers: { Authorization: `Bearer ${authStore.accessToken}` },
+      body: {
+        file_name: file.name,
+        file_size: file.size,
+        content_type: file.type,
+      },
+    })
+
+    if (!initResponse.success || !initResponse.data?.upload_url) {
+      throw new Error('Failed to initialize thumbnail upload')
+    }
+
+    // Upload to S3
+    await fetch(initResponse.data.upload_url, {
+      method: 'PUT',
+      headers: { 'Content-Type': file.type },
+      body: file,
+    })
+
+    // Save thumbnail URL
+    await $fetch(`/admin/matches/${matchId}/video/thumbnail`, {
+      baseURL: config.public.apiBase,
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${authStore.accessToken}` },
+      body: { s3_key: initResponse.data.s3_key },
+    })
+
+    toast.success('Thumbnail Updated', 'Video thumbnail has been updated')
+    fetchMatch()
+  } catch (error: any) {
+    toast.error('Upload Failed', error.message || 'Failed to upload thumbnail')
+  } finally {
+    uploadingThumbnail.value = false
+    input.value = '' // Reset input
+  }
+}
+
+// Capture thumbnail from video using canvas
+async function captureThumbnail() {
+  const video = videoPlayerRef.value
+  const canvas = thumbnailCanvas.value
+  
+  if (!video || !canvas) {
+    toast.error('Error', 'Video player not ready')
+    return
+  }
+
+  // Pause video for capture
+  video.pause()
+  
+  capturingThumbnail.value = true
+  
+  try {
+    // Set canvas dimensions to match video
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
+    
+    // Draw current frame to canvas
+    const ctx = canvas.getContext('2d')
+    if (!ctx) {
+      throw new Error('Canvas context not available')
+    }
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+    
+    // Convert canvas to blob
+    const blob = await new Promise<Blob>((resolve, reject) => {
+      canvas.toBlob((b) => {
+        if (b) resolve(b)
+        else reject(new Error('Failed to create image'))
+      }, 'image/jpeg', 0.9)
+    })
+    
+    // Create file from blob
+    const fileName = `thumbnail_${Date.now()}.jpg`
+    const file = new File([blob], fileName, { type: 'image/jpeg' })
+    
+    // Get presigned URL for thumbnail upload
+    const initResponse = await $fetch<ApiResponse<{ upload_url: string; s3_key: string }>>(`/admin/matches/${matchId}/video/thumbnail/upload`, {
+      baseURL: config.public.apiBase,
+      method: 'POST',
+      headers: { Authorization: `Bearer ${authStore.accessToken}` },
+      body: {
+        file_name: fileName,
+        file_size: file.size,
+        content_type: 'image/jpeg',
+      },
+    })
+
+    if (!initResponse.success || !initResponse.data?.upload_url) {
+      throw new Error('Failed to initialize thumbnail upload')
+    }
+
+    // Upload to S3
+    await fetch(initResponse.data.upload_url, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'image/jpeg' },
+      body: file,
+    })
+
+    // Save thumbnail URL
+    await $fetch(`/admin/matches/${matchId}/video/thumbnail`, {
+      baseURL: config.public.apiBase,
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${authStore.accessToken}` },
+      body: { s3_key: initResponse.data.s3_key },
+    })
+
+    toast.success('Thumbnail Captured', 'Video thumbnail has been set from current frame')
+    showVideoPreviewModal.value = false
+    fetchMatch()
+  } catch (error: any) {
+    console.error('Thumbnail capture error:', error)
+    toast.error('Capture Failed', error.message || 'Failed to capture thumbnail. This may be due to CORS restrictions.')
+  } finally {
+    capturingThumbnail.value = false
+  }
+}
+
 async function deleteHighlight(highlight: PlayerHighlight) {
   const confirmed = await confirm({
     title: 'Delete Highlight',
@@ -1467,6 +1857,13 @@ function viewHighlight(highlight: PlayerHighlight) {
 
 // Video preview modal state
 const showVideoPreviewModal = ref(false)
+
+// Reset video state when modal closes
+watch(showVideoPreviewModal, (isOpen) => {
+  if (!isOpen) {
+    videoLoaded.value = false
+  }
+})
 
 function previewVideo() {
   if (matchVideo.value?.video_url) {

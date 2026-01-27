@@ -990,6 +990,106 @@ func (m *Module) DeleteMatchVideo(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": true, "message": "Video deleted"})
 }
 
+// InitThumbnailUpload initializes upload for video thumbnail
+func (m *Module) InitThumbnailUpload(c *gin.Context) {
+	matchID := c.Param("id")
+	mid, err := uuid.Parse(matchID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Invalid match ID"})
+		return
+	}
+
+	var req struct {
+		FileName    string `json:"file_name" binding:"required"`
+		FileSize    int64  `json:"file_size"`
+		ContentType string `json:"content_type"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Invalid request"})
+		return
+	}
+
+	// Check video exists
+	var video domain.MatchVideo
+	if err := m.DB.First(&video, "match_id = ?", mid).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "Video not found"})
+		return
+	}
+
+	// Generate S3 key for thumbnail
+	s3Key := fmt.Sprintf("thumbnails/matches/%s/%s", matchID, req.FileName)
+
+	// Generate presigned PUT URL
+	presigner := s3.NewPresignClient(m.S3Client)
+	presignedReq, err := presigner.PresignPutObject(c.Request.Context(), &s3.PutObjectInput{
+		Bucket:      aws.String(m.S3Bucket),
+		Key:         aws.String(s3Key),
+		ContentType: aws.String(req.ContentType),
+	}, s3.WithPresignExpires(15*time.Minute))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Failed to generate upload URL"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data": gin.H{
+			"upload_url": presignedReq.URL,
+			"s3_key":     s3Key,
+		},
+	})
+}
+
+// UpdateThumbnail updates the video thumbnail URL
+func (m *Module) UpdateThumbnail(c *gin.Context) {
+	matchID := c.Param("id")
+	mid, err := uuid.Parse(matchID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Invalid match ID"})
+		return
+	}
+
+	var req struct {
+		S3Key string `json:"s3_key" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Invalid request"})
+		return
+	}
+
+	// Check video exists
+	var video domain.MatchVideo
+	if err := m.DB.First(&video, "match_id = ?", mid).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "Video not found"})
+		return
+	}
+
+	// Generate thumbnail URL
+	var thumbnailURL string
+	if m.CDNHost != "" {
+		thumbnailURL = fmt.Sprintf("%s/%s", m.CDNHost, req.S3Key)
+	} else {
+		thumbnailURL = fmt.Sprintf("https://%s.s3.amazonaws.com/%s", m.S3Bucket, req.S3Key)
+	}
+
+	// Update video record
+	video.ThumbnailURL = &thumbnailURL
+	if err := m.DB.Save(&video).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Failed to update thumbnail"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Thumbnail updated",
+		"data": gin.H{
+			"thumbnail_url": thumbnailURL,
+		},
+	})
+}
+
 // ==================== HELPERS ====================
 
 func getMatchIDs(matches []domain.Match) []uuid.UUID {
