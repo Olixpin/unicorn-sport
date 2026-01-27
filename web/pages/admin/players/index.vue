@@ -8,15 +8,92 @@
         </h1>
         <p class="mt-1 text-neutral-600">Manage all players in the platform</p>
       </div>
-      <NuxtLink to="/admin/players/new">
-        <button class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary-600 to-emerald-600 text-white rounded-xl text-sm font-semibold hover:from-primary-700 hover:to-emerald-700 transition-all shadow-lg shadow-primary-600/25">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      <div class="flex items-center gap-3">
+        <!-- Export Button -->
+        <button
+          @click="exportPlayers"
+          class="inline-flex items-center gap-2 px-4 py-2.5 border border-neutral-200 bg-white text-neutral-700 rounded-xl text-sm font-medium hover:bg-neutral-50 transition-all"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
           </svg>
-          Add Player
+          Export CSV
         </button>
-      </NuxtLink>
+        <NuxtLink to="/admin/players/new">
+          <button class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary-600 to-emerald-600 text-white rounded-xl text-sm font-semibold hover:from-primary-700 hover:to-emerald-700 transition-all shadow-lg shadow-primary-600/25">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Add Player
+          </button>
+        </NuxtLink>
+      </div>
     </div>
+
+    <!-- Bulk Actions Bar -->
+    <Transition
+      enter-active-class="transition duration-200 ease-out"
+      enter-from-class="opacity-0 -translate-y-2"
+      enter-to-class="opacity-100 translate-y-0"
+      leave-active-class="transition duration-150 ease-in"
+      leave-from-class="opacity-100 translate-y-0"
+      leave-to-class="opacity-0 -translate-y-2"
+    >
+      <div v-if="selectedPlayers.length > 0" class="bg-primary-50 border border-primary-200 rounded-2xl p-4 mb-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-primary-500 rounded-xl flex items-center justify-center text-white font-semibold">
+              {{ selectedPlayers.length }}
+            </div>
+            <div>
+              <p class="font-medium text-primary-900">{{ selectedPlayers.length }} player{{ selectedPlayers.length > 1 ? 's' : '' }} selected</p>
+              <p class="text-sm text-primary-600">Choose an action to apply</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button
+              @click="bulkVerify"
+              :disabled="bulkLoading"
+              class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 text-white rounded-xl text-sm font-medium hover:bg-emerald-600 disabled:opacity-50 transition-all"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Verify
+            </button>
+            <button
+              @click="bulkUnverify"
+              :disabled="bulkLoading"
+              class="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-xl text-sm font-medium hover:bg-amber-600 disabled:opacity-50 transition-all"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Unverify
+            </button>
+            <button
+              @click="showBulkDeleteModal = true"
+              :disabled="bulkLoading"
+              class="inline-flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-xl text-sm font-medium hover:bg-red-600 disabled:opacity-50 transition-all"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              Delete
+            </button>
+            <button
+              @click="clearSelection"
+              class="inline-flex items-center gap-2 px-4 py-2 text-neutral-600 hover:text-neutral-900 transition-colors"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              Clear
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
 
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
@@ -176,11 +253,19 @@
         <table class="w-full">
           <thead>
             <tr class="border-b border-neutral-200 bg-neutral-50">
-              <th class="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">Player</th>
-              <th class="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">Position</th>
-              <th class="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider hidden lg:table-cell">Academy</th>
-              <th class="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">Status</th>
-              <th class="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider hidden md:table-cell">Videos</th>
+              <th class="pl-6 pr-2 py-4 w-10">
+                <input
+                  type="checkbox"
+                  :checked="isAllSelected"
+                  @change="toggleSelectAll"
+                  class="w-4 h-4 rounded border-neutral-300 text-primary-600 focus:ring-primary-500"
+                />
+              </th>
+              <th class="px-4 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">Player</th>
+              <th class="px-4 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">Position</th>
+              <th class="px-4 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider hidden lg:table-cell">Academy</th>
+              <th class="px-4 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">Status</th>
+              <th class="px-4 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider hidden md:table-cell">Videos</th>
               <th class="px-6 py-4 text-right text-xs font-semibold text-neutral-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
@@ -189,8 +274,17 @@
               v-for="player in players" 
               :key="player.id" 
               class="group hover:bg-neutral-50 transition-colors"
+              :class="{ 'bg-primary-50': selectedPlayers.includes(player.id) }"
             >
-              <td class="px-6 py-4">
+              <td class="pl-6 pr-2 py-4">
+                <input
+                  type="checkbox"
+                  :checked="selectedPlayers.includes(player.id)"
+                  @change="togglePlayer(player.id)"
+                  class="w-4 h-4 rounded border-neutral-300 text-primary-600 focus:ring-primary-500"
+                />
+              </td>
+              <td class="px-4 py-4">
                 <div class="flex items-center gap-4">
                   <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-neutral-100 to-neutral-200 overflow-hidden flex-shrink-0">
                     <img 
@@ -209,12 +303,12 @@
                   </div>
                 </div>
               </td>
-              <td class="px-6 py-4">
+              <td class="px-4 py-4">
                 <span class="inline-flex items-center px-2.5 py-1 rounded-lg bg-neutral-100 text-sm font-medium text-neutral-700">
                   {{ player.position || 'N/A' }}
                 </span>
               </td>
-              <td class="px-6 py-4 hidden lg:table-cell">
+              <td class="px-4 py-4 hidden lg:table-cell">
                 <span v-if="player.academy" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-100 text-sm font-medium text-amber-700">
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
@@ -396,6 +490,61 @@
           </div>
         </div>
       </Transition>
+
+      <!-- Bulk Delete Modal -->
+      <Transition
+        enter-active-class="transition duration-200 ease-out"
+        enter-from-class="opacity-0"
+        enter-to-class="opacity-100"
+        leave-active-class="transition duration-150 ease-in"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
+      >
+        <div v-if="showBulkDeleteModal" class="fixed inset-0 z-50 overflow-y-auto">
+          <div class="flex min-h-full items-center justify-center p-4">
+            <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" @click="showBulkDeleteModal = false"></div>
+            
+            <div class="relative bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+              <div class="flex items-center gap-4 mb-6">
+                <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <svg class="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-lg font-semibold text-neutral-900">Delete {{ selectedPlayers.length }} Players</h3>
+                  <p class="text-sm text-neutral-500">This action cannot be undone</p>
+                </div>
+              </div>
+              
+              <p class="text-neutral-600 mb-6">
+                Are you sure you want to delete <span class="font-semibold">{{ selectedPlayers.length }} players</span>? 
+                All associated data including videos and contact requests will be permanently removed.
+              </p>
+
+              <div class="flex gap-3">
+                <button 
+                  @click="showBulkDeleteModal = false"
+                  class="flex-1 px-4 py-2.5 text-sm font-medium text-neutral-700 bg-neutral-100 rounded-xl hover:bg-neutral-200 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  @click="bulkDelete"
+                  :disabled="bulkLoading"
+                  class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-red-600 rounded-xl hover:bg-red-700 disabled:opacity-50 transition-colors"
+                >
+                  <svg v-if="bulkLoading" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  {{ bulkLoading ? 'Deleting...' : 'Delete All' }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Transition>
     </Teleport>
   </div>
 </template>
@@ -409,6 +558,8 @@ definePageMeta({
   middleware: 'admin',
 })
 
+const config = useRuntimeConfig()
+const authStore = useAuthStore()
 const api = useApi()
 
 const players = ref<Player[]>([])
@@ -468,6 +619,109 @@ const showDeleteModal = ref(false)
 const playerToDelete = ref<Player | null>(null)
 const deleting = ref(false)
 
+// Bulk operations
+const selectedPlayers = ref<string[]>([])
+const bulkLoading = ref(false)
+const showBulkDeleteModal = ref(false)
+
+const isAllSelected = computed(() => {
+  return players.value.length > 0 && selectedPlayers.value.length === players.value.length
+})
+
+function toggleSelectAll() {
+  if (isAllSelected.value) {
+    selectedPlayers.value = []
+  } else {
+    selectedPlayers.value = players.value.map(p => p.id)
+  }
+}
+
+function togglePlayer(playerId: string) {
+  const index = selectedPlayers.value.indexOf(playerId)
+  if (index === -1) {
+    selectedPlayers.value.push(playerId)
+  } else {
+    selectedPlayers.value.splice(index, 1)
+  }
+}
+
+function clearSelection() {
+  selectedPlayers.value = []
+}
+
+async function bulkVerify() {
+  if (selectedPlayers.value.length === 0) return
+  bulkLoading.value = true
+  try {
+    await api<ApiResponse>('/admin/players/bulk', {
+      method: 'POST',
+      body: { action: 'verify', player_ids: selectedPlayers.value }
+    })
+    await fetchPlayers()
+    clearSelection()
+  } catch (error) {
+    console.error('Bulk verify failed:', error)
+  } finally {
+    bulkLoading.value = false
+  }
+}
+
+async function bulkUnverify() {
+  if (selectedPlayers.value.length === 0) return
+  bulkLoading.value = true
+  try {
+    await api<ApiResponse>('/admin/players/bulk', {
+      method: 'POST',
+      body: { action: 'unverify', player_ids: selectedPlayers.value }
+    })
+    await fetchPlayers()
+    clearSelection()
+  } catch (error) {
+    console.error('Bulk unverify failed:', error)
+  } finally {
+    bulkLoading.value = false
+  }
+}
+
+async function bulkDelete() {
+  if (selectedPlayers.value.length === 0) return
+  bulkLoading.value = true
+  try {
+    await api<ApiResponse>('/admin/players/bulk', {
+      method: 'POST',
+      body: { action: 'delete', player_ids: selectedPlayers.value }
+    })
+    showBulkDeleteModal.value = false
+    await fetchPlayers()
+    clearSelection()
+  } catch (error) {
+    console.error('Bulk delete failed:', error)
+  } finally {
+    bulkLoading.value = false
+  }
+}
+
+async function exportPlayers() {
+  try {
+    const response = await fetch(`${config.public.apiUrl}/admin/export/players`, {
+      headers: {
+        'Authorization': `Bearer ${authStore.token}`
+      }
+    })
+    const blob = await response.blob()
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `players-export-${new Date().toISOString().split('T')[0]}.csv`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    window.URL.revokeObjectURL(url)
+  } catch (error) {
+    console.error('Export failed:', error)
+  }
+}
+
 function clearFilters() {
   searchQuery.value = ''
   countryFilter.value = ''
@@ -489,6 +743,7 @@ function setStatusFilter(status: string) {
 
 async function fetchPlayers() {
   loading.value = true
+  selectedPlayers.value = [] // Clear selection on refresh
   try {
     const params = new URLSearchParams({
       page: page.value.toString(),

@@ -141,6 +141,7 @@ func (c *Config) InitDB() (*gorm.DB, error) {
 		&domain.VideoView{},
 		&domain.AuditLog{},
 		&domain.Academy{},
+		&domain.Setting{},
 		// New video architecture models
 		&domain.MatchVideo{},
 		&domain.PlayerHighlight{},

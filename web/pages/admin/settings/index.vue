@@ -284,11 +284,11 @@ definePageMeta({
   middleware: 'admin',
 })
 
-const config = useRuntimeConfig()
-const authStore = useAuthStore()
+const api = useApi()
 const toast = useToast()
 
 const saving = ref(false)
+const loading = ref(true)
 
 const settings = reactive({
   site_name: 'Unicorn Sport',
@@ -305,18 +305,25 @@ const settings = reactive({
 // Fetch settings on mount
 onMounted(async () => {
   try {
-    const response = await $fetch<ApiResponse<typeof settings>>('/admin/settings', {
-      baseURL: config.public.apiBase,
-      headers: {
-        Authorization: `Bearer ${authStore.accessToken}`,
-      },
-    })
+    const response = await api.get<ApiResponse<Record<string, string>>>('/admin/settings', {}, true)
 
     if (response.success && response.data) {
-      Object.assign(settings, response.data)
+      // Map key-value pairs to settings object
+      const data = response.data
+      settings.site_name = data.site_name || 'Unicorn Sport'
+      settings.site_description = data.site_description || 'Discover and connect with emerging African football talent'
+      settings.contact_email = data.contact_email || 'support@unicornsport.com'
+      settings.s3_configured = data.s3_configured === 'true'
+      settings.stripe_configured = data.stripe_configured === 'true'
+      settings.email_configured = data.email_configured === 'true'
+      settings.registration_enabled = data.registration_enabled !== 'false'
+      settings.video_uploads_enabled = data.video_uploads_enabled !== 'false'
+      settings.contact_requests_enabled = data.contact_requests_enabled !== 'false'
     }
   } catch (error) {
     console.error('Failed to fetch settings:', error)
+  } finally {
+    loading.value = false
   }
 })
 
@@ -324,13 +331,22 @@ async function saveSettings() {
   saving.value = true
 
   try {
-    const response = await $fetch<ApiResponse<null>>('/admin/settings', {
-      baseURL: config.public.apiBase,
+    // Convert settings to key-value format
+    const settingsMap: Record<string, string> = {
+      site_name: settings.site_name,
+      site_description: settings.site_description,
+      contact_email: settings.contact_email,
+      s3_configured: settings.s3_configured.toString(),
+      stripe_configured: settings.stripe_configured.toString(),
+      email_configured: settings.email_configured.toString(),
+      registration_enabled: settings.registration_enabled.toString(),
+      video_uploads_enabled: settings.video_uploads_enabled.toString(),
+      contact_requests_enabled: settings.contact_requests_enabled.toString(),
+    }
+
+    const response = await api<ApiResponse<null>>('/admin/settings', {
       method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${authStore.accessToken}`,
-      },
-      body: settings,
+      body: { settings: settingsMap },
     })
 
     if (response.success) {

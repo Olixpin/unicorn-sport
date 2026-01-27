@@ -534,6 +534,14 @@ func (s *Subscription) CanSavePlayers() bool {
 	return s.Status == "active" && s.Tier != "free"
 }
 
+// Setting represents a platform configuration setting
+type Setting struct {
+	Key       string    `json:"key" gorm:"primaryKey"`
+	Value     string    `json:"value" gorm:"type:text"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
 // Academy represents a football academy
 type Academy struct {
 	ID          uuid.UUID `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`

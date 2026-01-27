@@ -220,6 +220,18 @@ func setupRouter(
 			{
 				// Dashboard stats
 				adminRoutes.GET("/stats", adminModule.GetStats)
+				adminRoutes.GET("/analytics", adminModule.GetAnalytics)
+
+				// Audit logs
+				adminRoutes.GET("/audit-logs", adminModule.ListAuditLogs)
+
+				// Settings
+				adminRoutes.GET("/settings", adminModule.GetSettings)
+				adminRoutes.PUT("/settings", adminModule.UpdateSettings)
+
+				// Export data
+				adminRoutes.GET("/export/players", adminModule.ExportPlayers)
+				adminRoutes.GET("/export/users", adminModule.ExportUsers)
 
 				// Academy management
 				adminRoutes.GET("/academies", adminModule.ListAcademies)
@@ -236,6 +248,7 @@ func setupRouter(
 				// Player management
 				adminRoutes.GET("/players", adminModule.ListPlayers)
 				adminRoutes.POST("/players", adminModule.CreatePlayer)
+				adminRoutes.POST("/players/bulk", adminModule.BulkUpdatePlayers)
 				adminRoutes.GET("/players/:id", adminModule.GetPlayer)
 				adminRoutes.PUT("/players/:id", adminModule.UpdatePlayer)
 				adminRoutes.DELETE("/players/:id", adminModule.DeletePlayer)

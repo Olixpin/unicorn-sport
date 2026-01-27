@@ -1289,6 +1289,413 @@ func generateTempPassword() string {
 	return string(password)
 }
 
+// ==================== AUDIT LOGS ====================
+
+// ListAuditLogs returns paginated audit logs
+func (m *AdminModule) ListAuditLogs(c *gin.Context) {
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
+	action := c.Query("action")
+	resourceType := c.Query("resource_type")
+	userID := c.Query("user_id")
+
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 || limit > 100 {
+		limit = 20
+	}
+	offset := (page - 1) * limit
+
+	query := m.db.Model(&domain.AuditLog{})
+
+	if action != "" {
+		query = query.Where("action = ?", action)
+	}
+	if resourceType != "" {
+		query = query.Where("resource_type = ?", resourceType)
+	}
+	if userID != "" {
+		query = query.Where("user_id = ?", userID)
+	}
+
+	var total int64
+	query.Count(&total)
+
+	var logs []domain.AuditLog
+	query.Order("created_at DESC").Offset(offset).Limit(limit).Find(&logs)
+
+	// Get user info for each log
+	var userIDs []uuid.UUID
+	for _, log := range logs {
+		if log.UserID != nil {
+			userIDs = append(userIDs, *log.UserID)
+		}
+	}
+
+	userMap := make(map[uuid.UUID]gin.H)
+	if len(userIDs) > 0 {
+		var users []domain.User
+		m.db.Where("id IN ?", userIDs).Find(&users)
+		for _, u := range users {
+			userMap[u.ID] = gin.H{
+				"id":    u.ID,
+				"email": u.Email,
+				"name":  u.FirstName + " " + u.LastName,
+			}
+		}
+	}
+
+	response := make([]gin.H, len(logs))
+	for i, log := range logs {
+		var user gin.H
+		if log.UserID != nil {
+			user = userMap[*log.UserID]
+		}
+		response[i] = gin.H{
+			"id":            log.ID,
+			"user":          user,
+			"action":        log.Action,
+			"resource_type": log.ResourceType,
+			"resource_id":   log.ResourceID,
+			"details":       log.Details,
+			"ip_address":    log.IPAddress,
+			"created_at":    log.CreatedAt,
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data": gin.H{
+			"logs":  response,
+			"total": total,
+			"page":  page,
+			"limit": limit,
+		},
+	})
+}
+
+// ==================== BULK OPERATIONS ====================
+
+// BulkPlayersRequest is the request for bulk player operations
+type BulkPlayersRequest struct {
+	PlayerIDs []string `json:"player_ids" binding:"required,min=1"`
+	Action    string   `json:"action" binding:"required,oneof=delete verify unverify"`
+}
+
+// BulkUpdatePlayers handles bulk operations on players
+func (m *AdminModule) BulkUpdatePlayers(c *gin.Context) {
+	var req BulkPlayersRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": err.Error()})
+		return
+	}
+
+	// Convert string IDs to UUIDs
+	var playerIDs []uuid.UUID
+	for _, idStr := range req.PlayerIDs {
+		id, err := uuid.Parse(idStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Invalid player ID: " + idStr})
+			return
+		}
+		playerIDs = append(playerIDs, id)
+	}
+
+	var result *gorm.DB
+	var auditAction string
+
+	switch req.Action {
+	case "delete":
+		result = m.db.Model(&domain.Player{}).Where("id IN ?", playerIDs).Update("deleted_at", time.Now())
+		auditAction = "bulk_delete_players"
+	case "verify":
+		result = m.db.Model(&domain.Player{}).Where("id IN ?", playerIDs).Update("verification_status", "verified")
+		auditAction = "bulk_verify_players"
+	case "unverify":
+		result = m.db.Model(&domain.Player{}).Where("id IN ?", playerIDs).Update("verification_status", "pending")
+		auditAction = "bulk_unverify_players"
+	default:
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Invalid action"})
+		return
+	}
+
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Failed to update players"})
+		return
+	}
+
+	details := fmt.Sprintf(`{"count": %d, "player_ids": %v}`, len(playerIDs), req.PlayerIDs)
+	m.logAudit(c, auditAction, "players", nil, &details)
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": fmt.Sprintf("Successfully updated %d players", result.RowsAffected),
+		"data": gin.H{
+			"affected_count": result.RowsAffected,
+		},
+	})
+}
+
+// ==================== SETTINGS ====================
+
+// GetSettings returns all platform settings
+func (m *AdminModule) GetSettings(c *gin.Context) {
+	var settings []domain.Setting
+	m.db.Find(&settings)
+
+	settingsMap := make(map[string]string)
+	for _, s := range settings {
+		settingsMap[s.Key] = s.Value
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    settingsMap,
+	})
+}
+
+// UpdateSettingsRequest is the request for updating settings
+type UpdateSettingsRequest struct {
+	Settings map[string]string `json:"settings" binding:"required"`
+}
+
+// UpdateSettings updates platform settings
+func (m *AdminModule) UpdateSettings(c *gin.Context) {
+	var req UpdateSettingsRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": err.Error()})
+		return
+	}
+
+	for key, value := range req.Settings {
+		setting := domain.Setting{
+			Key:       key,
+			Value:     value,
+			UpdatedAt: time.Now(),
+		}
+		m.db.Where("key = ?", key).Assign(setting).FirstOrCreate(&setting)
+	}
+
+	m.logAudit(c, "update_settings", "settings", nil, nil)
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Settings updated successfully",
+	})
+}
+
+// ==================== EXPORT DATA ====================
+
+// ExportPlayers exports players as CSV
+func (m *AdminModule) ExportPlayers(c *gin.Context) {
+	var players []domain.Player
+	m.db.Where("deleted_at IS NULL").
+		Preload("Academy").
+		Order("created_at DESC").
+		Find(&players)
+
+	c.Header("Content-Type", "text/csv")
+	c.Header("Content-Disposition", "attachment; filename=players_export.csv")
+
+	// Write CSV header
+	header := "ID,First Name,Last Name,Date of Birth,Position,Country,State,City,Academy,Verification Status,Created At\n"
+	c.Writer.WriteString(header)
+
+	// Write data rows
+	for _, p := range players {
+		academyName := ""
+		if p.Academy != nil {
+			academyName = p.Academy.Name
+		}
+		state := ""
+		if p.State != nil {
+			state = *p.State
+		}
+		city := ""
+		if p.City != nil {
+			city = *p.City
+		}
+		row := fmt.Sprintf("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
+			p.ID.String(),
+			escapeCsv(p.FirstName),
+			escapeCsv(p.LastName),
+			p.DateOfBirth.Format("2006-01-02"),
+			escapeCsv(p.Position),
+			escapeCsv(p.Country),
+			escapeCsv(state),
+			escapeCsv(city),
+			escapeCsv(academyName),
+			p.VerificationStatus,
+			p.CreatedAt.Format("2006-01-02 15:04:05"),
+		)
+		c.Writer.WriteString(row)
+	}
+
+	m.logAudit(c, "export_players", "players", nil, nil)
+}
+
+// ExportUsers exports users as CSV
+func (m *AdminModule) ExportUsers(c *gin.Context) {
+	// Get users with their subscriptions
+	type userWithSub struct {
+		domain.User
+		SubscriptionTier string
+	}
+	var users []userWithSub
+	m.db.Table("users").
+		Select("users.*, COALESCE(subscriptions.tier, 'free') as subscription_tier").
+		Joins("LEFT JOIN subscriptions ON subscriptions.user_id = users.id").
+		Order("users.created_at DESC").
+		Scan(&users)
+
+	c.Header("Content-Type", "text/csv")
+	c.Header("Content-Disposition", "attachment; filename=users_export.csv")
+
+	// Write CSV header
+	header := "ID,First Name,Last Name,Email,Role,Subscription Tier,Is Active,Created At\n"
+	c.Writer.WriteString(header)
+
+	// Write data rows
+	for _, u := range users {
+		row := fmt.Sprintf("%s,%s,%s,%s,%s,%s,%t,%s\n",
+			u.ID.String(),
+			escapeCsv(u.FirstName),
+			escapeCsv(u.LastName),
+			escapeCsv(u.Email),
+			u.Role,
+			u.SubscriptionTier,
+			u.IsActive,
+			u.CreatedAt.Format("2006-01-02 15:04:05"),
+		)
+		c.Writer.WriteString(row)
+	}
+
+	m.logAudit(c, "export_users", "users", nil, nil)
+}
+
+func escapeCsv(s string) string {
+	if strings.ContainsAny(s, ",\"\n") {
+		return "\"" + strings.ReplaceAll(s, "\"", "\"\"") + "\""
+	}
+	return s
+}
+
+// ==================== ANALYTICS ====================
+
+// GetAnalytics returns time-series analytics data
+func (m *AdminModule) GetAnalytics(c *gin.Context) {
+	days, _ := strconv.Atoi(c.DefaultQuery("days", "30"))
+	if days < 7 {
+		days = 7
+	}
+	if days > 365 {
+		days = 365
+	}
+
+	startDate := time.Now().AddDate(0, 0, -days)
+
+	// Signups over time
+	type dailyCount struct {
+		Date  string `gorm:"column:date"`
+		Count int    `gorm:"column:count"`
+	}
+
+	var userSignups []dailyCount
+	m.db.Raw(`
+		SELECT DATE(created_at) as date, COUNT(*) as count 
+		FROM users 
+		WHERE created_at >= ? 
+		GROUP BY DATE(created_at) 
+		ORDER BY date
+	`, startDate).Scan(&userSignups)
+
+	var playerSignups []dailyCount
+	m.db.Raw(`
+		SELECT DATE(created_at) as date, COUNT(*) as count 
+		FROM players 
+		WHERE created_at >= ? AND deleted_at IS NULL
+		GROUP BY DATE(created_at) 
+		ORDER BY date
+	`, startDate).Scan(&playerSignups)
+
+	var videoUploads []dailyCount
+	m.db.Raw(`
+		SELECT DATE(created_at) as date, COUNT(*) as count 
+		FROM videos 
+		WHERE created_at >= ?
+		GROUP BY DATE(created_at) 
+		ORDER BY date
+	`, startDate).Scan(&videoUploads)
+
+	var highlightUploads []dailyCount
+	m.db.Raw(`
+		SELECT DATE(created_at) as date, COUNT(*) as count 
+		FROM player_highlights 
+		WHERE created_at >= ?
+		GROUP BY DATE(created_at) 
+		ORDER BY date
+	`, startDate).Scan(&highlightUploads)
+
+	var contactRequests []dailyCount
+	m.db.Raw(`
+		SELECT DATE(created_at) as date, COUNT(*) as count 
+		FROM contact_requests 
+		WHERE created_at >= ?
+		GROUP BY DATE(created_at) 
+		ORDER BY date
+	`, startDate).Scan(&contactRequests)
+
+	// Subscription breakdown
+	type tierCount struct {
+		Tier  string `gorm:"column:subscription_tier"`
+		Count int    `gorm:"column:count"`
+	}
+	var subscriptionTiers []tierCount
+	m.db.Raw(`
+		SELECT subscription_tier, COUNT(*) as count 
+		FROM users 
+		WHERE subscription_tier != ''
+		GROUP BY subscription_tier
+	`).Scan(&subscriptionTiers)
+
+	// Player positions breakdown
+	var positionCounts []tierCount
+	m.db.Raw(`
+		SELECT position as subscription_tier, COUNT(*) as count 
+		FROM players 
+		WHERE deleted_at IS NULL AND position != ''
+		GROUP BY position
+		ORDER BY count DESC
+		LIMIT 10
+	`).Scan(&positionCounts)
+
+	// Player countries breakdown
+	var countryCounts []tierCount
+	m.db.Raw(`
+		SELECT country as subscription_tier, COUNT(*) as count 
+		FROM players 
+		WHERE deleted_at IS NULL AND country != ''
+		GROUP BY country
+		ORDER BY count DESC
+		LIMIT 10
+	`).Scan(&countryCounts)
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data": gin.H{
+			"user_signups":       userSignups,
+			"player_signups":     playerSignups,
+			"video_uploads":      videoUploads,
+			"highlight_uploads":  highlightUploads,
+			"contact_requests":   contactRequests,
+			"subscription_tiers": subscriptionTiers,
+			"player_positions":   positionCounts,
+			"player_countries":   countryCounts,
+		},
+	})
+}
+
 func ptrUUID(u uuid.UUID) *uuid.UUID {
 	return &u
 }
