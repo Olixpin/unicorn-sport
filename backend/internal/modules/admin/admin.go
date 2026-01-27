@@ -1597,89 +1597,85 @@ func (m *AdminModule) GetAnalytics(c *gin.Context) {
 
 	// Signups over time
 	type dailyCount struct {
-		Date  string `gorm:"column:date"`
-		Count int    `gorm:"column:count"`
+		Date  string `json:"date"`
+		Count int    `json:"count"`
 	}
 
 	var userSignups []dailyCount
-	m.db.Raw(`
-		SELECT DATE(created_at) as date, COUNT(*) as count 
-		FROM users 
-		WHERE created_at >= ? 
-		GROUP BY DATE(created_at) 
-		ORDER BY date
-	`, startDate).Scan(&userSignups)
+	m.db.Model(&domain.User{}).
+		Select("DATE(created_at) as date, COUNT(*) as count").
+		Where("created_at >= ?", startDate).
+		Group("DATE(created_at)").
+		Order("date").
+		Find(&userSignups)
 
 	var playerSignups []dailyCount
-	m.db.Raw(`
-		SELECT DATE(created_at) as date, COUNT(*) as count 
-		FROM players 
-		WHERE created_at >= ? AND deleted_at IS NULL
-		GROUP BY DATE(created_at) 
-		ORDER BY date
-	`, startDate).Scan(&playerSignups)
+	m.db.Model(&domain.Player{}).
+		Select("DATE(created_at) as date, COUNT(*) as count").
+		Where("created_at >= ? AND deleted_at IS NULL", startDate).
+		Group("DATE(created_at)").
+		Order("date").
+		Find(&playerSignups)
 
 	var videoUploads []dailyCount
-	m.db.Raw(`
-		SELECT DATE(created_at) as date, COUNT(*) as count 
-		FROM videos 
-		WHERE created_at >= ?
-		GROUP BY DATE(created_at) 
-		ORDER BY date
-	`, startDate).Scan(&videoUploads)
+	m.db.Model(&domain.Video{}).
+		Select("DATE(created_at) as date, COUNT(*) as count").
+		Where("created_at >= ?", startDate).
+		Group("DATE(created_at)").
+		Order("date").
+		Find(&videoUploads)
 
 	var highlightUploads []dailyCount
-	m.db.Raw(`
-		SELECT DATE(created_at) as date, COUNT(*) as count 
-		FROM player_highlights 
-		WHERE created_at >= ?
-		GROUP BY DATE(created_at) 
-		ORDER BY date
-	`, startDate).Scan(&highlightUploads)
+	m.db.Model(&domain.PlayerHighlight{}).
+		Select("DATE(created_at) as date, COUNT(*) as count").
+		Where("created_at >= ?", startDate).
+		Group("DATE(created_at)").
+		Order("date").
+		Find(&highlightUploads)
 
 	var contactRequests []dailyCount
-	m.db.Raw(`
-		SELECT DATE(created_at) as date, COUNT(*) as count 
-		FROM contact_requests 
-		WHERE created_at >= ?
-		GROUP BY DATE(created_at) 
-		ORDER BY date
-	`, startDate).Scan(&contactRequests)
+	m.db.Model(&domain.ContactRequest{}).
+		Select("DATE(created_at) as date, COUNT(*) as count").
+		Where("created_at >= ?", startDate).
+		Group("DATE(created_at)").
+		Order("date").
+		Find(&contactRequests)
 
 	// Subscription breakdown
 	type tierCount struct {
-		Tier  string `gorm:"column:subscription_tier"`
-		Count int    `gorm:"column:count"`
+		Tier  string `json:"subscription_tier"`
+		Count int    `json:"count"`
 	}
 	var subscriptionTiers []tierCount
-	m.db.Raw(`
-		SELECT subscription_tier, COUNT(*) as count 
-		FROM users 
-		WHERE subscription_tier != ''
-		GROUP BY subscription_tier
-	`).Scan(&subscriptionTiers)
+	m.db.Model(&domain.User{}).
+		Select("subscription_tier as tier, COUNT(*) as count").
+		Where("subscription_tier IS NOT NULL AND subscription_tier != ''").
+		Group("subscription_tier").
+		Find(&subscriptionTiers)
 
 	// Player positions breakdown
-	var positionCounts []tierCount
-	m.db.Raw(`
-		SELECT position as subscription_tier, COUNT(*) as count 
-		FROM players 
-		WHERE deleted_at IS NULL AND position != ''
-		GROUP BY position
-		ORDER BY count DESC
-		LIMIT 10
-	`).Scan(&positionCounts)
+	type labelCount struct {
+		Label string `json:"subscription_tier"`
+		Count int    `json:"count"`
+	}
+	var positionCounts []labelCount
+	m.db.Model(&domain.Player{}).
+		Select("position as label, COUNT(*) as count").
+		Where("deleted_at IS NULL AND position != ''").
+		Group("position").
+		Order("count DESC").
+		Limit(10).
+		Find(&positionCounts)
 
 	// Player countries breakdown
-	var countryCounts []tierCount
-	m.db.Raw(`
-		SELECT country as subscription_tier, COUNT(*) as count 
-		FROM players 
-		WHERE deleted_at IS NULL AND country != ''
-		GROUP BY country
-		ORDER BY count DESC
-		LIMIT 10
-	`).Scan(&countryCounts)
+	var countryCounts []labelCount
+	m.db.Model(&domain.Player{}).
+		Select("country as label, COUNT(*) as count").
+		Where("deleted_at IS NULL AND country != ''").
+		Group("country").
+		Order("count DESC").
+		Limit(10).
+		Find(&countryCounts)
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
