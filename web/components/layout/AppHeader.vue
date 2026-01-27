@@ -160,7 +160,7 @@
             <NuxtLink 
               to="/discover" 
               :class="[
-                'font-medium transition-colors',
+                'font-medium transition-colors py-2',
                 isScrolled || !isHomePage ? 'text-neutral-600 hover:text-primary-600' : 'text-neutral-300 hover:text-white'
               ]"
               @click="mobileMenuOpen = false"
@@ -170,7 +170,7 @@
             <NuxtLink 
               to="/pricing" 
               :class="[
-                'font-medium transition-colors',
+                'font-medium transition-colors py-2',
                 isScrolled || !isHomePage ? 'text-neutral-600 hover:text-primary-600' : 'text-neutral-300 hover:text-white'
               ]"
               @click="mobileMenuOpen = false"
@@ -179,21 +179,41 @@
             </NuxtLink>
             <template v-if="authStore.isAuthenticated">
               <NuxtLink 
+                v-if="authStore.isAdmin"
+                to="/admin" 
+                :class="[
+                  'font-medium transition-colors py-2',
+                  isScrolled || !isHomePage ? 'text-neutral-600 hover:text-primary-600' : 'text-neutral-300 hover:text-white'
+                ]"
+                @click="mobileMenuOpen = false"
+              >
+                Admin
+              </NuxtLink>
+              <NuxtLink 
                 to="/dashboard" 
                 :class="[
-                  'font-medium transition-colors',
+                  'font-medium transition-colors py-2',
                   isScrolled || !isHomePage ? 'text-neutral-600 hover:text-primary-600' : 'text-neutral-300 hover:text-white'
                 ]"
                 @click="mobileMenuOpen = false"
               >
                 Dashboard
               </NuxtLink>
+              <button 
+                @click="handleLogout; mobileMenuOpen = false" 
+                :class="[
+                  'font-medium transition-colors text-left py-2',
+                  isScrolled || !isHomePage ? 'text-neutral-600 hover:text-red-600' : 'text-neutral-300 hover:text-red-400'
+                ]"
+              >
+                Logout
+              </button>
             </template>
             <template v-else>
               <NuxtLink 
                 to="/auth/login" 
                 :class="[
-                  'font-medium transition-colors',
+                  'font-medium transition-colors py-2',
                   isScrolled || !isHomePage ? 'text-neutral-600 hover:text-primary-600' : 'text-neutral-300 hover:text-white'
                 ]"
                 @click="mobileMenuOpen = false"
@@ -201,7 +221,7 @@
                 Login
               </NuxtLink>
               <NuxtLink to="/auth/register" @click="mobileMenuOpen = false">
-                <button class="w-full px-5 py-2.5 bg-primary-600 text-white rounded-lg font-semibold text-sm hover:bg-primary-700 transition-colors">
+                <button class="w-full px-5 py-3 bg-primary-600 text-white rounded-xl font-semibold text-sm hover:bg-primary-700 transition-colors">
                   Get Started
                 </button>
               </NuxtLink>

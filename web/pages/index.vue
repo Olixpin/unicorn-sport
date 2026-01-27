@@ -1,5 +1,5 @@
 <template>
-  <div class="overflow-hidden">
+  <div class="overflow-hidden -mt-16 lg:-mt-20">
     <!-- Hero Section - Clean African Football Atmosphere -->
     <section class="relative min-h-screen flex items-center bg-neutral-950 overflow-hidden">
       <!-- Simplified Background - Subtle but Evocative -->
@@ -7,19 +7,69 @@
         <!-- Base gradient with warm African undertones -->
         <div class="absolute inset-0 bg-gradient-to-b from-neutral-950 via-neutral-950 to-primary-950/30"></div>
         
+        <!-- Premium Noise Texture Overlay -->
+        <div class="absolute inset-0 opacity-[0.03]" style="background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 256 256%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noise%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noise)%22/%3E%3C/svg%3E');"></div>
+        
         <!-- Single soft glow (stadium light feel) -->
         <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-gradient-radial from-primary-500/8 via-transparent to-transparent"></div>
         
+        <!-- Secondary ambient glow -->
+        <div class="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-emerald-500/5 rounded-full blur-[80px]"></div>
+        
         <!-- Subtle warm horizon -->
         <div class="absolute bottom-0 inset-x-0 h-1/3 bg-gradient-to-t from-secondary-900/10 to-transparent"></div>
+        
+        <!-- Vignette Effect -->
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(0,0,0,0.4)_100%)]"></div>
       </div>
 
-      <!-- Single Pattern Layer - Football Pitch (very subtle) -->
-      <div class="absolute inset-0 opacity-[0.025]">
-        <svg class="w-full h-full" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
-          <circle cx="600" cy="400" r="120" fill="none" stroke="white" stroke-width="2"/>
-          <circle cx="600" cy="400" r="4" fill="white"/>
-          <line x1="600" y1="0" x2="600" y2="800" stroke="white" stroke-width="2"/>
+      <!-- Football Pitch Pattern - Glowing Green -->
+      <div class="absolute inset-0">
+        <!-- Green Glow Behind Pattern -->
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-emerald-500/10 rounded-full blur-[100px]"></div>
+        
+        <!-- The Pattern -->
+        <svg class="absolute inset-0 w-full h-full opacity-[0.12]" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <radialGradient id="pitchGlow" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+              <stop offset="0%" stop-color="#10b981" stop-opacity="1"/>
+              <stop offset="50%" stop-color="#10b981" stop-opacity="0.5"/>
+              <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
+            </radialGradient>
+            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+              <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+          
+          <!-- Center Circle with Glow -->
+          <circle cx="600" cy="400" r="120" fill="none" stroke="url(#pitchGlow)" stroke-width="3" filter="url(#glow)"/>
+          <circle cx="600" cy="400" r="8" fill="#10b981" filter="url(#glow)"/>
+          
+          <!-- Center Line with Glow -->
+          <line x1="600" y1="0" x2="600" y2="800" stroke="#10b981" stroke-width="2" opacity="0.6"/>
+          
+          <!-- Penalty Areas (Left) -->
+          <rect x="0" y="200" width="180" height="400" fill="none" stroke="#10b981" stroke-width="2" opacity="0.4"/>
+          <rect x="0" y="280" width="70" height="240" fill="none" stroke="#10b981" stroke-width="2" opacity="0.3"/>
+          <circle cx="130" cy="400" r="8" fill="#10b981" opacity="0.5"/>
+          
+          <!-- Penalty Areas (Right) -->
+          <rect x="1020" y="200" width="180" height="400" fill="none" stroke="#10b981" stroke-width="2" opacity="0.4"/>
+          <rect x="1130" y="280" width="70" height="240" fill="none" stroke="#10b981" stroke-width="2" opacity="0.3"/>
+          <circle cx="1070" cy="400" r="8" fill="#10b981" opacity="0.5"/>
+          
+          <!-- Corner Arcs -->
+          <path d="M 0 30 A 30 30 0 0 0 30 0" fill="none" stroke="#10b981" stroke-width="2" opacity="0.3"/>
+          <path d="M 1170 0 A 30 30 0 0 0 1200 30" fill="none" stroke="#10b981" stroke-width="2" opacity="0.3"/>
+          <path d="M 0 770 A 30 30 0 0 1 30 800" fill="none" stroke="#10b981" stroke-width="2" opacity="0.3"/>
+          <path d="M 1170 800 A 30 30 0 0 1 1200 770" fill="none" stroke="#10b981" stroke-width="2" opacity="0.3"/>
+          
+          <!-- Field Outline -->
+          <rect x="5" y="5" width="1190" height="790" fill="none" stroke="#10b981" stroke-width="2" opacity="0.3"/>
         </svg>
       </div>
 
@@ -255,32 +305,48 @@
         </div>
       </div>
 
-      <!-- Scroll Indicator -->
-      <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-        <svg class="w-6 h-6 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-        </svg>
+      <!-- Scroll Indicator - Premium with Mouse Icon -->
+      <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
+        <span class="text-xs text-neutral-500 uppercase tracking-widest font-medium">Scroll</span>
+        <div class="relative w-6 h-10 rounded-full border-2 border-neutral-600 flex justify-center pt-2">
+          <div class="w-1.5 h-2.5 bg-primary-500 rounded-full animate-scroll-down"></div>
+        </div>
       </div>
     </section>
 
-    <!-- Floating Stats Bar -->
+    <!-- Floating Stats Bar - Premium Glass Effect -->
     <section class="relative -mt-16 z-20">
       <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="bg-white rounded-2xl shadow-2xl shadow-neutral-900/10 border border-neutral-200/50 p-8 grid grid-cols-2 md:grid-cols-4 gap-8">
-          <div class="text-center" v-for="stat in statsData" :key="stat.label">
-            <div class="font-display text-4xl lg:text-5xl font-bold text-neutral-900">
-              {{ stat.value }}<span class="text-primary-500">+</span>
+        <div class="relative group">
+          <!-- Glow Effect -->
+          <div class="absolute -inset-1 bg-gradient-to-r from-primary-500/20 via-emerald-500/20 to-primary-500/20 rounded-3xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity duration-500"></div>
+          
+          <div class="relative bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl shadow-neutral-900/10 border border-neutral-200/50 p-8 grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div class="text-center group/stat" v-for="(stat, index) in statsData" :key="stat.label">
+              <div class="font-display text-4xl lg:text-5xl font-bold text-neutral-900 transition-transform group-hover/stat:scale-105">
+                {{ stat.value }}<span class="text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-emerald-500">+</span>
+              </div>
+              <div class="mt-2 text-neutral-500 font-medium">{{ stat.label }}</div>
+              <!-- Active indicator on hover -->
+              <div class="mt-3 h-1 w-0 group-hover/stat:w-12 mx-auto bg-gradient-to-r from-primary-500 to-emerald-500 rounded-full transition-all duration-300"></div>
             </div>
-            <div class="mt-2 text-neutral-500 font-medium">{{ stat.label }}</div>
           </div>
         </div>
       </div>
     </section>
 
+    <!-- Section Divider -->
+    <div class="relative h-24 bg-white">
+      <svg class="absolute bottom-0 w-full h-24" preserveAspectRatio="none" viewBox="0 0 1440 74">
+        <path fill="#fafafa" d="M0,0 C480,74 960,74 1440,0 L1440,74 L0,74 Z"></path>
+      </svg>
+    </div>
+
     <!-- Featured Players - Horizontal Scroll Showcase -->
-    <section class="py-24 lg:py-32 bg-white relative overflow-hidden">
+    <section class="py-24 lg:py-32 bg-neutral-50 relative overflow-hidden">
       <!-- Background decoration -->
-      <div class="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-primary-50 to-transparent"></div>
+      <div class="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-primary-100/50 to-transparent"></div>
+      <div class="absolute bottom-0 left-0 w-1/4 h-1/2 bg-gradient-to-tr from-emerald-100/30 to-transparent"></div>
       
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <!-- Section Header with Line -->
@@ -293,7 +359,7 @@
                 </svg>
               </div>
               <h2 class="font-display text-4xl lg:text-5xl font-bold text-neutral-900">
-                Rising Stars
+                Rising <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-emerald-500">Stars</span>
               </h2>
             </div>
             <p class="text-lg text-neutral-500 max-w-xl">
@@ -319,98 +385,125 @@
           </div>
         </div>
 
-        <!-- Players Showcase - Magazine Style -->
-        <div v-else-if="featuredPlayers.length > 0" class="grid grid-cols-12 gap-6">
-          <!-- Large Featured Card -->
-          <div class="col-span-12 lg:col-span-7 group">
-            <NuxtLink :to="`/players/${featuredPlayers[0]?.id}`" class="block relative h-[500px] lg:h-[600px] rounded-3xl overflow-hidden">
-              <img 
-                v-if="featuredPlayers[0]?.profile_photo_url"
-                :src="featuredPlayers[0].profile_photo_url"
-                :alt="featuredPlayers[0].first_name"
-                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              <div v-else class="w-full h-full bg-gradient-to-br from-primary-400 to-emerald-500"></div>
-              
-              <!-- Overlay -->
-              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-              
-              <!-- Content -->
-              <div class="absolute inset-0 p-8 flex flex-col justify-between">
-                <!-- Top badges -->
-                <div class="flex items-start justify-between">
-                  <div v-if="featuredPlayers[0]?.is_verified" class="flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-md rounded-full border border-white/30">
-                    <svg class="w-4 h-4 text-primary-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                    </svg>
-                    <span class="text-white text-sm font-medium">Verified Talent</span>
-                  </div>
-                  <span class="px-4 py-2 bg-secondary-500 text-neutral-900 rounded-full text-sm font-bold">
-                    Featured
-                  </span>
-                </div>
-                
-                <!-- Bottom info -->
-                <div>
-                  <div class="flex flex-wrap gap-2 mb-4">
-                    <span class="px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-white text-sm border border-white/20">
-                      {{ featuredPlayers[0]?.position }}
-                    </span>
-                    <span class="px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-white text-sm border border-white/20">
-                      {{ calculateAge(featuredPlayers[0]?.date_of_birth, featuredPlayers[0]?.age) }} years
-                    </span>
-                    <span class="px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-white text-sm border border-white/20">
-                      {{ featuredPlayers[0]?.country }}
-                    </span>
-                  </div>
-                  <h3 class="text-4xl lg:text-5xl font-bold text-white mb-2">
-                    {{ featuredPlayers[0]?.first_name }} {{ featuredPlayers[0]?.last_name }}
-                  </h3>
-                  <p v-if="featuredPlayers[0]?.academy_name" class="text-neutral-300 text-lg">
-                    {{ featuredPlayers[0]?.academy_name }}
-                  </p>
-                </div>
-              </div>
-            </NuxtLink>
-          </div>
-
-          <!-- Right side smaller cards -->
-          <div class="col-span-12 lg:col-span-5 grid grid-cols-2 gap-4">
+        <!-- Players Showcase - Premium Grid -->
+        <div v-else-if="featuredPlayers.length > 0">
+          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-5">
             <div 
-              v-for="(player, index) in featuredPlayers.slice(1, 5)" 
+              v-for="(player, index) in featuredPlayers.slice(0, 5)" 
               :key="player.id"
-              class="group relative rounded-2xl overflow-hidden"
-              :class="index < 2 ? 'h-[200px] lg:h-[290px]' : 'h-[200px] lg:h-[290px]'"
+              class="group animate-fade-in"
+              :style="{ animationDelay: `${index * 100}ms` }"
             >
-              <NuxtLink :to="`/players/${player.id}`" class="block h-full">
-                <img 
-                  v-if="player.profile_photo_url"
-                  :src="player.profile_photo_url"
-                  :alt="player.first_name"
-                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                />
-                <div v-else class="w-full h-full bg-gradient-to-br from-neutral-200 to-neutral-300 flex items-center justify-center">
-                  <span class="text-4xl font-bold text-neutral-400">{{ player.first_name?.charAt(0) }}</span>
-                </div>
-                
-                <!-- Overlay -->
-                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-80 group-hover:opacity-100 transition-opacity"></div>
-                
-                <!-- Info -->
-                <div class="absolute bottom-0 left-0 right-0 p-4">
-                  <div class="text-xs text-primary-400 font-semibold mb-1">{{ player.position }}</div>
-                  <h4 class="text-white font-bold text-lg leading-tight">{{ player.first_name }} {{ getPlayerLastInitial(player) }}.</h4>
-                  <p class="text-neutral-400 text-sm">{{ player.country }}</p>
-                </div>
-                
-                <!-- Hover Arrow -->
-                <div class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
-                  <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                  </svg>
+              <NuxtLink :to="`/players/${player.id}`" class="block">
+                <!-- Card Container with Glow Effect -->
+                <div class="relative">
+                  <!-- Glow Effect on Hover -->
+                  <div class="absolute -inset-0.5 bg-gradient-to-r from-primary-500 to-emerald-500 rounded-2xl opacity-0 group-hover:opacity-75 blur transition-all duration-500 group-hover:duration-200"></div>
+                  
+                  <!-- Main Card -->
+                  <div class="relative bg-neutral-900 rounded-2xl overflow-hidden">
+                    <!-- Image Container -->
+                    <div class="aspect-[3/4] relative overflow-hidden">
+                      <img 
+                        v-if="player.profile_photo_url || player.thumbnail_url"
+                        :src="player.profile_photo_url || player.thumbnail_url"
+                        :alt="player.first_name"
+                        class="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:rotate-1"
+                      />
+                      <div v-else class="w-full h-full bg-gradient-to-br from-neutral-800 via-neutral-700 to-neutral-800 flex items-center justify-center">
+                        <div class="relative">
+                          <div class="absolute inset-0 bg-gradient-to-r from-primary-500 to-emerald-500 blur-2xl opacity-30"></div>
+                          <span class="relative text-6xl font-black text-transparent bg-clip-text bg-gradient-to-br from-primary-400 to-emerald-400">
+                            {{ player.first_name?.charAt(0) }}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <!-- Gradient Overlays -->
+                      <div class="absolute inset-0 bg-gradient-to-t from-neutral-900 via-neutral-900/50 to-transparent opacity-90"></div>
+                      <div class="absolute inset-0 bg-gradient-to-br from-primary-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                      
+                      <!-- Animated Border on Hover -->
+                      <div class="absolute inset-0 border-2 border-white/0 group-hover:border-white/20 rounded-2xl transition-all duration-300"></div>
+                      
+                      <!-- Top Section -->
+                      <div class="absolute top-0 left-0 right-0 p-3 flex justify-between items-start">
+                        <!-- Featured Badge -->
+                        <div v-if="index === 0" class="relative">
+                          <div class="absolute inset-0 bg-secondary-400 blur-md opacity-50"></div>
+                          <span class="relative px-3 py-1.5 bg-gradient-to-r from-secondary-400 to-secondary-500 text-neutral-900 rounded-lg text-xs font-black uppercase tracking-wider shadow-lg">
+                            ★ Featured
+                          </span>
+                        </div>
+                        <div v-else></div>
+                        
+                        <!-- Verified Badge -->
+                        <div v-if="player.is_verified || player.verification_status === 'verified'" class="relative">
+                          <div class="absolute inset-0 bg-primary-500 blur-md opacity-50"></div>
+                          <div class="relative w-8 h-8 rounded-xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform">
+                            <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                            </svg>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <!-- Bottom Content -->
+                      <div class="absolute bottom-0 left-0 right-0 p-4">
+                        <!-- Position Pill -->
+                        <div class="mb-3">
+                          <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg text-xs font-semibold text-white">
+                            <span class="w-1.5 h-1.5 rounded-full bg-primary-400 animate-pulse"></span>
+                            {{ player.position }}
+                          </span>
+                        </div>
+                        
+                        <!-- Name -->
+                        <h4 class="font-bold text-white text-lg leading-tight mb-1 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-primary-200 transition-all">
+                          {{ player.first_name }} {{ getPlayerLastInitial(player) }}.
+                        </h4>
+                        
+                        <!-- Stats Row -->
+                        <div class="flex items-center gap-2 text-sm">
+                          <span class="text-white/90 font-medium">{{ calculateAge(player.date_of_birth, player.age) }}</span>
+                          <span class="text-white/40">yrs</span>
+                          <span class="w-1 h-1 rounded-full bg-white/30"></span>
+                          <span class="text-white/70">{{ player.country }}</span>
+                        </div>
+                        
+                        <!-- Academy (if available) -->
+                        <p v-if="player.academy_name" class="text-xs text-white/50 mt-2 truncate flex items-center gap-1.5">
+                          <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                          </svg>
+                          {{ player.academy_name }}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </NuxtLink>
             </div>
+          </div>
+          
+          <!-- View All CTA - Desktop Hidden, Mobile Shown Above -->
+          <div class="mt-10 flex justify-center">
+            <NuxtLink 
+              to="/discover" 
+              class="group relative inline-flex items-center gap-3 px-8 py-4 overflow-hidden rounded-2xl transition-all duration-300"
+            >
+              <!-- Button Background -->
+              <div class="absolute inset-0 bg-gradient-to-r from-primary-500 to-emerald-500 transition-all duration-300 group-hover:scale-105"></div>
+              <div class="absolute inset-0 bg-gradient-to-r from-primary-600 to-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              
+              <!-- Shine Effect -->
+              <div class="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+              
+              <span class="relative font-bold text-white text-lg">Discover All Players</span>
+              <svg class="relative w-5 h-5 text-white transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </NuxtLink>
           </div>
         </div>
 
@@ -1291,6 +1384,22 @@ watch(() => route.path, (newPath, oldPath) => {
   animation: gradient 6s ease infinite;
 }
 
+@keyframes fade-in {
+  0% { 
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  100% { 
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.6s ease-out forwards;
+  opacity: 0;
+}
+
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
   50% { transform: translateY(-10px); }
@@ -1341,6 +1450,16 @@ watch(() => route.path, (newPath, oldPath) => {
 .animate-trail-1 { animation: trail-1 2s ease-in-out infinite; }
 .animate-trail-2 { animation: trail-2 2s ease-in-out infinite 0.2s; }
 .animate-trail-3 { animation: trail-3 2s ease-in-out infinite 0.4s; }
+
+@keyframes scroll-down {
+  0% { opacity: 1; transform: translateY(0); }
+  75% { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 0; transform: translateY(6px); }
+}
+
+.animate-scroll-down {
+  animation: scroll-down 1.5s ease-in-out infinite;
+}
 
 /* Testimonial transition */
 .testimonial-fade-enter-active,

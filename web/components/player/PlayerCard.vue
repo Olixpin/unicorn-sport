@@ -1,15 +1,15 @@
 <template>
-  <div class="card-hover block group relative">
+  <div class="group relative bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:shadow-primary-500/10 border border-neutral-100 hover:border-primary-200 transition-all duration-300 hover:-translate-y-1">
     <!-- Save Button (overlaid) -->
     <button
       v-if="authStore.isAuthenticated && subscriptionStore.canSavePlayers"
       @click.prevent="toggleSave"
       :disabled="saving"
-      class="absolute top-3 left-3 z-10 p-2 rounded-lg transition-all duration-200"
+      class="absolute top-3 left-3 z-10 p-2.5 rounded-xl transition-all duration-200"
       :class="[
         isSaved 
-          ? 'bg-primary-500 text-white shadow-lg' 
-          : 'bg-white/90 text-neutral-600 backdrop-blur-sm hover:bg-white hover:text-primary-600 shadow-md'
+          ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/30' 
+          : 'bg-white/90 text-neutral-500 backdrop-blur-sm hover:bg-white hover:text-primary-600 shadow-lg'
       ]"
       :title="isSaved ? 'Remove from saved' : 'Save player'"
     >
@@ -24,54 +24,92 @@
 
     <NuxtLink :to="`/players/${player.id}`">
       <!-- Player Image -->
-      <div class="aspect-[3/4] relative overflow-hidden bg-neutral-200">
+      <div class="aspect-[4/5] relative overflow-hidden">
         <img
-          v-if="playerImageUrl"
+          v-if="playerImageUrl && !imageError"
           :src="playerImageUrl"
           :alt="`${player.first_name} ${playerLastInitial}.`"
-          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           @error="handleImageError"
         />
-        <div v-else class="w-full h-full flex items-center justify-center bg-gradient-to-br from-neutral-100 to-neutral-200">
-          <div class="flex flex-col items-center gap-2">
-            <div class="w-16 h-16 rounded-full bg-neutral-300 flex items-center justify-center">
-              <span class="text-2xl font-bold text-neutral-500">{{ playerInitials }}</span>
+        <!-- Premium Fallback Avatar -->
+        <div v-else class="w-full h-full flex items-center justify-center" :class="avatarGradient">
+          <div class="flex flex-col items-center gap-3">
+            <div class="w-20 h-20 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/30 shadow-lg">
+              <span class="text-3xl font-bold text-white drop-shadow-sm">{{ playerInitials }}</span>
             </div>
+            <div class="px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm">
+              <span class="text-xs font-medium text-white/90">No Photo</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Position Badge -->
+        <div class="absolute top-3 right-3 z-10">
+          <div 
+            class="px-2.5 py-1 rounded-lg text-xs font-bold shadow-lg"
+            :class="positionBadgeClass"
+          >
+            {{ positionAbbrev }}
           </div>
         </div>
 
         <!-- Verified Badge -->
         <div 
           v-if="player.verification_status === 'verified'"
-          class="absolute top-3 right-3 bg-primary-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center space-x-1"
+          class="absolute bottom-3 right-3 bg-emerald-500 text-white px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 shadow-lg"
         >
-          <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+          <svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
           </svg>
-          <span>Verified</span>
+          Verified
         </div>
+
+        <!-- Gradient overlay for text readability -->
+        <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none"></div>
       </div>
 
       <!-- Player Info -->
       <div class="p-4">
-        <h3 class="font-semibold text-neutral-900 truncate">
-          {{ player.first_name }} {{ playerLastInitial }}.
-        </h3>
-        <p class="text-sm text-neutral-600 mt-1">
-          {{ player.position }}<span v-if="playerAge != null"> • {{ playerAge }} years</span>
-        </p>
-        <p class="text-sm text-neutral-500 mt-1 flex items-center">
-          <span>{{ player.city || player.state || '' }}{{ player.city || player.state ? ', ' : '' }}{{ player.country }}</span>
-          <span class="ml-1">{{ countryFlag }}</span>
-        </p>
+        <!-- Name & Country -->
+        <div class="flex items-start justify-between gap-2">
+          <div class="min-w-0 flex-1">
+            <h3 class="font-display font-bold text-neutral-900 truncate text-lg group-hover:text-primary-600 transition-colors">
+              {{ player.first_name }} {{ playerLastInitial }}.
+            </h3>
+            <p class="text-sm text-neutral-500 flex items-center gap-1 mt-0.5">
+              <span class="text-base">{{ countryFlag }}</span>
+              <span>{{ player.country }}</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="flex items-center gap-3 mt-3 pt-3 border-t border-neutral-100">
+          <!-- Age -->
+          <div class="flex-1 text-center">
+            <p class="text-xs text-neutral-400 uppercase tracking-wide">Age</p>
+            <p class="font-semibold text-neutral-800 text-sm mt-0.5">{{ displayAge }}</p>
+          </div>
+          <!-- Height -->
+          <div class="flex-1 text-center border-l border-neutral-100">
+            <p class="text-xs text-neutral-400 uppercase tracking-wide">Height</p>
+            <p class="font-semibold text-neutral-800 text-sm mt-0.5">{{ displayHeight }}</p>
+          </div>
+          <!-- Foot -->
+          <div class="flex-1 text-center border-l border-neutral-100">
+            <p class="text-xs text-neutral-400 uppercase tracking-wide">Foot</p>
+            <p class="font-semibold text-neutral-800 text-sm mt-0.5">{{ displayFoot }}</p>
+          </div>
+        </div>
         
-        <!-- CTA -->
-        <div class="mt-3 pt-3 border-t border-neutral-100">
-          <span class="text-primary-600 text-sm font-medium group-hover:text-primary-700 flex items-center">
-            <svg class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+        <!-- CTA Button -->
+        <div class="mt-4">
+          <span class="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-neutral-50 group-hover:bg-gradient-to-r group-hover:from-primary-500 group-hover:to-emerald-500 text-neutral-600 group-hover:text-white rounded-xl text-sm font-semibold transition-all duration-300">
+            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/>
             </svg>
-            Watch Highlights
+            View Profile
           </span>
         </div>
       </div>
@@ -102,6 +140,7 @@ const api = useApi()
 
 const isSaved = ref(props.initialSaved)
 const saving = ref(false)
+const imageError = ref(false)
 
 // Safe last name initial - handles both last_name and last_name_init
 const playerLastInitial = computed(() => {
@@ -122,8 +161,57 @@ const playerInitials = computed(() => {
   return (first + last).toUpperCase()
 })
 
+// Dynamic gradient based on position for avatar background
+const avatarGradient = computed(() => {
+  const position = props.player?.position?.toLowerCase() || ''
+  if (position.includes('goalkeeper') || position.includes('gk')) {
+    return 'bg-gradient-to-br from-amber-400 to-orange-500'
+  } else if (position.includes('defender') || position.includes('back')) {
+    return 'bg-gradient-to-br from-blue-400 to-indigo-500'
+  } else if (position.includes('midfielder') || position.includes('mid')) {
+    return 'bg-gradient-to-br from-primary-400 to-emerald-500'
+  } else if (position.includes('forward') || position.includes('striker') || position.includes('winger')) {
+    return 'bg-gradient-to-br from-rose-400 to-red-500'
+  }
+  return 'bg-gradient-to-br from-primary-400 to-emerald-500'
+})
+
+// Position badge styling based on position type
+const positionBadgeClass = computed(() => {
+  const position = props.player?.position?.toLowerCase() || ''
+  if (position.includes('goalkeeper') || position.includes('gk')) {
+    return 'bg-amber-500 text-white'
+  } else if (position.includes('defender') || position.includes('back')) {
+    return 'bg-blue-500 text-white'
+  } else if (position.includes('midfielder') || position.includes('mid')) {
+    return 'bg-emerald-500 text-white'
+  } else if (position.includes('forward') || position.includes('striker') || position.includes('winger')) {
+    return 'bg-rose-500 text-white'
+  }
+  return 'bg-neutral-700 text-white'
+})
+
+// Short position abbreviation
+const positionAbbrev = computed(() => {
+  const position = props.player?.position?.toLowerCase() || ''
+  if (position.includes('goalkeeper')) return 'GK'
+  if (position.includes('center back') || position.includes('centre back')) return 'CB'
+  if (position.includes('left back')) return 'LB'
+  if (position.includes('right back')) return 'RB'
+  if (position.includes('defender')) return 'DEF'
+  if (position.includes('defensive mid')) return 'CDM'
+  if (position.includes('central mid')) return 'CM'
+  if (position.includes('attacking mid')) return 'CAM'
+  if (position.includes('midfielder')) return 'MID'
+  if (position.includes('left wing')) return 'LW'
+  if (position.includes('right wing')) return 'RW'
+  if (position.includes('winger')) return 'WNG'
+  if (position.includes('striker')) return 'ST'
+  if (position.includes('forward')) return 'FWD'
+  return props.player?.position?.substring(0, 3).toUpperCase() || '—'
+})
+
 // Handle image load errors
-const imageError = ref(false)
 function handleImageError() {
   imageError.value = true
 }
@@ -149,7 +237,7 @@ async function toggleSave() {
 
 const playerAge = computed(() => {
   // First use the pre-calculated age from API if available
-  if (props.player?.age != null && !isNaN(props.player.age)) {
+  if (props.player?.age != null && !isNaN(props.player.age) && props.player.age > 0) {
     return props.player.age
   }
   // Fallback: calculate from date_of_birth
@@ -162,7 +250,34 @@ const playerAge = computed(() => {
   if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
     age--
   }
+  // Don't return invalid ages
+  if (age <= 0 || age > 50) return null
   return age
+})
+
+// Display age with proper fallback
+const displayAge = computed(() => {
+  if (playerAge.value != null && playerAge.value > 0) {
+    return `${playerAge.value}y`
+  }
+  return '—'
+})
+
+// Display height with proper fallback
+const displayHeight = computed(() => {
+  if (props.player?.height_cm && props.player.height_cm > 0) {
+    return `${props.player.height_cm}cm`
+  }
+  return '—'
+})
+
+// Display preferred foot
+const displayFoot = computed(() => {
+  const foot = props.player?.preferred_foot
+  if (foot === 'left') return 'L'
+  if (foot === 'right') return 'R'
+  if (foot === 'both') return 'Both'
+  return '—'
 })
 
 // Simple country flag mapping (can be expanded)

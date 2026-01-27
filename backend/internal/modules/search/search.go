@@ -30,6 +30,8 @@ type PlayerSearchResult struct {
 	Position       string  `json:"position"`
 	Country        string  `json:"country"`
 	State          *string `json:"state,omitempty"`
+	HeightCm       *int    `json:"height_cm,omitempty"`
+	PreferredFoot  *string `json:"preferred_foot,omitempty"`
 	ThumbnailURL   *string `json:"thumbnail_url,omitempty"`
 	IsVerified     bool    `json:"is_verified"`
 	TournamentName *string `json:"tournament_name,omitempty"`
@@ -130,15 +132,17 @@ func (m *SearchModule) SearchPlayers(c *gin.Context) {
 	results := make([]PlayerSearchResult, len(players))
 	for i, p := range players {
 		results[i] = PlayerSearchResult{
-			ID:           p.ID.String(),
-			FirstName:    p.FirstName,
-			LastNameInit: p.GetLastNameInit(),
-			Age:          p.GetAge(),
-			Position:     p.Position,
-			Country:      p.Country,
-			State:        p.State,
-			ThumbnailURL: p.ThumbnailURL,
-			IsVerified:   p.IsVerified(),
+			ID:            p.ID.String(),
+			FirstName:     p.FirstName,
+			LastNameInit:  p.GetLastNameInit(),
+			Age:           p.GetAge(),
+			Position:      p.Position,
+			Country:       p.Country,
+			State:         p.State,
+			HeightCm:      p.HeightCm,
+			PreferredFoot: p.PreferredFoot,
+			ThumbnailURL:  p.ThumbnailURL,
+			IsVerified:    p.IsVerified(),
 		}
 		if p.Tournament != nil {
 			results[i].TournamentName = &p.Tournament.Name

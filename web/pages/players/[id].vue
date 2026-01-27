@@ -189,7 +189,7 @@
                 </NuxtLink>
 
                 <!-- Not Authenticated - Sign Up CTA -->
-                <NuxtLink v-if="!authStore.isAuthenticated" to="/register">
+                <NuxtLink v-if="!authStore.isAuthenticated" to="/auth/register">
                   <button class="px-6 py-3 bg-secondary-500 text-neutral-900 rounded-xl font-semibold hover:bg-secondary-400 transition-colors flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />

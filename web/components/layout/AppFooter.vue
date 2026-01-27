@@ -137,9 +137,9 @@
       <div class="mt-8 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
         <div class="text-neutral-500 text-sm">© {{ new Date().getFullYear() }} Unicorn Sport. All rights reserved.</div>
         <div class="flex flex-wrap items-center gap-6 text-sm">
-          <a href="#" class="text-neutral-500 hover:text-white transition-colors">Privacy Policy</a>
-          <a href="#" class="text-neutral-500 hover:text-white transition-colors">Terms of Service</a>
-          <a href="mailto:contact@unicornsport.com" class="text-neutral-500 hover:text-white transition-colors">Contact</a>
+          <NuxtLink to="/privacy" class="text-neutral-500 hover:text-white transition-colors">Privacy Policy</NuxtLink>
+          <NuxtLink to="/terms" class="text-neutral-500 hover:text-white transition-colors">Terms of Service</NuxtLink>
+          <NuxtLink to="/contact" class="text-neutral-500 hover:text-white transition-colors">Contact</NuxtLink>
         </div>
       </div>
     </div>

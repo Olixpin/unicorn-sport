@@ -69,4 +69,60 @@
   .card-hover {
     @apply card hover:shadow-md hover:border-neutral-300 transition-all duration-200;
   }
+
+  /* Mobile touch targets - ensure minimum 44x44px */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  /* Safe area padding for notched devices */
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+
+  .safe-top {
+    padding-top: env(safe-area-inset-top, 0);
+  }
+
+  /* Improve focus states for accessibility */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+  }
+
+  /* Smooth scroll for internal links */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Better selection styling */
+  ::selection {
+    @apply bg-primary-500/20 text-primary-900;
+  }
+}
+
+/* Custom scrollbar for webkit browsers */
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Gradient text animation */
+  @keyframes gradient {
+    0%,
+    100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  .animate-gradient {
+    animation: gradient 3s ease infinite;
+  }
 }
