@@ -219,6 +219,7 @@ func setupRouter(
 				// Player management
 				adminRoutes.GET("/players", adminModule.ListPlayers)
 				adminRoutes.POST("/players", adminModule.CreatePlayer)
+				adminRoutes.GET("/players/:id", adminModule.GetPlayer)
 				adminRoutes.PUT("/players/:id", adminModule.UpdatePlayer)
 				adminRoutes.DELETE("/players/:id", adminModule.DeletePlayer)
 

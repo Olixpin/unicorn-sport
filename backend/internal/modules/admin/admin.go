@@ -611,6 +611,29 @@ type UpdatePlayerRequest struct {
 	ThumbnailURL       *string `json:"thumbnail_url,omitempty"`
 }
 
+// GetPlayer returns a single player by ID
+func (m *AdminModule) GetPlayer(c *gin.Context) {
+	playerID := c.Param("id")
+	pid, err := uuid.Parse(playerID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": gin.H{"code": "INVALID_UUID", "message": "Invalid player ID"}})
+		return
+	}
+
+	var player domain.Player
+	if err := m.db.Preload("Academy").Preload("Tournament").First(&player, "id = ?", pid).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"success": false, "error": gin.H{"code": "NOT_FOUND", "message": "Player not found"}})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data": gin.H{
+			"player": player,
+		},
+	})
+}
+
 // UpdatePlayer updates a player profile
 func (m *AdminModule) UpdatePlayer(c *gin.Context) {
 	playerID := c.Param("id")
