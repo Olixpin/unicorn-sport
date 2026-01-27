@@ -621,7 +621,7 @@ func (m *AdminModule) GetPlayer(c *gin.Context) {
 	}
 
 	var player domain.Player
-	if err := m.db.Preload("Academy").Preload("Tournament").First(&player, "id = ?", pid).Error; err != nil {
+	if err := m.db.Preload("Academy").Preload("Tournament").Where("deleted_at IS NULL").First(&player, "id = ?", pid).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"success": false, "error": gin.H{"code": "NOT_FOUND", "message": "Player not found"}})
 		return
 	}
