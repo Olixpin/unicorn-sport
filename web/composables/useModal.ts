@@ -186,7 +186,7 @@ interface ConfirmOptions {
   confirmText?: string
   cancelText?: string
   confirmVariant?: 'primary' | 'danger' | 'warning'
-  icon?: 'warning' | 'danger' | 'info' | 'success'
+  icon?: 'warning' | 'danger' | 'info' | 'success' | 'trash' | 'question'
 }
 
 interface ConfirmModalState {

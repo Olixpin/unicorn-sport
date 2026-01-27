@@ -297,14 +297,87 @@
                 </div>
               </div>
 
-              <div>
-                <label class="block text-sm font-medium text-neutral-700 mb-1">Location</label>
-                <input
-                  v-model="matchForm.location"
-                  type="text"
-                  class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  placeholder="Stadium name"
-                />
+              <!-- Location Section - Google-style Cascading Selection -->
+              <div class="space-y-4">
+                <!-- Country indicator (if detected) -->
+                <div v-if="detectedCountry" class="flex items-center gap-2 px-3 py-2 bg-primary-50 border border-primary-100 rounded-xl">
+                  <svg class="w-4 h-4 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  <span class="text-sm text-primary-700">Showing venues in <strong>{{ detectedCountry }}</strong></span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <!-- City Dropdown -->
+                  <div>
+                    <label class="block text-sm font-medium text-neutral-700 mb-1">
+                      City
+                      <span class="text-neutral-400 font-normal">(optional)</span>
+                    </label>
+                    <div class="relative">
+                      <select
+                        v-model="matchForm.city"
+                        class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white appearance-none cursor-pointer"
+                      >
+                        <option value="">Select city</option>
+                        <option v-for="city in availableCities" :key="city" :value="city">{{ city }}</option>
+                      </select>
+                      <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                        <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
+                    <p class="mt-1 text-xs text-neutral-500">Where the match will be played</p>
+                  </div>
+
+                  <!-- Venue - Dropdown if suggestions available, else text input -->
+                  <div>
+                    <label class="block text-sm font-medium text-neutral-700 mb-1">
+                      Venue
+                      <span class="text-neutral-400 font-normal">(optional)</span>
+                    </label>
+                    
+                    <!-- Show dropdown if we have venue suggestions -->
+                    <div v-if="availableVenues.length > 0" class="relative">
+                      <select
+                        v-model="matchForm.venue_name"
+                        class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white appearance-none cursor-pointer"
+                      >
+                        <option value="">Select venue</option>
+                        <option v-for="venue in availableVenues" :key="venue" :value="venue">{{ venue }}</option>
+                        <option value="__custom__">✏️ Enter custom venue...</option>
+                      </select>
+                      <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                        <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
+                    
+                    <!-- Show text input if no suggestions or custom selected -->
+                    <input
+                      v-else
+                      v-model="matchForm.venue_name"
+                      type="text"
+                      class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      placeholder="e.g., City Stadium"
+                    />
+                    
+                    <!-- Custom venue input (shows when __custom__ is selected) -->
+                    <input
+                      v-if="matchForm.venue_name === '__custom__'"
+                      v-model="customVenueName"
+                      type="text"
+                      class="w-full mt-2 px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      placeholder="Enter stadium/field name"
+                    />
+                    <p class="mt-1 text-xs text-neutral-500">
+                      {{ matchForm.city ? `Stadiums in ${matchForm.city}` : 'Select city for venue suggestions' }}
+                    </p>
+                  </div>
+                </div>
               </div>
 
               <div class="flex justify-end gap-3 pt-4">
@@ -333,6 +406,7 @@
 
 <script setup lang="ts">
 import type { ApiResponse } from '~/types/index'
+import { AFRICAN_LOCATIONS } from '~/data/locations'
 
 interface Tournament {
   id: string
@@ -378,6 +452,142 @@ const tournamentId = route.params.id as string
 const loading = ref(true)
 const tournament = ref<Tournament | null>(null)
 const matches = ref<Match[]>([])
+
+// Venue data organized by country and city for smart filtering
+const VENUE_DATA: Record<string, Record<string, string[]>> = {
+  'Nigeria': {
+    'Lagos': ['Teslim Balogun Stadium', 'Onikan Stadium', 'Agege Stadium', 'National Stadium Surulere'],
+    'Abuja': ['MKO Abiola Stadium', 'Abuja National Stadium'],
+    'Port Harcourt': ['Adokiye Amiesimaka Stadium'],
+    'Uyo': ['Godswill Akpabio Stadium', 'Nest of Champions'],
+    'Benin City': ['Samuel Ogbemudia Stadium'],
+    'Enugu': ['Nnamdi Azikiwe Stadium'],
+    'Kaduna': ['Ahmadu Bello Stadium'],
+    'Kano': ['Sani Abacha Stadium'],
+    'Calabar': ['U.J. Esuene Stadium'],
+    'Aba': ['Enyimba Stadium'],
+    'Ibadan': ['Lekan Salami Stadium', 'Adamasingba Stadium'],
+    'Ilorin': ['Kwara State Stadium'],
+    'Jos': ['Rwang Pam Stadium'],
+  },
+  'Ghana': {
+    'Accra': ['Accra Sports Stadium', 'El-Wak Stadium'],
+    'Kumasi': ['Baba Yara Stadium'],
+    'Cape Coast': ['Cape Coast Stadium'],
+    'Tamale': ['Tamale Stadium', 'Aliu Mahama Stadium'],
+    'Sekondi-Takoradi': ['Essipong Stadium'],
+  },
+  'South Africa': {
+    'Johannesburg': ['FNB Stadium', 'Ellis Park Stadium', 'Orlando Stadium', 'Bidvest Stadium'],
+    'Durban': ['Moses Mabhida Stadium', 'King Zwelithini Stadium'],
+    'Cape Town': ['Cape Town Stadium', 'Newlands Stadium', 'Athlone Stadium'],
+    'Pretoria': ['Loftus Versfeld Stadium'],
+    'Port Elizabeth': ['Nelson Mandela Bay Stadium'],
+    'Bloemfontein': ['Free State Stadium'],
+    'Polokwane': ['Peter Mokaba Stadium'],
+    'Rustenburg': ['Royal Bafokeng Stadium'],
+    'Nelspruit': ['Mbombela Stadium'],
+  },
+  'Egypt': {
+    'Cairo': ['Cairo International Stadium', 'Al Ahly Stadium', 'Zamalek Stadium', '30 June Stadium'],
+    'Alexandria': ['Borg El Arab Stadium', 'Alexandria Stadium'],
+    'Suez': ['Suez Stadium'],
+  },
+  'Kenya': {
+    'Nairobi': ['Kasarani Stadium', 'Nyayo National Stadium'],
+    'Mombasa': ['Mombasa Municipal Stadium'],
+    'Kisumu': ['Moi Stadium Kisumu'],
+  },
+  'Cameroon': {
+    'Yaoundé': ['Ahmadou Ahidjo Stadium', 'Stade Omnisport de Yaoundé'],
+    'Douala': ['Stade de la Réunification'],
+    'Garoua': ['Roumde Adjia Stadium'],
+    'Limbe': ['Limbe Stadium'],
+    'Bafoussam': ['Kouekong Stadium'],
+  },
+  'Senegal': {
+    'Dakar': ['Stade Léopold Sédar Senghor', 'Stade Demba Diop'],
+    'Thiès': ['Stade Lat Dior'],
+  },
+  'Morocco': {
+    'Casablanca': ['Stade Mohammed V', 'Complexe Sportif Mohammed V'],
+    'Rabat': ['Moulay Abdellah Stadium'],
+    'Marrakech': ['Grand Stade de Marrakech'],
+    'Tangier': ['Ibn Batouta Stadium'],
+    'Agadir': ['Adrar Stadium'],
+    'Fez': ['Fez Stadium'],
+  },
+  'Ivory Coast': {
+    'Abidjan': ['Stade Félix Houphouët-Boigny', 'Stade Olympique d\'Ebimpé'],
+    'Bouaké': ['Stade de la Paix'],
+    'Yamoussoukro': ['Yamoussoukro Stadium'],
+  },
+}
+
+// Detect country from tournament location
+const detectedCountry = computed(() => {
+  const loc = tournament.value?.location?.toLowerCase() || ''
+  for (const country of Object.keys(VENUE_DATA)) {
+    if (loc.includes(country.toLowerCase())) {
+      return country
+    }
+  }
+  // Check cities too
+  for (const [country, cities] of Object.entries(VENUE_DATA)) {
+    for (const city of Object.keys(cities)) {
+      if (loc.includes(city.toLowerCase())) {
+        return country
+      }
+    }
+  }
+  return null
+})
+
+// Get cities for the detected country (or all if no country detected)
+const availableCities = computed(() => {
+  const country = detectedCountry.value
+  if (country && VENUE_DATA[country]) {
+    return Object.keys(VENUE_DATA[country]).sort()
+  }
+  // Fallback: all cities from AFRICAN_LOCATIONS
+  const cities: string[] = []
+  for (const data of Object.values(AFRICAN_LOCATIONS)) {
+    for (const stateCities of Object.values(data.states)) {
+      cities.push(...stateCities)
+    }
+  }
+  return [...new Set(cities)].sort().slice(0, 50) // Limit to 50 for performance
+})
+
+// Get venue suggestions based on selected city
+const availableVenues = computed(() => {
+  const city = matchForm.city
+  const country = detectedCountry.value
+  
+  if (city && country && VENUE_DATA[country]?.[city]) {
+    return VENUE_DATA[country][city]
+  }
+  
+  // If city selected but not in our data, check all countries
+  if (city) {
+    for (const cities of Object.values(VENUE_DATA)) {
+      if (cities[city]) {
+        return cities[city]
+      }
+    }
+  }
+  
+  // If no city selected but country detected, show all venues in that country
+  if (country && VENUE_DATA[country]) {
+    const venues: string[] = []
+    for (const cityVenues of Object.values(VENUE_DATA[country])) {
+      venues.push(...cityVenues)
+    }
+    return venues
+  }
+  
+  return []
+})
 const showEditModal = ref(false)
 const showCreateMatchModal = ref(false)
 const creatingMatch = ref(false)
@@ -388,8 +598,12 @@ const matchForm = reactive({
   away_team: '',
   match_date: '',
   stage: '',
-  location: '',
+  venue_name: '',
+  city: '',
 })
+
+// For custom venue entry when user selects "Enter custom venue..."
+const customVenueName = ref('')
 
 // Match date validation - must be within tournament dates
 const matchDateMin = computed(() => {
@@ -435,12 +649,13 @@ async function fetchTournament() {
 
 async function fetchMatches() {
   try {
-    const response = await $fetch<ApiResponse<{ matches: Match[] }>>(`/admin/tournaments/${tournamentId}/matches`, {
+    // Backend returns data as array directly, not { matches: [...] }
+    const response = await $fetch<ApiResponse<Match[]>>(`/admin/tournaments/${tournamentId}/matches`, {
       baseURL: config.public.apiBase,
       headers: { Authorization: `Bearer ${authStore.accessToken}` },
     })
     if (response.success && response.data) {
-      matches.value = response.data.matches || []
+      matches.value = response.data || []
     }
   } catch (error) {
     console.error('Failed to fetch matches:', error)
@@ -452,19 +667,36 @@ async function fetchMatches() {
 async function createMatch() {
   creatingMatch.value = true
   try {
+    // Determine final venue name (handle custom entry)
+    const finalVenue = matchForm.venue_name === '__custom__' 
+      ? customVenueName.value 
+      : matchForm.venue_name
+    
+    // Format date as YYYY-MM-DD (backend expects this format)
+    const formattedDate = matchForm.match_date 
+      ? matchForm.match_date.split('T')[0] 
+      : undefined
+    
     const response = await $fetch<ApiResponse<Match>>(`/admin/tournaments/${tournamentId}/matches`, {
       baseURL: config.public.apiBase,
       method: 'POST',
       headers: { Authorization: `Bearer ${authStore.accessToken}` },
       body: {
-        ...matchForm,
-        match_date: matchForm.match_date ? new Date(matchForm.match_date).toISOString() : undefined,
+        tournament_id: tournamentId, // Backend requires this
+        title: matchForm.title,
+        home_team: matchForm.home_team || undefined,
+        away_team: matchForm.away_team || undefined,
+        match_date: formattedDate,
+        stage: matchForm.stage || undefined,
+        // Combine venue and city into location
+        location: [finalVenue, matchForm.city].filter(Boolean).join(', ') || undefined,
       },
     })
     if (response.success && response.data) {
       toast.success('Match Created', 'Match has been added to the tournament')
       showCreateMatchModal.value = false
-      Object.assign(matchForm, { title: '', home_team: '', away_team: '', match_date: '', stage: '', location: '' })
+      Object.assign(matchForm, { title: '', home_team: '', away_team: '', match_date: '', stage: '', venue_name: '', city: '' })
+      customVenueName.value = ''
       router.push(`/admin/tournaments/${tournamentId}/matches/${response.data.id}`)
     }
   } catch (error: any) {

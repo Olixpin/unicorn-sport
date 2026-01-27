@@ -231,17 +231,24 @@ func (m *Module) GetMatch(c *gin.Context) {
 
 	// Build players response
 	type playerInMatch struct {
-		ID              uuid.UUID `json:"id"`
-		PlayerID        uuid.UUID `json:"player_id"`
-		FirstName       string    `json:"first_name"`
-		LastName        string    `json:"last_name"`
-		Position        string    `json:"position"`
-		ProfilePhotoURL *string   `json:"profile_photo_url"`
-		PositionPlayed  *string   `json:"position_played"`
-		MinutesPlayed   *int      `json:"minutes_played"`
-		Goals           int       `json:"goals"`
-		Assists         int       `json:"assists"`
-		HighlightCount  int       `json:"highlight_count"`
+		ID              uuid.UUID  `json:"id"`
+		PlayerID        uuid.UUID  `json:"player_id"`
+		FirstName       string     `json:"first_name"`
+		LastName        string     `json:"last_name"`
+		Position        string     `json:"position"`
+		ProfilePhotoURL *string    `json:"profile_photo_url"`
+		PositionPlayed  *string    `json:"position_played"`
+		MinutesPlayed   *int       `json:"minutes_played"`
+		Goals           int        `json:"goals"`
+		Assists         int        `json:"assists"`
+		HighlightCount  int        `json:"highlight_count"`
+		IsStarter       bool       `json:"is_starter"`
+		JerseyNumber    *int       `json:"jersey_number"`
+		FormationX      *float64   `json:"formation_x"`
+		FormationY      *float64   `json:"formation_y"`
+		SubbedInFor     *uuid.UUID `json:"subbed_in_for"`
+		SubbedInAt      *int       `json:"subbed_in_at"`
+		SubbedOutAt     *int       `json:"subbed_out_at"`
 	}
 
 	players := make([]playerInMatch, len(matchPlayers))
@@ -258,6 +265,13 @@ func (m *Module) GetMatch(c *gin.Context) {
 			Goals:           mp.Goals,
 			Assists:         mp.Assists,
 			HighlightCount:  highlightMap[mp.PlayerID],
+			IsStarter:       mp.IsStarter,
+			JerseyNumber:    mp.JerseyNumber,
+			FormationX:      mp.FormationX,
+			FormationY:      mp.FormationY,
+			SubbedInFor:     mp.SubbedInFor,
+			SubbedInAt:      mp.SubbedInAt,
+			SubbedOutAt:     mp.SubbedOutAt,
 		}
 	}
 
@@ -378,12 +392,16 @@ func (m *Module) AddPlayerToMatch(c *gin.Context) {
 	}
 
 	var req struct {
-		PlayerID       string `json:"player_id" binding:"required"`
-		PositionPlayed string `json:"position_played"`
-		MinutesPlayed  *int   `json:"minutes_played"`
-		Goals          int    `json:"goals"`
-		Assists        int    `json:"assists"`
-		Notes          string `json:"notes"`
+		PlayerID       string   `json:"player_id" binding:"required"`
+		PositionPlayed string   `json:"position_played"`
+		MinutesPlayed  *int     `json:"minutes_played"`
+		Goals          int      `json:"goals"`
+		Assists        int      `json:"assists"`
+		Notes          string   `json:"notes"`
+		IsStarter      *bool    `json:"is_starter"`
+		JerseyNumber   *int     `json:"jersey_number"`
+		FormationX     *float64 `json:"formation_x"`
+		FormationY     *float64 `json:"formation_y"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -411,6 +429,12 @@ func (m *Module) AddPlayerToMatch(c *gin.Context) {
 		return
 	}
 
+	// Default isStarter to true if not provided
+	isStarter := true
+	if req.IsStarter != nil {
+		isStarter = *req.IsStarter
+	}
+
 	matchPlayer := domain.MatchPlayer{
 		MatchID:        mid,
 		PlayerID:       playerID,
@@ -419,6 +443,10 @@ func (m *Module) AddPlayerToMatch(c *gin.Context) {
 		Goals:          req.Goals,
 		Assists:        req.Assists,
 		Notes:          stringPtr(req.Notes),
+		IsStarter:      isStarter,
+		JerseyNumber:   req.JerseyNumber,
+		FormationX:     req.FormationX,
+		FormationY:     req.FormationY,
 	}
 
 	if err := m.DB.Create(&matchPlayer).Error; err != nil {
@@ -457,11 +485,17 @@ func (m *Module) UpdateMatchPlayer(c *gin.Context) {
 	}
 
 	var req struct {
-		PositionPlayed string `json:"position_played"`
-		MinutesPlayed  *int   `json:"minutes_played"`
-		Goals          *int   `json:"goals"`
-		Assists        *int   `json:"assists"`
-		Notes          string `json:"notes"`
+		PositionPlayed string   `json:"position_played"`
+		MinutesPlayed  *int     `json:"minutes_played"`
+		Goals          *int     `json:"goals"`
+		Assists        *int     `json:"assists"`
+		Notes          string   `json:"notes"`
+		IsStarter      *bool    `json:"is_starter"`
+		JerseyNumber   *int     `json:"jersey_number"`
+		FormationX     *float64 `json:"formation_x"`
+		FormationY     *float64 `json:"formation_y"`
+		SubbedInAt     *int     `json:"subbed_in_at"`
+		SubbedOutAt    *int     `json:"subbed_out_at"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -484,6 +518,24 @@ func (m *Module) UpdateMatchPlayer(c *gin.Context) {
 	}
 	if req.Notes != "" {
 		updates["notes"] = req.Notes
+	}
+	if req.IsStarter != nil {
+		updates["is_starter"] = *req.IsStarter
+	}
+	if req.JerseyNumber != nil {
+		updates["jersey_number"] = *req.JerseyNumber
+	}
+	if req.FormationX != nil {
+		updates["formation_x"] = *req.FormationX
+	}
+	if req.FormationY != nil {
+		updates["formation_y"] = *req.FormationY
+	}
+	if req.SubbedInAt != nil {
+		updates["subbed_in_at"] = *req.SubbedInAt
+	}
+	if req.SubbedOutAt != nil {
+		updates["subbed_out_at"] = *req.SubbedOutAt
 	}
 
 	if err := m.DB.Model(&matchPlayer).Updates(updates).Error; err != nil {

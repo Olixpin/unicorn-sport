@@ -367,15 +367,22 @@ func IsValidHighlightType(t string) bool {
 
 // MatchPlayer links players to matches they participated in
 type MatchPlayer struct {
-	ID             uuid.UUID `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
-	MatchID        uuid.UUID `json:"match_id" gorm:"type:uuid;not null;uniqueIndex:idx_match_player_unique"`
-	PlayerID       uuid.UUID `json:"player_id" gorm:"type:uuid;not null;uniqueIndex:idx_match_player_unique"`
-	PositionPlayed *string   `json:"position_played,omitempty"`
-	MinutesPlayed  *int      `json:"minutes_played,omitempty"`
-	Goals          int       `json:"goals" gorm:"default:0"`
-	Assists        int       `json:"assists" gorm:"default:0"`
-	Notes          *string   `json:"notes,omitempty"`
-	CreatedAt      time.Time `json:"created_at"`
+	ID             uuid.UUID  `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	MatchID        uuid.UUID  `json:"match_id" gorm:"type:uuid;not null;uniqueIndex:idx_match_player_unique"`
+	PlayerID       uuid.UUID  `json:"player_id" gorm:"type:uuid;not null;uniqueIndex:idx_match_player_unique"`
+	PositionPlayed *string    `json:"position_played,omitempty"`
+	MinutesPlayed  *int       `json:"minutes_played,omitempty"`
+	Goals          int        `json:"goals" gorm:"default:0"`
+	Assists        int        `json:"assists" gorm:"default:0"`
+	Notes          *string    `json:"notes,omitempty"`
+	IsStarter      bool       `json:"is_starter" gorm:"default:true"`
+	JerseyNumber   *int       `json:"jersey_number,omitempty"`
+	FormationX     *float64   `json:"formation_x,omitempty"`                    // 0-100 percentage position on pitch
+	FormationY     *float64   `json:"formation_y,omitempty"`                    // 0-100 percentage position on pitch
+	SubbedInFor    *uuid.UUID `json:"subbed_in_for,omitempty" gorm:"type:uuid"` // Player ID they replaced
+	SubbedInAt     *int       `json:"subbed_in_at,omitempty"`                   // Minute subbed in
+	SubbedOutAt    *int       `json:"subbed_out_at,omitempty"`                  // Minute subbed out
+	CreatedAt      time.Time  `json:"created_at"`
 
 	Match  *Match  `json:"match,omitempty" gorm:"foreignKey:MatchID"`
 	Player *Player `json:"player,omitempty" gorm:"foreignKey:PlayerID"`

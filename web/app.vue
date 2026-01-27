@@ -6,6 +6,7 @@
   <!-- Global Toast Notifications -->
   <ClientOnly>
     <UiToast />
+    <UiConfirmDialog />
   </ClientOnly>
 </template>
 
