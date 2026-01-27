@@ -534,9 +534,20 @@ func (m *MediaModule) videoToResponse(v domain.Video) VideoResponse {
 		UpdatedAt:       v.UpdatedAt,
 	}
 
-	// Generate video URL
+	// Generate video URL - prefer CloudFront, fallback to presigned S3 URL
 	if m.cloudFrontURL != "" {
 		resp.VideoURL = fmt.Sprintf("%s/%s", m.cloudFrontURL, strings.TrimPrefix(v.BlobURL, fmt.Sprintf("s3://%s/", m.s3Bucket)))
+	} else if v.BlobURL != "" && m.s3Client != nil {
+		// Generate presigned URL for direct S3 access (1 hour expiry)
+		s3Key := strings.TrimPrefix(v.BlobURL, fmt.Sprintf("s3://%s/", m.s3Bucket))
+		presignClient := s3.NewPresignClient(m.s3Client)
+		presignedReq, err := presignClient.PresignGetObject(context.Background(), &s3.GetObjectInput{
+			Bucket: aws.String(m.s3Bucket),
+			Key:    aws.String(s3Key),
+		}, s3.WithPresignExpires(1*time.Hour))
+		if err == nil {
+			resp.VideoURL = presignedReq.URL
+		}
 	}
 
 	// Map players

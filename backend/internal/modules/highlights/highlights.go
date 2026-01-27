@@ -1,6 +1,7 @@
 package highlights
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"time"
@@ -733,7 +734,7 @@ func (m *Module) getStreamURL(s3Key string) string {
 	}
 	// Generate presigned URL for direct S3 access
 	presigner := s3.NewPresignClient(m.S3Client)
-	result, err := presigner.PresignGetObject(nil, &s3.GetObjectInput{
+	result, err := presigner.PresignGetObject(context.Background(), &s3.GetObjectInput{
 		Bucket: aws.String(m.S3Bucket),
 		Key:    aws.String(s3Key),
 	}, s3.WithPresignExpires(1*time.Hour))

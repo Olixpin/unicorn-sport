@@ -338,7 +338,7 @@
       </div>
 
       <!-- Match Highlights Section -->
-      <div class="bg-white rounded-2xl border border-neutral-200 p-6">
+      <div data-highlights class="bg-white rounded-2xl border border-neutral-200 p-6">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-lg font-semibold text-neutral-900 flex items-center gap-2">
             <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -348,6 +348,17 @@
             <span class="bg-emerald-100 text-emerald-700 text-xs px-2 py-0.5 rounded-full">FREE</span>
           </h2>
           <div class="flex items-center gap-3">
+            <!-- Player Filter -->
+            <select
+              v-model="highlightPlayerFilter"
+              class="px-3 py-2 border border-neutral-200 rounded-lg text-sm bg-white"
+            >
+              <option value="">All Players</option>
+              <option v-for="player in players" :key="player.id" :value="player.player_id">
+                {{ player.first_name }} {{ player.last_name }}
+              </option>
+            </select>
+            <!-- Type Filter -->
             <select
               v-model="highlightTypeFilter"
               class="px-3 py-2 border border-neutral-200 rounded-lg text-sm bg-white"
@@ -357,6 +368,17 @@
                 {{ type.icon }} {{ type.label }}
               </option>
             </select>
+            <!-- Clear Filters -->
+            <button
+              v-if="highlightTypeFilter || highlightPlayerFilter"
+              @click="highlightTypeFilter = ''; highlightPlayerFilter = ''"
+              class="p-2 text-neutral-500 hover:text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors"
+              title="Clear Filters"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
           </div>
         </div>
 
@@ -994,6 +1016,78 @@
         </div>
       </div>
     </Teleport>
+
+    <!-- Highlight Preview Modal -->
+    <Teleport to="body">
+      <div v-if="showHighlightPreviewModal && selectedHighlight" class="fixed inset-0 z-50 overflow-y-auto">
+        <div class="fixed inset-0 bg-black/80" @click="showHighlightPreviewModal = false"></div>
+        <div class="relative min-h-screen flex items-center justify-center p-4">
+          <div class="relative bg-black rounded-2xl shadow-xl w-full max-w-3xl overflow-hidden">
+            <!-- Close button -->
+            <button
+              @click="showHighlightPreviewModal = false"
+              class="absolute top-4 right-4 z-10 p-2 bg-black/50 hover:bg-black/70 text-white rounded-full transition-colors"
+            >
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            <!-- Video Player -->
+            <div class="aspect-video bg-black relative">
+              <video
+                v-if="selectedHighlight.video_url"
+                :src="selectedHighlight.video_url"
+                controls
+                autoplay
+                class="w-full h-full"
+              >
+                Your browser does not support the video tag.
+              </video>
+              <div v-else class="w-full h-full flex items-center justify-center text-neutral-500">
+                <div class="text-center">
+                  <svg class="w-16 h-16 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                  <p>Video not available</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Highlight Info -->
+            <div class="p-4 bg-neutral-900 text-white">
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="flex items-center gap-3 mb-2">
+                    <span class="bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded text-sm font-medium">
+                      {{ getHighlightIcon(selectedHighlight.highlight_type) }} {{ selectedHighlight.highlight_type }}
+                    </span>
+                    <span v-if="selectedHighlight.duration_seconds" class="text-neutral-400 text-sm">
+                      {{ formatDuration(selectedHighlight.duration_seconds) }}
+                    </span>
+                  </div>
+                  <h3 class="font-semibold">
+                    {{ selectedHighlight.player?.first_name }} {{ selectedHighlight.player?.last_name }}
+                  </h3>
+                  <p class="text-sm text-neutral-400 mt-1">
+                    {{ match?.home_team }} vs {{ match?.away_team }}
+                  </p>
+                </div>
+                <button
+                  @click="deleteHighlight(selectedHighlight); showHighlightPreviewModal = false"
+                  class="p-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 rounded-lg transition-colors"
+                  title="Delete Highlight"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -1046,6 +1140,7 @@ interface PlayerHighlight {
   player_id: string
   highlight_type: string
   title?: string
+  video_url?: string
   thumbnail_url?: string
   duration_seconds?: number
   view_count: number
@@ -1085,6 +1180,7 @@ const matchVideo = ref<MatchVideo | null>(null)
 const players = ref<MatchPlayer[]>([])
 const highlights = ref<PlayerHighlight[]>([])
 const highlightTypeFilter = ref('')
+const highlightPlayerFilter = ref('')
 
 // Modals
 const showEditModal = ref(false)
@@ -1092,6 +1188,8 @@ const showAddPlayerModal = ref(false)
 const showHighlightUploadModal = ref(false)
 const showUploadVideoModal = ref(false)
 const showReplaceVideoModal = ref(false)
+const showHighlightPreviewModal = ref(false)
+const selectedHighlight = ref<PlayerHighlight | null>(null)
 const updatingMatch = ref(false)
 
 // Edit match form
@@ -1188,8 +1286,19 @@ const highlightTypes = [
 ]
 
 const filteredHighlights = computed(() => {
-  if (!highlightTypeFilter.value) return highlights.value
-  return highlights.value.filter(h => h.highlight_type === highlightTypeFilter.value)
+  let result = highlights.value
+  
+  // Filter by player
+  if (highlightPlayerFilter.value) {
+    result = result.filter(h => h.player_id === highlightPlayerFilter.value)
+  }
+  
+  // Filter by type
+  if (highlightTypeFilter.value) {
+    result = result.filter(h => h.highlight_type === highlightTypeFilter.value)
+  }
+  
+  return result
 })
 
 const canUploadHighlight = computed(() => {
@@ -1282,6 +1391,9 @@ async function fetchHighlights() {
           for (const h of (group as any).highlights) {
             allHighlights.push({
               ...h,
+              // Map stream_url to video_url for the frontend
+              video_url: h.stream_url || h.video_url,
+              player_id: (group as any).player_id,
               player: { first_name: (group as any).player_name?.split(' ')[0] || '', last_name: (group as any).player_name?.split(' ')[1] || '' }
             })
           }
@@ -1985,14 +2097,18 @@ async function deleteHighlight(highlight: PlayerHighlight) {
 }
 
 function viewPlayerHighlights(player: MatchPlayer) {
+  // Set the player filter to show only this player's highlights
+  highlightPlayerFilter.value = player.player_id
   highlightTypeFilter.value = ''
   // Scroll to highlights section
-  document.querySelector('[data-highlights]')?.scrollIntoView({ behavior: 'smooth' })
+  nextTick(() => {
+    document.querySelector('[data-highlights]')?.scrollIntoView({ behavior: 'smooth' })
+  })
 }
 
 function viewHighlight(highlight: PlayerHighlight) {
-  // Could open a modal to preview
-  console.log('View highlight:', highlight)
+  selectedHighlight.value = highlight
+  showHighlightPreviewModal.value = true
 }
 
 // Video preview modal state
