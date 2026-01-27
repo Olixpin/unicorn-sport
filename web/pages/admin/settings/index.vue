@@ -344,10 +344,7 @@ async function saveSettings() {
       contact_requests_enabled: settings.contact_requests_enabled.toString(),
     }
 
-    const response = await api<ApiResponse<null>>('/admin/settings', {
-      method: 'PUT',
-      body: { settings: settingsMap },
-    })
+    const response = await api.put<ApiResponse<null>>('/admin/settings', { settings: settingsMap }, true)
 
     if (response.success) {
       toast.success('Settings Saved', 'Platform settings have been updated')

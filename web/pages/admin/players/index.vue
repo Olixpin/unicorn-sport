@@ -653,10 +653,7 @@ async function bulkVerify() {
   if (selectedPlayers.value.length === 0) return
   bulkLoading.value = true
   try {
-    await api<ApiResponse>('/admin/players/bulk', {
-      method: 'POST',
-      body: { action: 'verify', player_ids: selectedPlayers.value }
-    })
+    await api.post<ApiResponse<null>>('/admin/players/bulk', { action: 'verify', player_ids: selectedPlayers.value }, true)
     await fetchPlayers()
     clearSelection()
   } catch (error) {
@@ -670,10 +667,7 @@ async function bulkUnverify() {
   if (selectedPlayers.value.length === 0) return
   bulkLoading.value = true
   try {
-    await api<ApiResponse>('/admin/players/bulk', {
-      method: 'POST',
-      body: { action: 'unverify', player_ids: selectedPlayers.value }
-    })
+    await api.post<ApiResponse<null>>('/admin/players/bulk', { action: 'unverify', player_ids: selectedPlayers.value }, true)
     await fetchPlayers()
     clearSelection()
   } catch (error) {
@@ -687,10 +681,7 @@ async function bulkDelete() {
   if (selectedPlayers.value.length === 0) return
   bulkLoading.value = true
   try {
-    await api<ApiResponse>('/admin/players/bulk', {
-      method: 'POST',
-      body: { action: 'delete', player_ids: selectedPlayers.value }
-    })
+    await api.post<ApiResponse<null>>('/admin/players/bulk', { action: 'delete', player_ids: selectedPlayers.value }, true)
     showBulkDeleteModal.value = false
     await fetchPlayers()
     clearSelection()
@@ -703,9 +694,9 @@ async function bulkDelete() {
 
 async function exportPlayers() {
   try {
-    const response = await fetch(`${config.public.apiUrl}/admin/export/players`, {
+    const response = await fetch(`${config.public.apiBase}/admin/export/players`, {
       headers: {
-        'Authorization': `Bearer ${authStore.token}`
+        'Authorization': `Bearer ${authStore.accessToken}`
       }
     })
     const blob = await response.blob()

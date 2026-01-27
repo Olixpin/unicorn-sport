@@ -721,7 +721,7 @@ onMounted(async () => {
       Object.assign(form, {
         first_name: player.value.first_name,
         last_name: player.value.last_name,
-        date_of_birth: player.value.date_of_birth.split('T')[0],
+        date_of_birth: player.value.date_of_birth?.split('T')[0] || '',
         position: player.value.position,
         preferred_foot: player.value.preferred_foot || '',
         height_cm: player.value.height_cm,

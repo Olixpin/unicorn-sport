@@ -1,6 +1,6 @@
 <template>
   <NuxtLayout>
-    <NuxtPage />
+    <NuxtPage :key="route.path" />
   </NuxtLayout>
   
   <!-- Global Toast Notifications -->
@@ -11,6 +11,8 @@
 </template>
 
 <script setup lang="ts">
+const route = useRoute()
+
 // Initialize auth state on app mount
 const authStore = useAuthStore()
 const subscriptionStore = useSubscriptionStore()

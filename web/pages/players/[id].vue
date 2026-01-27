@@ -44,7 +44,7 @@
                   <img
                     v-if="player.profile_photo_url"
                     :src="player.profile_photo_url"
-                    :alt="`${player.first_name} ${player.last_name}`"
+                    :alt="`${player.first_name} ${playerLastInitial}.`"
                     class="w-full h-full object-cover"
                   />
                   <div v-else class="w-full h-full flex items-center justify-center bg-gradient-to-br from-neutral-700 to-neutral-800">
@@ -60,7 +60,7 @@
             <div class="flex-1 text-center lg:text-left">
               <div class="flex flex-col lg:flex-row items-center lg:items-start gap-3 mb-4">
                 <h1 class="font-display text-3xl lg:text-4xl font-bold text-white">
-                  {{ player.first_name }} {{ player.last_name }}
+                  {{ player.first_name }} {{ playerLastInitial }}.
                 </h1>
                 <span 
                   v-if="player.verification_status === 'verified'" 
@@ -93,19 +93,19 @@
               <div class="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div class="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
                   <div class="text-xs uppercase tracking-wider text-neutral-500 mb-1">Age</div>
-                  <div class="text-2xl font-bold text-white">{{ playerAge }}</div>
+                  <div class="text-2xl font-bold text-white">{{ playerAge ?? '-' }}</div>
                 </div>
                 <div class="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
                   <div class="text-xs uppercase tracking-wider text-neutral-500 mb-1">Height</div>
-                  <div class="text-2xl font-bold text-white">{{ player.height_cm || '-' }}<span class="text-sm text-neutral-400 ml-1">cm</span></div>
+                  <div class="text-2xl font-bold text-white">{{ player.height_cm || '-' }}<span v-if="player.height_cm" class="text-sm text-neutral-400 ml-1">cm</span></div>
                 </div>
                 <div class="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
                   <div class="text-xs uppercase tracking-wider text-neutral-500 mb-1">Weight</div>
-                  <div class="text-2xl font-bold text-white">{{ player.weight_kg || '-' }}<span class="text-sm text-neutral-400 ml-1">kg</span></div>
+                  <div class="text-2xl font-bold text-white">{{ player.weight_kg || '-' }}<span v-if="player.weight_kg" class="text-sm text-neutral-400 ml-1">kg</span></div>
                 </div>
                 <div class="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
-                  <div class="text-xs uppercase tracking-wider text-neutral-500 mb-1">Year</div>
-                  <div class="text-2xl font-bold text-white">{{ player.tournament_year || '-' }}</div>
+                  <div class="text-xs uppercase tracking-wider text-neutral-500 mb-1">Tournament</div>
+                  <div class="text-2xl font-bold text-white">{{ player.tournament_year || player.tournament?.year || '-' }}</div>
                 </div>
               </div>
 
@@ -134,8 +134,9 @@
 
               <!-- Action Buttons -->
               <div class="mt-8 flex flex-wrap items-center justify-center lg:justify-start gap-4">
+                <!-- Save Button - Scout+ -->
                 <button 
-                  v-if="subStore.canSavePlayers"
+                  v-if="authStore.isAuthenticated && subStore.canSavePlayers"
                   :disabled="savingPlayer"
                   :class="[
                     'px-6 py-3 rounded-xl font-semibold transition-all duration-200 flex items-center gap-2',
@@ -155,8 +156,19 @@
                   {{ isSaved ? 'Saved' : 'Save Player' }}
                 </button>
 
+                <!-- Save Upgrade Prompt -->
+                <NuxtLink v-else-if="authStore.isAuthenticated && !subStore.canSavePlayers" to="/pricing">
+                  <button class="px-6 py-3 bg-white/10 text-white rounded-xl font-semibold hover:bg-white/20 border border-white/20 transition-colors flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                    Upgrade to Save
+                  </button>
+                </NuxtLink>
+
+                <!-- Contact Button - Pro+ -->
                 <button 
-                  v-if="subStore.canRequestContact"
+                  v-if="authStore.isAuthenticated && subStore.canRequestContact"
                   class="px-6 py-3 bg-primary-500 text-white rounded-xl font-semibold hover:bg-primary-600 transition-colors flex items-center gap-2 shadow-lg shadow-primary-500/25"
                   @click="showContactModal = true"
                 >
@@ -166,12 +178,23 @@
                   Request Contact
                 </button>
 
-                <NuxtLink v-if="!authStore.isAuthenticated" to="/pricing">
+                <!-- Contact Upgrade Prompt -->
+                <NuxtLink v-else-if="authStore.isAuthenticated && !subStore.canRequestContact" to="/pricing">
                   <button class="px-6 py-3 bg-secondary-500 text-neutral-900 rounded-xl font-semibold hover:bg-secondary-400 transition-colors flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                     Upgrade to Contact
+                  </button>
+                </NuxtLink>
+
+                <!-- Not Authenticated - Sign Up CTA -->
+                <NuxtLink v-if="!authStore.isAuthenticated" to="/register">
+                  <button class="px-6 py-3 bg-secondary-500 text-neutral-900 rounded-xl font-semibold hover:bg-secondary-400 transition-colors flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                    </svg>
+                    Sign Up to Save & Contact
                   </button>
                 </NuxtLink>
               </div>
@@ -202,12 +225,20 @@
               @click="playVideo(video)"
             >
               <div class="aspect-video relative bg-neutral-200 overflow-hidden">
+                <!-- Thumbnail image -->
                 <img 
                   v-if="video.thumbnail_url"
                   :src="video.thumbnail_url"
                   :alt="video.title"
                   class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  @error="(e: Event) => (e.target as HTMLImageElement).style.display = 'none'"
                 />
+                <!-- Placeholder when no thumbnail -->
+                <div v-else class="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-500/20 to-primary-600/30">
+                  <svg class="w-16 h-16 text-primary-500/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                </div>
                 <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
                 <div class="absolute inset-0 flex items-center justify-center">
                   <div class="w-16 h-16 bg-white/95 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
@@ -275,12 +306,20 @@
               @click="playVideo(video)"
             >
               <div class="aspect-video relative bg-neutral-200 overflow-hidden">
+                <!-- Thumbnail image -->
                 <img 
                   v-if="video.thumbnail_url"
                   :src="video.thumbnail_url"
                   :alt="video.title"
                   class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  @error="(e: Event) => (e.target as HTMLImageElement).style.display = 'none'"
                 />
+                <!-- Placeholder when no thumbnail -->
+                <div v-else class="w-full h-full flex items-center justify-center bg-gradient-to-br from-secondary-500/20 to-secondary-600/30">
+                  <svg class="w-16 h-16 text-secondary-500/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                </div>
                 <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
                 <div class="absolute inset-0 flex items-center justify-center">
                   <div class="w-16 h-16 bg-white/95 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
@@ -311,11 +350,205 @@
         </div>
       </div>
     </div>
+
+    <!-- Contact Request Modal -->
+    <Teleport to="body">
+      <div 
+        v-if="showContactModal" 
+        class="fixed inset-0 z-50 flex items-center justify-center p-4"
+      >
+        <!-- Backdrop -->
+        <div 
+          class="absolute inset-0 bg-black/60 backdrop-blur-sm"
+          @click="closeContactModal"
+        ></div>
+        
+        <!-- Modal -->
+        <div class="relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 animate-[fadeInUp_0.3s_ease-out]">
+          <!-- Close Button -->
+          <button 
+            @click="closeContactModal"
+            class="absolute top-4 right-4 p-2 text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 rounded-lg transition-colors"
+          >
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+
+          <!-- Header -->
+          <div class="text-center mb-6">
+            <div class="w-16 h-16 mx-auto bg-primary-100 rounded-2xl flex items-center justify-center mb-4">
+              <svg class="w-8 h-8 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-neutral-900">Request Contact</h3>
+            <p class="text-sm text-neutral-500 mt-1">
+              Request to connect with {{ player?.first_name }} through their academy
+            </p>
+          </div>
+
+          <!-- Form -->
+          <form @submit.prevent="submitContactRequest" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-neutral-700 mb-1.5">Message (optional)</label>
+              <textarea
+                v-model="contactMessage"
+                rows="4"
+                placeholder="Introduce yourself and explain why you'd like to connect..."
+                class="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none text-sm"
+              ></textarea>
+            </div>
+
+            <!-- Info -->
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
+              <div class="flex gap-3">
+                <svg class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div class="text-sm text-amber-800">
+                  <p class="font-medium">How it works</p>
+                  <p class="mt-1 text-amber-700">Your request will be sent to the player's academy for approval. If approved, you'll receive the player's contact information.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-3 pt-2">
+              <button 
+                type="button"
+                @click="closeContactModal"
+                class="flex-1 px-4 py-3 border border-neutral-300 text-neutral-700 font-semibold rounded-xl hover:bg-neutral-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                type="submit"
+                :disabled="submittingContact"
+                class="flex-1 px-4 py-3 bg-primary-500 text-white font-semibold rounded-xl hover:bg-primary-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                <svg v-if="submittingContact" class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
+                {{ submittingContact ? 'Sending...' : 'Send Request' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- Success Toast -->
+    <Teleport to="body">
+      <Transition name="toast">
+        <div 
+          v-if="showSuccessToast"
+          class="fixed bottom-6 right-6 z-50 bg-green-600 text-white px-6 py-4 rounded-xl shadow-lg flex items-center gap-3"
+        >
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span class="font-medium">Contact request sent successfully!</span>
+        </div>
+      </Transition>
+    </Teleport>
+
+    <!-- Video Player Modal -->
+    <Teleport to="body">
+      <div 
+        v-if="showVideoPlayer && currentVideo" 
+        class="fixed inset-0 z-50 flex items-center justify-center p-4"
+      >
+        <!-- Backdrop -->
+        <div 
+          class="absolute inset-0 bg-black/90 backdrop-blur-sm"
+          @click="closeVideoPlayer"
+        ></div>
+        
+        <!-- Modal -->
+        <div class="relative bg-neutral-900 rounded-2xl shadow-2xl max-w-5xl w-full overflow-hidden animate-[fadeInUp_0.3s_ease-out]">
+          <!-- Close Button -->
+          <button 
+            @click="closeVideoPlayer"
+            class="absolute top-4 right-4 z-10 p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+          >
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+
+          <!-- Video Container -->
+          <div class="aspect-video bg-black">
+            <video
+              :key="currentVideo.id"
+              :src="currentVideo.stream_url"
+              controls
+              autoplay
+              class="w-full h-full"
+              @error="(e) => console.error('Video error:', e)"
+            >
+              Your browser does not support the video tag.
+            </video>
+          </div>
+          
+          <!-- Video Info -->
+          <div class="p-6 bg-neutral-900">
+            <h3 class="text-xl font-bold text-white">{{ currentVideo.title }}</h3>
+            <p v-if="currentVideo.description" class="text-neutral-400 mt-2">{{ currentVideo.description }}</p>
+            <div class="flex items-center gap-4 mt-4 text-sm text-neutral-500">
+              <span v-if="currentVideo.duration_seconds" class="flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                {{ formatDuration(currentVideo.duration_seconds) }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
 <script setup lang="ts">
 import type { Player, Video, ApiResponse } from '~/types'
+
+// Response type matching backend PlayerDetailResponse
+interface PlayerDetailResponse {
+  id: string
+  first_name: string
+  last_name_init: string
+  age: number
+  position: string
+  preferred_foot?: string
+  height_cm?: number
+  weight_kg?: number
+  country: string
+  state?: string
+  school_name?: string
+  tournament_name?: string
+  profile_photo_url?: string
+  is_verified: boolean
+  highlight_videos: Video[]
+  full_match_videos: Video[]
+}
+
+// Highlight response from /players/:id/highlights endpoint
+interface HighlightResponse {
+  id: string
+  highlight_type: string
+  title?: string
+  description?: string
+  thumbnail_url?: string
+  stream_url: string
+  duration_seconds?: number
+  timestamp_in_match?: number
+  view_count: number
+  match_id?: string
+  match_title?: string
+  created_at: string
+}
 
 definePageMeta({
   layout: 'default',
@@ -334,6 +567,13 @@ const fullMatches = ref<Video[]>([])
 const isSaved = ref(false)
 const savingPlayer = ref(false)
 const showContactModal = ref(false)
+const contactMessage = ref('')
+const submittingContact = ref(false)
+const showSuccessToast = ref(false)
+
+// Video player state
+const showVideoPlayer = ref(false)
+const currentVideo = ref<Video | null>(null)
 
 // Country flags
 const countryFlags: Record<string, string> = {
@@ -347,9 +587,24 @@ const countryFlags: Record<string, string> = {
 
 const countryFlag = computed(() => player.value ? (countryFlags[player.value.country] || '🌍') : '')
 
+// Safe last name initial - handles both last_name and last_name_init
+const playerLastInitial = computed(() => {
+  if (!player.value) return ''
+  if (player.value.last_name_init) return player.value.last_name_init
+  if (player.value.last_name) return player.value.last_name.charAt(0)
+  return ''
+})
+
 const playerAge = computed(() => {
-  if (!player.value) return 0
+  if (!player.value) return null
+  // First use the pre-calculated age from API if available
+  if (player.value.age != null && !isNaN(player.value.age)) {
+    return player.value.age
+  }
+  // Fallback: calculate from date_of_birth
+  if (!player.value.date_of_birth) return null
   const birthDate = new Date(player.value.date_of_birth)
+  if (isNaN(birthDate.getTime())) return null
   const today = new Date()
   let age = today.getFullYear() - birthDate.getFullYear()
   const monthDiff = today.getMonth() - birthDate.getMonth()
@@ -387,29 +642,114 @@ const toggleSavePlayer = async () => {
 }
 
 const playVideo = (video: Video) => {
-  // TODO: Open video player modal
-  console.log('Play video:', video)
+  if (video.stream_url) {
+    currentVideo.value = video
+    showVideoPlayer.value = true
+  } else {
+    console.log('No stream URL available for video:', video)
+  }
+}
+
+const closeVideoPlayer = () => {
+  showVideoPlayer.value = false
+  currentVideo.value = null
+}
+
+const closeContactModal = () => {
+  showContactModal.value = false
+  contactMessage.value = ''
+}
+
+const submitContactRequest = async () => {
+  if (!player.value) return
+  submittingContact.value = true
+  
+  try {
+    const api = useApi()
+    const response = await api.post<ApiResponse<null>>(
+      `/players/${player.value.id}/contact`,
+      { message: contactMessage.value },
+      true
+    )
+    
+    if (response.success) {
+      closeContactModal()
+      showSuccessToast.value = true
+      setTimeout(() => {
+        showSuccessToast.value = false
+      }, 4000)
+    }
+  } catch (err) {
+    console.error('Failed to send contact request:', err)
+  } finally {
+    submittingContact.value = false
+  }
 }
 
 // Fetch player data
 onMounted(async () => {
   const playerId = route.params.id as string
   
+  // Fetch subscription state if authenticated
+  if (authStore.isAuthenticated) {
+    await subStore.fetchSubscription()
+    
+    // Check if player is already saved
+    try {
+      const api = useApi()
+      const savedResponse = await api.get<ApiResponse<{ saved_players: { player_id: string }[] }>>('/saved-players?limit=100', {}, true)
+      if (savedResponse.success && savedResponse.data?.saved_players) {
+        isSaved.value = savedResponse.data.saved_players.some(sp => sp.player_id === playerId)
+      }
+    } catch (e) {
+      console.error('Failed to check saved status:', e)
+    }
+  }
+  
   try {
-    const response = await $fetch<ApiResponse<Player>>(`/players/${playerId}`, {
+    // Fetch player details
+    const response = await $fetch<ApiResponse<PlayerDetailResponse>>(`/players/${playerId}`, {
       baseURL: config.public.apiBase,
     })
     
     if (response.success && response.data) {
-      player.value = response.data
+      player.value = response.data as unknown as Player
       
-      // Fetch videos
-      if (response.data.videos) {
-        highlights.value = response.data.videos.filter(v => v.video_type === 'highlight')
-        fullMatches.value = response.data.videos.filter(v => v.video_type === 'full_match')
+      // Use videos from response if available (legacy support)
+      if (response.data.highlight_videos?.length) {
+        highlights.value = response.data.highlight_videos
+      }
+      if (response.data.full_match_videos?.length) {
+        fullMatches.value = response.data.full_match_videos
       }
     } else {
       error.value = true
+      loading.value = false
+      return
+    }
+    
+    // Fetch highlights from the dedicated endpoint (new architecture)
+    try {
+      const highlightsResponse = await $fetch<ApiResponse<HighlightResponse[]>>(`/players/${playerId}/highlights`, {
+        baseURL: config.public.apiBase,
+      })
+      
+      if (highlightsResponse.success && highlightsResponse.data?.length) {
+        // Convert highlight response to Video format for display
+        highlights.value = highlightsResponse.data.map(h => ({
+          id: h.id,
+          video_type: 'highlight' as const,
+          title: h.title || h.highlight_type,
+          description: h.description,
+          thumbnail_url: h.thumbnail_url,
+          duration_seconds: h.duration_seconds,
+          stream_url: h.stream_url,
+          created_at: h.created_at,
+        }))
+      }
+    } catch (highlightErr) {
+      console.error('Failed to fetch highlights:', highlightErr)
+      // Don't fail the whole page if highlights fail
     }
   } catch (e) {
     console.error('Failed to fetch player:', e)
@@ -419,3 +759,26 @@ onMounted(async () => {
   }
 })
 </script>
+
+<style scoped>
+.toast-enter-active,
+.toast-leave-active {
+  transition: all 0.3s ease;
+}
+.toast-enter-from,
+.toast-leave-to {
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+</style>

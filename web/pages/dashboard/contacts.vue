@@ -190,15 +190,21 @@ function formatDate(dateString: string): string {
 }
 
 async function fetchContactRequests() {
+  // Only fetch if subscription allows contacting players
+  if (!subscriptionStore.canContactPlayers) {
+    loading.value = false
+    return
+  }
+  
   try {
-    const response = await api.get<ApiResponse<{ requests: ContactRequest[] }>>(
+    const response = await api.get<ApiResponse<{ contact_requests: ContactRequest[] }>>(
       '/contact-requests',
       {},
       true
     )
     
     if (response.success && response.data) {
-      contactRequests.value = response.data.requests || []
+      contactRequests.value = response.data.contact_requests || []
     }
   } catch (error) {
     console.error('Failed to fetch contact requests:', error)
@@ -207,7 +213,8 @@ async function fetchContactRequests() {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
+  await subscriptionStore.fetchSubscription()
   fetchContactRequests()
 })
 </script>

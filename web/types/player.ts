@@ -2,8 +2,10 @@ export interface Player {
   id: string
   user_id?: string
   first_name: string
-  last_name: string
-  date_of_birth: string
+  last_name?: string
+  last_name_init?: string
+  date_of_birth?: string
+  age?: number
   position: string
   preferred_foot?: 'left' | 'right' | 'both'
   height_cm?: number
@@ -12,17 +14,18 @@ export interface Player {
   state?: string
   city?: string
   school_name?: string
-  verification_status: 'pending' | 'verified' | 'rejected'
+  verification_status?: 'pending' | 'verified' | 'rejected'
   is_verified?: boolean
   profile_photo_url?: string
   thumbnail_url?: string
   tournament_id?: string
   tournament_year?: number
+  tournament_name?: string
   academy_id?: string
   academy_name?: string
   video_count?: number
-  created_at: string
-  updated_at: string
+  created_at?: string
+  updated_at?: string
   tournament?: Tournament
   academy?: Academy
   videos?: Video[]
@@ -66,6 +69,7 @@ export interface Video {
   title: string
   description?: string
   thumbnail_url?: string
+  stream_url?: string
   duration_seconds?: number
   file_size_bytes?: number
   tournament_id?: string

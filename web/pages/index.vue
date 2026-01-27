@@ -357,7 +357,7 @@
                       {{ featuredPlayers[0]?.position }}
                     </span>
                     <span class="px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-white text-sm border border-white/20">
-                      {{ calculateAge(featuredPlayers[0]?.date_of_birth) }} years
+                      {{ calculateAge(featuredPlayers[0]?.date_of_birth, featuredPlayers[0]?.age) }} years
                     </span>
                     <span class="px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-white text-sm border border-white/20">
                       {{ featuredPlayers[0]?.country }}
@@ -399,7 +399,7 @@
                 <!-- Info -->
                 <div class="absolute bottom-0 left-0 right-0 p-4">
                   <div class="text-xs text-primary-400 font-semibold mb-1">{{ player.position }}</div>
-                  <h4 class="text-white font-bold text-lg leading-tight">{{ player.first_name }} {{ player.last_name }}</h4>
+                  <h4 class="text-white font-bold text-lg leading-tight">{{ player.first_name }} {{ getPlayerLastInitial(player) }}.</h4>
                   <p class="text-neutral-400 text-sm">{{ player.country }}</p>
                 </div>
                 
@@ -1069,12 +1069,19 @@ const featuredVideoPlayer = computed<FeaturedVideoPlayer | undefined>(() => {
   if (!player) return undefined
   return {
     id: player.id,
-    name: `${player.first_name} ${player.last_name}`,
+    name: `${player.first_name} ${getPlayerLastInitial(player)}.`,
     position: player.position,
     country: player.country,
     avatarUrl: player.profile_photo_url,
   }
 })
+
+// Helper to get player's last name initial safely
+function getPlayerLastInitial(player: any): string {
+  if (player?.last_name_init) return player.last_name_init
+  if (player?.last_name) return player.last_name.charAt(0)
+  return ''
+}
 
 // Hero section highlight - use first featured highlight
 const heroHighlight = computed(() => {
@@ -1083,10 +1090,10 @@ const heroHighlight = computed(() => {
   return {
     ...highlight,
     playerInitials: highlight.player 
-      ? `${highlight.player.first_name[0]}${highlight.player.last_name[0]}`
+      ? `${highlight.player.first_name?.[0] || ''}${getPlayerLastInitial(highlight.player)}`
       : 'US',
     playerName: highlight.player 
-      ? `${highlight.player.first_name} ${highlight.player.last_name}`
+      ? `${highlight.player.first_name} ${getPlayerLastInitial(highlight.player)}.`
       : 'Unknown Player',
     playerPosition: highlight.player?.position || 'Player'
   }
@@ -1188,16 +1195,20 @@ const steps = [
   }
 ]
 
-function calculateAge(dateOfBirth?: string): number | string {
+function calculateAge(dateOfBirth?: string, age?: number): number | string {
+  // First prefer pre-calculated age from API
+  if (age != null && !isNaN(age)) return age
+  // Fallback: calculate from date_of_birth
   if (!dateOfBirth) return '—'
   const today = new Date()
   const birthDate = new Date(dateOfBirth)
-  let age = today.getFullYear() - birthDate.getFullYear()
+  if (isNaN(birthDate.getTime())) return '—'
+  let calculatedAge = today.getFullYear() - birthDate.getFullYear()
   const m = today.getMonth() - birthDate.getMonth()
   if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-    age--
+    calculatedAge--
   }
-  return age
+  return calculatedAge
 }
 
 function formatDuration(seconds?: number): string {
@@ -1228,10 +1239,10 @@ function openHighlight(highlight: FeaturedHighlight) {
   showHighlightModal.value = true
 }
 
-// Fetch featured players and highlights
-onMounted(async () => {
+// Fetch featured players and highlights - non-blocking for instant navigation
+async function fetchHomeData() {
+  loading.value = true
   try {
-    // Fetch players and highlights in parallel
     const [playersRes, highlightsRes] = await Promise.all([
       $fetch<ApiResponse<{ players: Player[] }>>('/players/featured', {
         baseURL: config.public.apiBase,
@@ -1241,17 +1252,31 @@ onMounted(async () => {
       }),
     ])
 
-    if (playersRes.success && playersRes.data?.players) {
-      featuredPlayers.value = playersRes.data.players.slice(0, 5)
-    }
-
-    if (highlightsRes.success && highlightsRes.data) {
-      featuredHighlights.value = highlightsRes.data
-    }
+    featuredPlayers.value = playersRes.success && playersRes.data?.players 
+      ? playersRes.data.players.slice(0, 5) 
+      : []
+    featuredHighlights.value = highlightsRes.success && highlightsRes.data 
+      ? highlightsRes.data 
+      : []
   } catch (error) {
     console.error('Failed to fetch homepage data:', error)
+    featuredPlayers.value = []
+    featuredHighlights.value = []
   } finally {
     loading.value = false
+  }
+}
+
+// Fetch on mount - doesn't block navigation
+onMounted(() => {
+  fetchHomeData()
+})
+
+// Refetch when navigating back to homepage
+const route = useRoute()
+watch(() => route.path, (newPath, oldPath) => {
+  if (newPath === '/' && oldPath && oldPath !== '/') {
+    fetchHomeData()
   }
 })
 </script>

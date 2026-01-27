@@ -215,11 +215,17 @@
 
 <script setup lang="ts">
 const route = useRoute()
+const router = useRouter()
 const authStore = useAuthStore()
 const mobileMenuOpen = ref(false)
 const isScrolled = ref(false)
 
 const isHomePage = computed(() => route.path === '/')
+
+// Close mobile menu on route change
+watch(() => route.path, () => {
+  mobileMenuOpen.value = false
+})
 
 const handleLogout = () => {
   authStore.logout()

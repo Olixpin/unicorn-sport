@@ -120,8 +120,13 @@
             </div>
             <button 
               @click="manageBilling"
-              class="text-sm font-medium text-primary-600 hover:text-primary-700"
+              :disabled="managingBilling"
+              class="text-sm font-medium text-primary-600 hover:text-primary-700 flex items-center gap-1 disabled:opacity-50"
             >
+              <svg v-if="managingBilling" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+              </svg>
               Manage Billing →
             </button>
           </div>
@@ -465,9 +470,28 @@ async function changePassword() {
   }
 }
 
-function manageBilling() {
-  // Redirect to Stripe customer portal
-  window.open('https://billing.stripe.com/p/login/xxx', '_blank')
+const managingBilling = ref(false)
+
+async function manageBilling() {
+  managingBilling.value = true
+  try {
+    const config = useRuntimeConfig()
+    const response = await $fetch<{ success: boolean; data: { portal_url: string } }>('/subscriptions/portal', {
+      baseURL: config.public.apiBase,
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${authStore.accessToken}`,
+      },
+    })
+    
+    if (response.success && response.data?.portal_url) {
+      window.location.href = response.data.portal_url
+    }
+  } catch (error) {
+    console.error('Failed to open billing portal:', error)
+  } finally {
+    managingBilling.value = false
+  }
 }
 
 async function deleteAccount() {

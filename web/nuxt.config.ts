@@ -10,6 +10,17 @@ export default defineNuxtConfig({
     '@vee-validate/nuxt',
   ],
 
+  // Ensure pages are not cached and always re-render on navigation
+  experimental: {
+    payloadExtraction: false,
+  },
+
+  router: {
+    options: {
+      scrollBehaviorType: 'smooth',
+    },
+  },
+
   runtimeConfig: {
     public: {
       apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:8080/api/v1',

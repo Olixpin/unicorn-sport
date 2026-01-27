@@ -383,6 +383,7 @@ import type { SubscriptionTier } from '~/types'
 
 definePageMeta({
   layout: 'default',
+  keepalive: false,
 })
 
 const authStore = useAuthStore()

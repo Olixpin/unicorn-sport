@@ -628,7 +628,7 @@ func (m *Module) GetPlayerHighlightsPublic(c *gin.Context) {
 			HighlightType:    h.HighlightType,
 			Title:            h.Title,
 			Description:      h.Description,
-			ThumbnailURL:     h.ThumbnailURL,
+			ThumbnailURL:     m.getThumbnailURL(h.ThumbnailURL),
 			StreamURL:        m.getStreamURL(h.VideoURL),
 			DurationSeconds:  h.DurationSeconds,
 			TimestampInMatch: h.TimestampInMatch,

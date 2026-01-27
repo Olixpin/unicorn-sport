@@ -30,7 +30,7 @@ export const useSubscriptionStore = defineStore('subscription', {
     },
     canContactPlayers: (state) => {
       const tier = state.subscription?.tier
-      return tier === 'scout' || tier === 'pro' || tier === 'club'
+      return tier === 'pro' || tier === 'club'
     },
     hasTier: (state) => {
       return (requiredTier: SubscriptionTier): boolean => {
