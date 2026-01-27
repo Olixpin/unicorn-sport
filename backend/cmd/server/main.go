@@ -301,6 +301,8 @@ func setupRouter(
 				adminRoutes.POST("/highlights/upload", highlightsModule.InitHighlightUpload)
 				adminRoutes.POST("/highlights/upload/init", highlightsModule.InitHighlightUpload) // alias
 				adminRoutes.POST("/highlights", highlightsModule.CreateHighlight)
+				adminRoutes.POST("/highlights/:id/thumbnail/upload", highlightsModule.InitThumbnailUpload)
+				adminRoutes.PUT("/highlights/:id/thumbnail", highlightsModule.UpdateThumbnail)
 
 				// Highlight CRUD
 				adminRoutes.GET("/players/:id/highlights", highlightsModule.ListPlayerHighlights)

@@ -348,6 +348,17 @@
             <span class="bg-emerald-100 text-emerald-700 text-xs px-2 py-0.5 rounded-full">FREE</span>
           </h2>
           <div class="flex items-center gap-3">
+            <!-- Add Highlight Button -->
+            <button
+              v-if="players.length > 0 && !isFutureMatch"
+              @click="showAddHighlightPicker = true"
+              class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors text-sm font-medium"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Add Highlight
+            </button>
             <!-- Player Filter -->
             <select
               v-model="highlightPlayerFilter"
@@ -426,8 +437,30 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
             </svg>
           </div>
-          <p class="mb-2">No highlights added yet</p>
-          <p class="text-sm">Add players to this match, then upload their highlight clips</p>
+          <p class="font-medium text-neutral-700 mb-2">No highlights added yet</p>
+          <p class="text-sm mb-4" v-if="players.length === 0">Add players to this match first, then upload their highlight clips</p>
+          <p class="text-sm mb-4" v-else-if="isFutureMatch">You can add highlights after the match date</p>
+          <p class="text-sm mb-4" v-else>Capture the best moments from this match</p>
+          <button
+            v-if="players.length > 0 && !isFutureMatch"
+            @click="showAddHighlightPicker = true"
+            class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors text-sm font-medium"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Add First Highlight
+          </button>
+          <button
+            v-else-if="players.length === 0"
+            @click="navigateToRoster"
+            class="inline-flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors text-sm font-medium"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Add Players to Match
+          </button>
         </div>
       </div>
     </div>
@@ -1088,6 +1121,70 @@
         </div>
       </div>
     </Teleport>
+
+    <!-- Add Highlight Player Picker Modal -->
+    <Teleport to="body">
+      <div v-if="showAddHighlightPicker" class="fixed inset-0 z-50 overflow-y-auto">
+        <div class="fixed inset-0 bg-black/50" @click="showAddHighlightPicker = false"></div>
+        <div class="relative min-h-screen flex items-center justify-center p-4">
+          <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
+            <div class="flex items-center justify-between mb-6">
+              <h3 class="text-xl font-semibold text-neutral-900">Add Highlight</h3>
+              <button
+                @click="showAddHighlightPicker = false"
+                class="p-2 hover:bg-neutral-100 rounded-lg transition-colors"
+              >
+                <svg class="w-5 h-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <p class="text-sm text-neutral-600 mb-4">Select a player to add a highlight for:</p>
+
+            <!-- Player List -->
+            <div class="space-y-2 max-h-80 overflow-y-auto">
+              <button
+                v-for="player in players"
+                :key="player.id"
+                @click="selectPlayerForHighlight(player)"
+                class="w-full flex items-center gap-3 p-3 rounded-xl border border-neutral-200 hover:border-emerald-300 hover:bg-emerald-50 transition-all text-left"
+              >
+                <div class="w-10 h-10 rounded-full bg-neutral-200 flex items-center justify-center overflow-hidden flex-shrink-0">
+                  <img
+                    v-if="player.profile_photo_url"
+                    :src="player.profile_photo_url"
+                    :alt="player.first_name"
+                    class="w-full h-full object-cover"
+                  />
+                  <span v-else class="text-sm font-medium text-neutral-500">
+                    {{ player.first_name?.charAt(0) }}{{ player.last_name?.charAt(0) }}
+                  </span>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="font-medium text-neutral-900">{{ player.first_name }} {{ player.last_name }}</p>
+                  <p class="text-sm text-neutral-500">{{ player.position }} • {{ player.highlight_count || 0 }} highlights</p>
+                </div>
+                <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+
+            <!-- No players state -->
+            <div v-if="players.length === 0" class="text-center py-8 text-neutral-500">
+              <p>No players in this match yet</p>
+              <button
+                @click="showAddHighlightPicker = false; navigateToRoster()"
+                class="mt-2 text-primary-600 hover:text-primary-700 text-sm font-medium"
+              >
+                Add players first →
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -1189,6 +1286,7 @@ const showHighlightUploadModal = ref(false)
 const showUploadVideoModal = ref(false)
 const showReplaceVideoModal = ref(false)
 const showHighlightPreviewModal = ref(false)
+const showAddHighlightPicker = ref(false)
 const selectedHighlight = ref<PlayerHighlight | null>(null)
 const updatingMatch = ref(false)
 
@@ -1494,6 +1592,11 @@ function openHighlightUpload(player: MatchPlayer) {
   showHighlightUploadModal.value = true
 }
 
+function selectPlayerForHighlight(player: MatchPlayer) {
+  showAddHighlightPicker.value = false
+  openHighlightUpload(player)
+}
+
 function closeHighlightUpload() {
   showHighlightUploadModal.value = false
   selectedPlayerForHighlight.value = null
@@ -1516,7 +1619,12 @@ async function uploadHighlight() {
   uploadingHighlight.value = true
   
   try {
+    // 0. Auto-generate thumbnail from video
+    highlightUploadProgress.value = 0
+    const thumbnailBlob = await generateThumbnailFromFile(highlightFile.value, 1)
+
     // 1. Init upload
+    highlightUploadProgress.value = 5
     const initResponse = await $fetch<ApiResponse<{ upload_url: string; s3_key: string }>>(`/admin/highlights/upload/init`, {
       baseURL: config.public.apiBase,
       method: 'POST',
@@ -1539,7 +1647,8 @@ async function uploadHighlight() {
       const xhr = new XMLHttpRequest()
       xhr.upload.onprogress = (e) => {
         if (e.lengthComputable) {
-          highlightUploadProgress.value = Math.round((e.loaded / e.total) * 100)
+          // Progress from 10% to 80%
+          highlightUploadProgress.value = 10 + Math.round((e.loaded / e.total) * 70)
         }
       }
       xhr.onload = () => {
@@ -1556,7 +1665,8 @@ async function uploadHighlight() {
     })
 
     // 3. Create highlight record
-    await $fetch(`/admin/highlights`, {
+    highlightUploadProgress.value = 85
+    const createResponse = await $fetch<ApiResponse<{ id: string }>>(`/admin/highlights`, {
       baseURL: config.public.apiBase,
       method: 'POST',
       headers: { Authorization: `Bearer ${authStore.accessToken}` },
@@ -1571,6 +1681,13 @@ async function uploadHighlight() {
       },
     })
 
+    // 4. Upload auto-generated thumbnail (if available)
+    if (thumbnailBlob && createResponse.success && createResponse.data?.id) {
+      highlightUploadProgress.value = 90
+      await uploadHighlightThumbnail(createResponse.data.id, thumbnailBlob)
+    }
+
+    highlightUploadProgress.value = 100
     toast.success('Highlight Uploaded', 'Highlight has been added successfully')
     closeHighlightUpload()
     fetchMatch()
@@ -1580,6 +1697,51 @@ async function uploadHighlight() {
   } finally {
     uploadingHighlight.value = false
     highlightUploadProgress.value = null
+  }
+}
+
+// Upload thumbnail for a highlight
+async function uploadHighlightThumbnail(highlightId: string, thumbnailBlob: Blob): Promise<boolean> {
+  try {
+    const fileName = `thumbnail_${Date.now()}.jpg`
+    
+    // Get presigned URL for thumbnail upload
+    const initResponse = await $fetch<ApiResponse<{ upload_url: string; s3_key: string }>>(`/admin/highlights/${highlightId}/thumbnail/upload`, {
+      baseURL: config.public.apiBase,
+      method: 'POST',
+      headers: { Authorization: `Bearer ${authStore.accessToken}` },
+      body: {
+        file_name: fileName,
+        file_size: thumbnailBlob.size,
+        content_type: 'image/jpeg',
+      },
+    })
+
+    if (!initResponse.success || !initResponse.data?.upload_url) {
+      return false
+    }
+
+    // Upload to S3
+    const uploadRes = await fetch(initResponse.data.upload_url, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'image/jpeg' },
+      body: thumbnailBlob,
+    })
+
+    if (!uploadRes.ok) return false
+
+    // Save thumbnail URL
+    await $fetch(`/admin/highlights/${highlightId}/thumbnail`, {
+      baseURL: config.public.apiBase,
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${authStore.accessToken}` },
+      body: { s3_key: initResponse.data.s3_key },
+    })
+
+    return true
+  } catch (error) {
+    console.error('Failed to upload highlight thumbnail:', error)
+    return false
   }
 }
 

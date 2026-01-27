@@ -215,6 +215,90 @@ func (m *Module) CreateHighlight(c *gin.Context) {
 	})
 }
 
+// InitThumbnailUpload initializes upload for highlight thumbnail
+func (m *Module) InitThumbnailUpload(c *gin.Context) {
+	highlightID := c.Param("id")
+	hid, err := uuid.Parse(highlightID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Invalid highlight ID"})
+		return
+	}
+
+	var req struct {
+		FileName    string `json:"file_name" binding:"required"`
+		FileSize    int64  `json:"file_size"`
+		ContentType string `json:"content_type"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Invalid request"})
+		return
+	}
+
+	// Check highlight exists
+	var highlight domain.PlayerHighlight
+	if err := m.DB.First(&highlight, "id = ?", hid).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "Highlight not found"})
+		return
+	}
+
+	// Generate S3 key for thumbnail
+	s3Key := fmt.Sprintf("thumbnails/highlights/%s/%s", highlightID, req.FileName)
+
+	// Generate presigned PUT URL
+	presigner := s3.NewPresignClient(m.S3Client)
+	presignedReq, err := presigner.PresignPutObject(c.Request.Context(), &s3.PutObjectInput{
+		Bucket:      aws.String(m.S3Bucket),
+		Key:         aws.String(s3Key),
+		ContentType: aws.String(req.ContentType),
+	}, s3.WithPresignExpires(15*time.Minute))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Failed to generate upload URL"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data": gin.H{
+			"upload_url": presignedReq.URL,
+			"s3_key":     s3Key,
+		},
+	})
+}
+
+// UpdateThumbnail updates the highlight thumbnail URL
+func (m *Module) UpdateThumbnail(c *gin.Context) {
+	highlightID := c.Param("id")
+	hid, err := uuid.Parse(highlightID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Invalid highlight ID"})
+		return
+	}
+
+	var req struct {
+		S3Key string `json:"s3_key" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Invalid request"})
+		return
+	}
+
+	// Build the full S3 URL
+	thumbnailURL := fmt.Sprintf("s3://%s/%s", m.S3Bucket, req.S3Key)
+
+	// Update highlight
+	if err := m.DB.Model(&domain.PlayerHighlight{}).Where("id = ?", hid).Update("thumbnail_url", thumbnailURL).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Failed to update thumbnail"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Thumbnail updated successfully",
+	})
+}
+
 // ListPlayerHighlights lists all highlights for a player
 func (m *Module) ListPlayerHighlights(c *gin.Context) {
 	playerID := c.Param("id")
@@ -341,7 +425,7 @@ func (m *Module) ListMatchHighlights(c *gin.Context) {
 			HighlightType:    h.HighlightType,
 			Title:            h.Title,
 			DurationSeconds:  h.DurationSeconds,
-			ThumbnailURL:     h.ThumbnailURL,
+			ThumbnailURL:     m.getThumbnailURL(h.ThumbnailURL),
 			StreamURL:        m.getStreamURL(h.VideoURL),
 			TimestampInMatch: h.TimestampInMatch,
 			ViewCount:        h.ViewCount,
@@ -742,6 +826,36 @@ func (m *Module) getStreamURL(s3Key string) string {
 		return ""
 	}
 	return result.URL
+}
+
+// getThumbnailURL converts s3://bucket/key format to a presigned URL
+func (m *Module) getThumbnailURL(thumbnailURL *string) *string {
+	if thumbnailURL == nil || *thumbnailURL == "" {
+		return nil
+	}
+
+	// Extract S3 key from s3://bucket/key format
+	s3Prefix := fmt.Sprintf("s3://%s/", m.S3Bucket)
+	s3Key := *thumbnailURL
+	if len(s3Key) > len(s3Prefix) && s3Key[:len(s3Prefix)] == s3Prefix {
+		s3Key = s3Key[len(s3Prefix):]
+	}
+
+	if m.CDNHost != "" {
+		url := fmt.Sprintf("%s/%s", m.CDNHost, s3Key)
+		return &url
+	}
+
+	// Generate presigned URL
+	presigner := s3.NewPresignClient(m.S3Client)
+	result, err := presigner.PresignGetObject(context.Background(), &s3.GetObjectInput{
+		Bucket: aws.String(m.S3Bucket),
+		Key:    aws.String(s3Key),
+	}, s3.WithPresignExpires(1*time.Hour))
+	if err != nil {
+		return nil
+	}
+	return &result.URL
 }
 
 func stringPtr(s string) *string {
