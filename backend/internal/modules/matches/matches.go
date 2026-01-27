@@ -1,9 +1,11 @@
 package matches
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/unicorn-sport/backend/internal/domain"
@@ -32,6 +34,33 @@ func NewModule(db *gorm.DB, s3Client *s3.Client, bucket, cdnHost string) *Module
 		S3Bucket: bucket,
 		CDNHost:  cdnHost,
 	}
+}
+
+// getPresignedURL converts an s3:// URL to a presigned URL
+func (m *Module) getPresignedURL(s3URL string) string {
+	if s3URL == "" || !strings.HasPrefix(s3URL, "s3://") {
+		return s3URL
+	}
+
+	// Parse s3://bucket/key format
+	withoutPrefix := strings.TrimPrefix(s3URL, "s3://")
+	parts := strings.SplitN(withoutPrefix, "/", 2)
+	if len(parts) != 2 {
+		return s3URL
+	}
+
+	key := parts[1]
+
+	presignClient := s3.NewPresignClient(m.S3Client)
+	presignedReq, err := presignClient.PresignGetObject(context.Background(), &s3.GetObjectInput{
+		Bucket: aws.String(m.S3Bucket),
+		Key:    aws.String(key),
+	}, s3.WithPresignExpires(time.Hour))
+	if err != nil {
+		return s3URL
+	}
+
+	return presignedReq.URL
 }
 
 // ==================== MATCH CRUD ====================
@@ -253,13 +282,20 @@ func (m *Module) GetMatch(c *gin.Context) {
 
 	players := make([]playerInMatch, len(matchPlayers))
 	for i, mp := range matchPlayers {
+		// Convert profile photo URL to presigned URL
+		var profilePhotoURL *string
+		if mp.Player.ProfilePhotoURL != nil && *mp.Player.ProfilePhotoURL != "" {
+			url := m.getPresignedURL(*mp.Player.ProfilePhotoURL)
+			profilePhotoURL = &url
+		}
+
 		players[i] = playerInMatch{
 			ID:              mp.ID,
 			PlayerID:        mp.PlayerID,
 			FirstName:       mp.Player.FirstName,
 			LastName:        mp.Player.LastName,
 			Position:        mp.Player.Position,
-			ProfilePhotoURL: mp.Player.ProfilePhotoURL,
+			ProfilePhotoURL: profilePhotoURL,
 			PositionPlayed:  mp.PositionPlayed,
 			MinutesPlayed:   mp.MinutesPlayed,
 			Goals:           mp.Goals,
