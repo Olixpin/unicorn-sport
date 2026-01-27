@@ -61,14 +61,16 @@ func (m *ProfilesModule) getPresignedURL(s3URL string) string {
 
 // PlayerListResponse is the public player list response
 type PlayerListResponse struct {
-	ID           uuid.UUID `json:"id"`
-	FirstName    string    `json:"first_name"`
-	LastNameInit string    `json:"last_name_init"`
-	Age          int       `json:"age"`
-	Position     string    `json:"position"`
-	Country      string    `json:"country"`
-	ThumbnailURL *string   `json:"thumbnail_url,omitempty"`
-	IsVerified   bool      `json:"is_verified"`
+	ID            uuid.UUID `json:"id"`
+	FirstName     string    `json:"first_name"`
+	LastNameInit  string    `json:"last_name_init"`
+	Age           int       `json:"age"`
+	Position      string    `json:"position"`
+	Country       string    `json:"country"`
+	HeightCm      *int      `json:"height_cm,omitempty"`
+	PreferredFoot *string   `json:"preferred_foot,omitempty"`
+	ThumbnailURL  *string   `json:"thumbnail_url,omitempty"`
+	IsVerified    bool      `json:"is_verified"`
 }
 
 // FeaturedPlayerResponse is the response for featured players on homepage
@@ -159,14 +161,16 @@ func (m *ProfilesModule) ListPlayers(c *gin.Context) {
 	response := make([]PlayerListResponse, len(players))
 	for i, p := range players {
 		response[i] = PlayerListResponse{
-			ID:           p.ID,
-			FirstName:    p.FirstName,
-			LastNameInit: p.GetLastNameInit(),
-			Age:          p.GetAge(),
-			Position:     p.Position,
-			Country:      p.Country,
-			ThumbnailURL: p.ThumbnailURL,
-			IsVerified:   p.IsVerified(),
+			ID:            p.ID,
+			FirstName:     p.FirstName,
+			LastNameInit:  p.GetLastNameInit(),
+			Age:           p.GetAge(),
+			Position:      p.Position,
+			Country:       p.Country,
+			HeightCm:      p.HeightCm,
+			PreferredFoot: p.PreferredFoot,
+			ThumbnailURL:  p.ThumbnailURL,
+			IsVerified:    p.IsVerified(),
 		}
 	}
 
