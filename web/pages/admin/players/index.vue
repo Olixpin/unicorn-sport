@@ -1,124 +1,162 @@
 <template>
   <div class="max-w-7xl mx-auto">
     <!-- Page Header -->
-    <div class="mb-8">
-      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        <div>
-          <h1 class="font-display text-2xl lg:text-3xl font-bold text-neutral-900">
-            Players
-          </h1>
-          <p class="mt-1 text-neutral-500">Manage all players in the platform</p>
-        </div>
-        <NuxtLink to="/admin/players/new">
-          <button class="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-primary-700 shadow-lg shadow-primary-500/25 transition-all duration-200">
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
-            Add Player
-          </button>
-        </NuxtLink>
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+      <div>
+        <h1 class="font-display text-2xl lg:text-3xl font-bold text-neutral-900">
+          Players
+        </h1>
+        <p class="mt-1 text-neutral-600">Manage all players in the platform</p>
       </div>
+      <NuxtLink to="/admin/players/new">
+        <button class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary-600 to-emerald-600 text-white rounded-xl text-sm font-semibold hover:from-primary-700 hover:to-emerald-700 transition-all shadow-lg shadow-primary-600/25">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          Add Player
+        </button>
+      </NuxtLink>
     </div>
 
-    <!-- Stats Summary -->
+    <!-- Stats Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-      <div class="bg-white rounded-xl border border-neutral-200 p-4 flex items-center gap-4">
-        <div class="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
-          <svg class="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-        </div>
-        <div>
-          <p class="text-2xl font-bold text-neutral-900">{{ totalPlayers }}</p>
-          <p class="text-sm text-neutral-500">Total Players</p>
-        </div>
-      </div>
-
-      <div class="bg-white rounded-xl border border-neutral-200 p-4 flex items-center gap-4">
-        <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
-          <svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        </div>
-        <div>
-          <p class="text-2xl font-bold text-neutral-900">{{ verifiedCount }}</p>
-          <p class="text-sm text-neutral-500">Verified</p>
+      <!-- Total Players -->
+      <div class="bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl p-5 text-white shadow-lg shadow-violet-500/25">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-violet-100 text-sm font-medium">Total Players</p>
+            <p class="text-3xl font-bold mt-1">{{ stats.totalPlayers }}</p>
+          </div>
+          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
         </div>
       </div>
 
-      <div class="bg-white rounded-xl border border-neutral-200 p-4 flex items-center gap-4">
-        <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
-          <svg class="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
+      <!-- Verified -->
+      <button 
+        @click="setStatusFilter('verified')"
+        class="bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl p-5 text-white shadow-lg shadow-emerald-500/25 text-left transition-all hover:scale-[1.02] hover:shadow-xl"
+        :class="{ 'ring-4 ring-white/50': statusFilter === 'verified' }"
+      >
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-emerald-100 text-sm font-medium">Verified</p>
+            <p class="text-3xl font-bold mt-1">{{ stats.verifiedCount }}</p>
+          </div>
+          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+            </svg>
+          </div>
         </div>
-        <div>
-          <p class="text-2xl font-bold text-neutral-900">{{ pendingCount }}</p>
-          <p class="text-sm text-neutral-500">Pending Review</p>
+      </button>
+
+      <!-- Pending -->
+      <button 
+        @click="setStatusFilter('pending')"
+        class="bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl p-5 text-white shadow-lg shadow-amber-500/25 text-left transition-all hover:scale-[1.02] hover:shadow-xl"
+        :class="{ 'ring-4 ring-white/50': statusFilter === 'pending' }"
+      >
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-amber-100 text-sm font-medium">Pending Review</p>
+            <p class="text-3xl font-bold mt-1">{{ stats.pendingCount }}</p>
+          </div>
+          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
         </div>
-      </div>
+      </button>
     </div>
 
     <!-- Filters & Search -->
-    <div class="bg-white rounded-2xl border border-neutral-200 p-4 mb-6">
+    <div class="bg-white rounded-2xl border border-neutral-200 shadow-sm p-4 mb-6">
       <div class="flex flex-col lg:flex-row gap-4">
-        <!-- Search -->
+        <!-- Search Input -->
         <div class="flex-1 relative">
-          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
+          <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
           <input
-            v-model="filters.search"
+            v-model="searchQuery"
             type="text"
             placeholder="Search by name, position, country..."
-            class="w-full pl-10 pr-4 py-2.5 bg-neutral-50 border-0 rounded-xl text-sm placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:bg-white transition-all"
-            @input="debouncedSearch"
+            class="w-full pl-12 pr-10 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
           />
+          <!-- Loading indicator for search -->
+          <div v-if="isSearching" class="absolute inset-y-0 right-0 pr-4 flex items-center">
+            <svg class="w-4 h-4 text-neutral-400 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </div>
+          <!-- Clear search button -->
+          <button 
+            v-else-if="searchQuery" 
+            @click="searchQuery = ''"
+            class="absolute inset-y-0 right-0 pr-4 flex items-center text-neutral-400 hover:text-neutral-600"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
 
-        <!-- Status Filter -->
+        <!-- Country Filter -->
         <div class="relative">
           <select
-            v-model="filters.status"
-            class="appearance-none w-full lg:w-40 px-4 py-2.5 bg-neutral-50 border-0 rounded-xl text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500/20 cursor-pointer"
-            @change="fetchPlayers"
+            v-model="countryFilter"
+            class="appearance-none px-4 py-3 pr-10 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all min-w-[180px]"
+            @change="page = 1; fetchPlayers()"
           >
-            <option value="">All Status</option>
-            <option value="verified">Verified</option>
-            <option value="pending">Pending</option>
+            <option value="">All Countries</option>
+            <option v-for="country in AFRICAN_COUNTRIES" :key="country" :value="country">
+              {{ country }}
+            </option>
           </select>
-          <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-          </svg>
+          <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+            <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
         </div>
 
         <!-- Academy Filter -->
         <div class="relative">
           <select
-            v-model="filters.academy"
-            class="appearance-none w-full lg:w-48 px-4 py-2.5 bg-neutral-50 border-0 rounded-xl text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500/20 cursor-pointer"
-            @change="fetchPlayers"
+            v-model="academyFilter"
+            class="appearance-none px-4 py-3 pr-10 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all min-w-[180px]"
+            @change="page = 1; fetchPlayers()"
           >
             <option value="">All Academies</option>
             <option v-for="academy in academies" :key="academy.id" :value="academy.id">
               {{ academy.name }}
             </option>
           </select>
-          <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-          </svg>
+          <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+            <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
         </div>
 
         <!-- Clear Filters -->
         <button
           v-if="hasActiveFilters"
           @click="clearFilters"
-          class="flex items-center gap-2 px-4 py-2.5 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-xl transition-colors"
+          class="flex items-center gap-2 px-4 py-3 text-sm font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-xl transition-colors"
         >
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
-          Clear
+          Clear filters
         </button>
       </div>
     </div>
@@ -251,8 +289,8 @@
       <div v-if="players.length > 0" class="flex flex-col sm:flex-row items-center justify-between gap-4 p-6 border-t border-neutral-100">
         <p class="text-sm text-neutral-500">
           Showing <span class="font-medium text-neutral-900">{{ (page - 1) * perPage + 1 }}</span> to 
-          <span class="font-medium text-neutral-900">{{ Math.min(page * perPage, totalPlayers) }}</span> of 
-          <span class="font-medium text-neutral-900">{{ totalPlayers }}</span> players
+          <span class="font-medium text-neutral-900">{{ Math.min(page * perPage, total) }}</span> of 
+          <span class="font-medium text-neutral-900">{{ total }}</span> players
         </p>
         <div class="flex items-center gap-2">
           <button
@@ -377,6 +415,7 @@
 
 <script setup lang="ts">
 import type { Player, ApiResponse } from '~/types'
+import { AFRICAN_COUNTRIES } from '~/schemas/player'
 
 interface Academy {
   id: string
@@ -393,41 +432,55 @@ const api = useApi()
 const players = ref<Player[]>([])
 const academies = ref<Academy[]>([])
 const loading = ref(true)
+const isSearching = ref(false)
 const page = ref(1)
 const perPage = 20
-const totalPlayers = ref(0)
-const totalPages = computed(() => Math.ceil(totalPlayers.value / perPage))
+const total = ref(0)
+const totalPages = computed(() => Math.ceil(total.value / perPage))
 
-// Computed stats
-const verifiedCount = computed(() => players.value.filter(p => p.is_verified).length)
-const pendingCount = computed(() => players.value.filter(p => !p.is_verified).length)
-
-const filters = reactive({
-  search: '',
-  status: '',
-  academy: '',
+// Stats from API
+const stats = reactive({
+  totalPlayers: 0,
+  verifiedCount: 0,
+  pendingCount: 0,
 })
 
+// Filters
+const searchQuery = ref('')
+const countryFilter = ref('')
+const statusFilter = ref('')
+const academyFilter = ref('')
+
 const hasActiveFilters = computed(() => {
-  return filters.search || filters.status || filters.academy
+  return searchQuery.value || countryFilter.value || statusFilter.value || academyFilter.value
+})
+
+// Debounced search - auto-search as user types
+let searchTimeout: ReturnType<typeof setTimeout> | null = null
+watch(searchQuery, (newVal, oldVal) => {
+  if (newVal !== oldVal) {
+    if (searchTimeout) clearTimeout(searchTimeout)
+    isSearching.value = true
+    searchTimeout = setTimeout(() => {
+      page.value = 1
+      fetchPlayers()
+    }, 400)
+  }
 })
 
 const visiblePages = computed(() => {
-  const pages = []
-  const total = totalPages.value
-  const current = page.value
+  const pages: number[] = []
+  const maxVisible = 5
+  let start = Math.max(1, page.value - Math.floor(maxVisible / 2))
+  const end = Math.min(totalPages.value, start + maxVisible - 1)
   
-  let start = Math.max(1, current - 2)
-  let end = Math.min(total, start + 4)
-  
-  if (end - start < 4) {
-    start = Math.max(1, end - 4)
+  if (end - start < maxVisible - 1) {
+    start = Math.max(1, end - maxVisible + 1)
   }
   
   for (let i = start; i <= end; i++) {
     pages.push(i)
   }
-  
   return pages
 })
 
@@ -435,20 +488,22 @@ const showDeleteModal = ref(false)
 const playerToDelete = ref<Player | null>(null)
 const deleting = ref(false)
 
-let searchTimeout: ReturnType<typeof setTimeout>
-
-function debouncedSearch() {
-  clearTimeout(searchTimeout)
-  searchTimeout = setTimeout(() => {
-    page.value = 1
-    fetchPlayers()
-  }, 300)
+function clearFilters() {
+  searchQuery.value = ''
+  countryFilter.value = ''
+  statusFilter.value = ''
+  academyFilter.value = ''
+  page.value = 1
+  fetchPlayers()
 }
 
-function clearFilters() {
-  filters.search = ''
-  filters.status = ''
-  filters.academy = ''
+function setStatusFilter(status: string) {
+  // Toggle off if same filter clicked again
+  if (statusFilter.value === status) {
+    statusFilter.value = ''
+  } else {
+    statusFilter.value = status
+  }
   page.value = 1
   fetchPlayers()
 }
@@ -461,11 +516,20 @@ async function fetchPlayers() {
       limit: perPage.toString(),
     })
     
-    if (filters.search) params.append('search', filters.search)
-    if (filters.status) params.append('verified', filters.status === 'verified' ? 'true' : 'false')
-    if (filters.academy) params.append('academy_id', filters.academy)
+    if (searchQuery.value) params.append('search', searchQuery.value)
+    if (statusFilter.value) params.append('verified', statusFilter.value === 'verified' ? 'true' : 'false')
+    if (countryFilter.value) params.append('country', countryFilter.value)
+    if (academyFilter.value) params.append('academy_id', academyFilter.value)
 
-    const response = await api.get<ApiResponse<{ players: Player[]; total: number }>>(
+    const response = await api.get<ApiResponse<{ 
+      players: Player[]
+      total: number
+      stats?: {
+        total_players: number
+        verified_count: number
+        pending_count: number
+      }
+    }>>(
       `/admin/players?${params}`,
       {},
       true
@@ -473,12 +537,20 @@ async function fetchPlayers() {
     
     if (response.success && response.data) {
       players.value = response.data.players || []
-      totalPlayers.value = response.data.total || 0
+      total.value = response.data.total || 0
+      
+      // Update stats from API
+      if (response.data.stats) {
+        stats.totalPlayers = response.data.stats.total_players
+        stats.verifiedCount = response.data.stats.verified_count
+        stats.pendingCount = response.data.stats.pending_count
+      }
     }
   } catch (error) {
     console.error('Failed to fetch players:', error)
   } finally {
     loading.value = false
+    isSearching.value = false
   }
 }
 
@@ -505,9 +577,11 @@ async function deletePlayer() {
   try {
     await api.delete(`/admin/players/${playerToDelete.value.id}`, true)
     players.value = players.value.filter(p => p.id !== playerToDelete.value?.id)
-    totalPlayers.value--
+    total.value--
     showDeleteModal.value = false
     playerToDelete.value = null
+    // Refresh to update stats
+    fetchPlayers()
   } catch (error) {
     console.error('Failed to delete player:', error)
   } finally {

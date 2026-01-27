@@ -740,27 +740,49 @@ func (m *AdminModule) ListPlayers(c *gin.Context) {
 
 	query := m.db.Model(&domain.Player{}).Where("deleted_at IS NULL")
 
+	// Search filter (name, position, or country)
+	if search := c.Query("search"); search != "" {
+		searchPattern := "%" + strings.ToLower(search) + "%"
+		query = query.Where("LOWER(first_name) LIKE ? OR LOWER(last_name) LIKE ? OR LOWER(position) LIKE ? OR LOWER(country) LIKE ?", searchPattern, searchPattern, searchPattern, searchPattern)
+	}
+
 	// Apply filters
 	if country := c.Query("country"); country != "" {
-		query = query.Where("country = ?", country)
+		query = query.Where("LOWER(country) = LOWER(?)", country)
 	}
 	if position := c.Query("position"); position != "" {
 		query = query.Where("position = ?", position)
 	}
-	if status := c.Query("verification_status"); status != "" {
-		query = query.Where("verification_status = ?", status)
+	if verified := c.Query("verified"); verified != "" {
+		isVerified := verified == "true"
+		query = query.Where("is_verified = ?", isVerified)
 	}
 	if tournamentID := c.Query("tournament_id"); tournamentID != "" {
 		query = query.Where("tournament_id = ?", tournamentID)
+	}
+	if academyID := c.Query("academy_id"); academyID != "" {
+		query = query.Where("academy_id = ?", academyID)
 	}
 
 	query.Count(&total)
 	query.Preload("Tournament").Offset(offset).Limit(limit).Order("created_at DESC").Find(&players)
 
+	// Get stats (unfiltered counts)
+	var totalPlayers, verifiedCount, pendingCount int64
+	m.db.Model(&domain.Player{}).Where("deleted_at IS NULL").Count(&totalPlayers)
+	m.db.Model(&domain.Player{}).Where("deleted_at IS NULL AND is_verified = ?", true).Count(&verifiedCount)
+	pendingCount = totalPlayers - verifiedCount
+
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"data": gin.H{
 			"players": players,
+			"total":   total,
+			"stats": gin.H{
+				"total_players":  totalPlayers,
+				"verified_count": verifiedCount,
+				"pending_count":  pendingCount,
+			},
 			"pagination": gin.H{
 				"page":        page,
 				"limit":       limit,
