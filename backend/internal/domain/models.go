@@ -99,6 +99,7 @@ type Tournament struct {
 type Player struct {
 	ID                  uuid.UUID  `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
 	UserID              *uuid.UUID `json:"user_id,omitempty" gorm:"type:uuid;index"`
+	AcademyID           *uuid.UUID `json:"academy_id,omitempty" gorm:"type:uuid;index"`
 	FirstName           string     `json:"first_name" gorm:"not null"`
 	LastName            string     `json:"last_name" gorm:"not null"`
 	DateOfBirth         time.Time  `json:"date_of_birth" gorm:"not null"`
@@ -125,6 +126,7 @@ type Player struct {
 	DeletedAt           *time.Time `json:"-" gorm:"index"`
 
 	Tournament *Tournament `json:"tournament,omitempty" gorm:"foreignKey:TournamentID"`
+	Academy    *Academy    `json:"academy,omitempty" gorm:"foreignKey:AcademyID"`
 	Videos     []Video     `json:"videos,omitempty" gorm:"many2many:player_videos;"`
 }
 

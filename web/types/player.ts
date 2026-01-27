@@ -24,7 +24,16 @@ export interface Player {
   created_at: string
   updated_at: string
   tournament?: Tournament
+  academy?: Academy
   videos?: Video[]
+}
+
+export interface Academy {
+  id: string
+  name: string
+  country: string
+  city?: string
+  is_verified: boolean
 }
 
 export interface PlayerFilters {

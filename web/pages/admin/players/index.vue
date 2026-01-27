@@ -178,6 +178,7 @@
             <tr class="border-b border-neutral-200 bg-neutral-50">
               <th class="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">Player</th>
               <th class="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">Position</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider hidden lg:table-cell">Academy</th>
               <th class="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">Status</th>
               <th class="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider hidden md:table-cell">Videos</th>
               <th class="px-6 py-4 text-right text-xs font-semibold text-neutral-500 uppercase tracking-wider">Actions</th>
@@ -212,6 +213,15 @@
                 <span class="inline-flex items-center px-2.5 py-1 rounded-lg bg-neutral-100 text-sm font-medium text-neutral-700">
                   {{ player.position || 'N/A' }}
                 </span>
+              </td>
+              <td class="px-6 py-4 hidden lg:table-cell">
+                <span v-if="player.academy" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-100 text-sm font-medium text-amber-700">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                  {{ player.academy.name }}
+                </span>
+                <span v-else class="text-sm text-neutral-400">—</span>
               </td>
               <td class="px-6 py-4">
                 <span 

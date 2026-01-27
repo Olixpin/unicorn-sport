@@ -408,6 +408,7 @@ type CreatePlayerRequest struct {
 	Country             string  `json:"country" binding:"required"`
 	State               *string `json:"state,omitempty"`
 	City                *string `json:"city,omitempty"`
+	AcademyID           *string `json:"academy_id,omitempty"`
 	SchoolName          *string `json:"school_name,omitempty"`
 	TournamentID        *string `json:"tournament_id,omitempty"`
 	VerificationStatus  string  `json:"verification_status,omitempty"`
@@ -469,6 +470,23 @@ func (m *AdminModule) CreatePlayer(c *gin.Context) {
 		}
 	}
 
+	// Parse academy ID if provided
+	var academyID *uuid.UUID
+	if req.AcademyID != nil && *req.AcademyID != "" {
+		aid, err := uuid.Parse(*req.AcademyID)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": gin.H{"code": "INVALID_UUID", "message": "Invalid academy_id"}})
+			return
+		}
+		// Verify academy exists
+		var academy domain.Academy
+		if err := m.db.First(&academy, "id = ?", aid).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": gin.H{"code": "NOT_FOUND", "message": "Academy not found"}})
+			return
+		}
+		academyID = &aid
+	}
+
 	// Set verification status
 	verificationStatus := "pending"
 	if req.VerificationStatus != "" {
@@ -487,6 +505,7 @@ func (m *AdminModule) CreatePlayer(c *gin.Context) {
 		Country:             req.Country,
 		State:               req.State,
 		City:                req.City,
+		AcademyID:           academyID,
 		SchoolName:          req.SchoolName,
 		TournamentID:        tournamentID,
 		TournamentYear:      tournamentYear,
@@ -605,6 +624,7 @@ type UpdatePlayerRequest struct {
 	Country            *string `json:"country,omitempty"`
 	State              *string `json:"state,omitempty"`
 	City               *string `json:"city,omitempty"`
+	AcademyID          *string `json:"academy_id,omitempty"`
 	SchoolName         *string `json:"school_name,omitempty"`
 	VerificationStatus *string `json:"verification_status,omitempty"`
 	ProfilePhotoURL    *string `json:"profile_photo_url,omitempty"`
@@ -621,7 +641,7 @@ func (m *AdminModule) GetPlayer(c *gin.Context) {
 	}
 
 	var player domain.Player
-	if err := m.db.Preload("Tournament").Where("deleted_at IS NULL").First(&player, "id = ?", pid).Error; err != nil {
+	if err := m.db.Preload("Tournament").Preload("Academy").Where("deleted_at IS NULL").First(&player, "id = ?", pid).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"success": false, "error": gin.H{"code": "NOT_FOUND", "message": "Player not found"}})
 		return
 	}
@@ -683,6 +703,25 @@ func (m *AdminModule) UpdatePlayer(c *gin.Context) {
 	}
 	if req.City != nil {
 		updates["city"] = *req.City
+	}
+	if req.AcademyID != nil {
+		if *req.AcademyID == "" {
+			// Allow clearing the academy
+			updates["academy_id"] = nil
+		} else {
+			aid, err := uuid.Parse(*req.AcademyID)
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": gin.H{"code": "INVALID_UUID", "message": "Invalid academy_id"}})
+				return
+			}
+			// Verify academy exists
+			var academy domain.Academy
+			if err := m.db.First(&academy, "id = ?", aid).Error; err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": gin.H{"code": "NOT_FOUND", "message": "Academy not found"}})
+				return
+			}
+			updates["academy_id"] = aid
+		}
 	}
 	if req.SchoolName != nil {
 		updates["school_name"] = *req.SchoolName
@@ -786,9 +825,12 @@ func (m *AdminModule) ListPlayers(c *gin.Context) {
 	if tournamentID := c.Query("tournament_id"); tournamentID != "" {
 		query = query.Where("tournament_id = ?", tournamentID)
 	}
+	if academyID := c.Query("academy_id"); academyID != "" {
+		query = query.Where("academy_id = ?", academyID)
+	}
 
 	query.Count(&total)
-	query.Preload("Tournament").Offset(offset).Limit(limit).Order("created_at DESC").Find(&players)
+	query.Preload("Tournament").Preload("Academy").Offset(offset).Limit(limit).Order("created_at DESC").Find(&players)
 
 	// Get stats (unfiltered counts)
 	var totalPlayers, verifiedCount, pendingCount int64

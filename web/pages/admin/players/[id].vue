@@ -243,13 +243,30 @@
                 />
               </div>
               <div>
-                <label class="block text-sm font-medium text-neutral-700 mb-2">School Name</label>
-                <input
-                  v-model="form.school_name"
-                  type="text"
-                  placeholder="Secondary School"
-                  class="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
-                />
+                <label class="block text-sm font-medium text-neutral-700 mb-2">Academy</label>
+                <div class="relative">
+                  <select
+                    v-model="form.academy_id"
+                    class="appearance-none w-full px-4 py-3 pr-10 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                    :disabled="loadingAcademies"
+                  >
+                    <option value="">{{ loadingAcademies ? 'Loading...' : 'Select academy' }}</option>
+                    <option v-for="academy in academies" :key="academy.id" :value="academy.id">
+                      {{ academy.name }} ({{ academy.country }})
+                      <template v-if="academy.is_verified">✓</template>
+                    </option>
+                  </select>
+                  <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    <svg v-if="loadingAcademies" class="w-5 h-5 text-neutral-400 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" />
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    <svg v-else class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+                <p class="mt-1.5 text-xs text-neutral-500">Link player to a registered academy</p>
               </div>
             </div>
           </div>
@@ -494,9 +511,14 @@ const form = reactive({
   country: '',
   state: '',
   city: '',
+  academy_id: '' as string,
   school_name: '',
   verification_status: 'pending' as 'pending' | 'verified' | 'rejected',
 })
+
+// Academies list for dropdown
+const academies = ref<Array<{ id: string; name: string; country: string; is_verified: boolean }>>([])
+const loadingAcademies = ref(false)
 
 function getInitials(firstName?: string, lastName?: string): string {
   const first = firstName?.charAt(0)?.toUpperCase() || ''
@@ -513,6 +535,9 @@ function getVerificationBadgeClass(isVerified?: boolean): string {
 
 // Fetch player data
 onMounted(async () => {
+  // Fetch academies first
+  await fetchAcademies()
+  
   try {
     const response = await $fetch<ApiResponse<{ player: Player }>>(`/admin/players/${playerId}`, {
       baseURL: config.public.apiBase,
@@ -535,6 +560,7 @@ onMounted(async () => {
         country: player.value.country,
         state: player.value.state || '',
         city: player.value.city || '',
+        academy_id: player.value.academy_id || '',
         school_name: player.value.school_name || '',
         verification_status: player.value.verification_status || 'pending',
       })
@@ -547,6 +573,28 @@ onMounted(async () => {
   }
 })
 
+async function fetchAcademies() {
+  loadingAcademies.value = true
+  try {
+    const response = await $fetch<ApiResponse<{ academies: Array<{ id: string; name: string; country: string; is_verified: boolean }> }>>('/admin/academies', {
+      baseURL: config.public.apiBase,
+      headers: {
+        Authorization: `Bearer ${authStore.accessToken}`,
+      },
+      params: {
+        per_page: 200, // Get all academies for dropdown
+      },
+    })
+    if (response.success && response.data?.academies) {
+      academies.value = response.data.academies
+    }
+  } catch (error) {
+    console.error('Failed to fetch academies:', error)
+  } finally {
+    loadingAcademies.value = false
+  }
+}
+
 async function handleSubmit() {
   submitting.value = true
 
@@ -554,6 +602,7 @@ async function handleSubmit() {
     const payload = {
       ...form,
       preferred_foot: form.preferred_foot || undefined,
+      academy_id: form.academy_id || undefined,
     }
 
     const response = await $fetch<ApiResponse<{ player: Player }>>(`/admin/players/${playerId}`, {
