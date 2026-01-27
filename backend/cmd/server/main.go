@@ -12,6 +12,8 @@ import (
 	"github.com/unicorn-sport/backend/internal/modules/admin"
 	"github.com/unicorn-sport/backend/internal/modules/auth"
 	"github.com/unicorn-sport/backend/internal/modules/contact"
+	"github.com/unicorn-sport/backend/internal/modules/highlights"
+	"github.com/unicorn-sport/backend/internal/modules/matches"
 	"github.com/unicorn-sport/backend/internal/modules/media"
 	"github.com/unicorn-sport/backend/internal/modules/profiles"
 	"github.com/unicorn-sport/backend/internal/modules/search"
@@ -39,6 +41,11 @@ func main() {
 	searchModule := search.NewSearchModule(db)
 	contactModule := contact.NewContactModule(db)
 
+	// Initialize S3 client for matches/highlights modules
+	s3Client := mediaModule.GetS3Client()
+	matchesModule := matches.NewModule(db, s3Client, cfg.AWS.S3Bucket, cfg.AWS.CloudFrontURL)
+	highlightsModule := highlights.NewModule(db, s3Client, cfg.AWS.S3Bucket, cfg.AWS.CloudFrontURL)
+
 	// Subscription URLs
 	successURL := os.Getenv("STRIPE_SUCCESS_URL")
 	if successURL == "" {
@@ -51,7 +58,7 @@ func main() {
 	subscriptionsModule := subscriptions.NewSubscriptionModule(db, cfg.Stripe.SecretKey, cfg.Stripe.WebhookSecret, cfg.Stripe.PriceIDs, successURL, cancelURL)
 
 	// Setup router
-	r := setupRouter(cfg, authModule, adminModule, mediaModule, profilesModule, searchModule, subscriptionsModule, contactModule)
+	r := setupRouter(cfg, authModule, adminModule, mediaModule, profilesModule, searchModule, subscriptionsModule, contactModule, matchesModule, highlightsModule)
 
 	// Start server
 	log.Printf("🚀 Unicorn Sport API starting on port %s", cfg.Port)
@@ -70,6 +77,8 @@ func setupRouter(
 	searchModule *search.SearchModule,
 	subscriptionsModule *subscriptions.SubscriptionModule,
 	contactModule *contact.ContactModule,
+	matchesModule *matches.Module,
+	highlightsModule *highlights.Module,
 ) *gin.Engine {
 	if cfg.Environment == "production" {
 		gin.SetMode(gin.ReleaseMode)
@@ -140,6 +149,12 @@ func setupRouter(
 		v1.GET("/players", profilesModule.ListPlayers)
 		v1.GET("/players/featured", profilesModule.GetFeaturedPlayers)
 		v1.GET("/players/:id", optionalAuth(cfg.JWT.Secret, profilesModule.GetPlayer))
+
+		// Player highlights (FREE - public)
+		v1.GET("/players/:id/highlights", highlightsModule.GetPlayerHighlightsPublic)
+		v1.GET("/players/:id/tournaments", highlightsModule.GetPlayerTournamentAppearances)
+		v1.GET("/highlights/:id", highlightsModule.GetHighlight)
+		v1.GET("/highlight-types", highlightsModule.GetHighlightTypes)
 
 		// Videos - public highlights
 		v1.GET("/videos/highlights", mediaModule.ListHighlights)
@@ -230,13 +245,64 @@ func setupRouter(
 
 				// Video management
 				adminRoutes.GET("/videos", mediaModule.ListVideos)
+				adminRoutes.GET("/videos/stats", mediaModule.GetVideoStats)
+				adminRoutes.GET("/videos/:id", mediaModule.GetVideo)
 				adminRoutes.POST("/videos", mediaModule.CreateVideo)
+				adminRoutes.PUT("/videos/:id", mediaModule.UpdateVideo)
 				adminRoutes.DELETE("/videos/:id", mediaModule.DeleteVideo)
 				adminRoutes.POST("/videos/:id/players", mediaModule.LinkPlayerToVideo)
+				adminRoutes.POST("/videos/:id/approve", mediaModule.ApproveVideo)
+				adminRoutes.POST("/videos/:id/reject", mediaModule.RejectVideo)
 
 				// Upload workflow
+				adminRoutes.POST("/upload/init", mediaModule.InitUpload)
+				adminRoutes.POST("/upload/multipart/init", mediaModule.InitMultipart)
+				adminRoutes.POST("/upload/multipart/part-url", mediaModule.GetUploadPartURL)
+				adminRoutes.POST("/upload/multipart/complete", mediaModule.CompleteMultipart)
+
+				// Legacy upload endpoints (for backward compatibility)
 				adminRoutes.POST("/videos/upload", mediaModule.GetUploadURL)
 				adminRoutes.POST("/videos/:id/confirm", mediaModule.ConfirmUpload)
+
+				// ==================
+				// MATCH MANAGEMENT (New Video Architecture)
+				// ==================
+				// Tournament matches
+				adminRoutes.GET("/tournaments/:tournamentId/matches", matchesModule.ListMatches)
+				adminRoutes.POST("/tournaments/:tournamentId/matches", matchesModule.CreateMatch)
+
+				// Match CRUD
+				adminRoutes.GET("/matches/:id", matchesModule.GetMatch)
+				adminRoutes.PUT("/matches/:id", matchesModule.UpdateMatch)
+				adminRoutes.DELETE("/matches/:id", matchesModule.DeleteMatch)
+
+				// Match players
+				adminRoutes.POST("/matches/:id/players", matchesModule.AddPlayerToMatch)
+				adminRoutes.PUT("/matches/:id/players/:playerId", matchesModule.UpdateMatchPlayer)
+				adminRoutes.DELETE("/matches/:id/players/:playerId", matchesModule.RemovePlayerFromMatch)
+
+				// Match video (full match - PAID content)
+				adminRoutes.POST("/matches/:id/video/upload", matchesModule.InitMatchVideoUpload)
+				adminRoutes.POST("/matches/:id/video", matchesModule.SaveMatchVideo)
+				adminRoutes.DELETE("/matches/:id/video", matchesModule.DeleteMatchVideo)
+
+				// Multipart upload for large videos
+				adminRoutes.POST("/matches/upload/part-url", matchesModule.GetMultipartPartURL)
+				adminRoutes.POST("/matches/upload/complete", matchesModule.CompleteMultipartUpload)
+
+				// ==================
+				// HIGHLIGHT MANAGEMENT (FREE content)
+				// ==================
+				// Highlight upload
+				adminRoutes.POST("/highlights/upload", highlightsModule.InitHighlightUpload)
+				adminRoutes.POST("/highlights/upload/init", highlightsModule.InitHighlightUpload) // alias
+				adminRoutes.POST("/highlights", highlightsModule.CreateHighlight)
+
+				// Highlight CRUD
+				adminRoutes.GET("/players/:playerId/highlights", highlightsModule.ListPlayerHighlights)
+				adminRoutes.GET("/matches/:matchId/highlights", highlightsModule.ListMatchHighlights)
+				adminRoutes.PUT("/highlights/:id", highlightsModule.UpdateHighlight)
+				adminRoutes.DELETE("/highlights/:id", highlightsModule.DeleteHighlight)
 
 				// User management
 				adminRoutes.GET("/users", adminModule.ListUsers)

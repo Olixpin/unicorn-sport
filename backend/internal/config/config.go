@@ -133,11 +133,20 @@ func (c *Config) InitDB() (*gorm.DB, error) {
 		&domain.Subscription{},
 		&domain.Video{},
 		&domain.PlayerVideo{},
+		&domain.Match{},
+		&domain.MatchPlayer{},
+		&domain.UploadSession{},
 		&domain.ContactRequest{},
 		&domain.SavedPlayer{},
 		&domain.VideoView{},
 		&domain.AuditLog{},
 		&domain.Academy{},
+		// New video architecture models
+		&domain.MatchVideo{},
+		&domain.PlayerHighlight{},
+		&domain.MatchPurchase{},
+		&domain.HighlightView{},
+		&domain.MatchVideoView{},
 	); err != nil {
 		return nil, fmt.Errorf("failed to migrate database: %w", err)
 	}

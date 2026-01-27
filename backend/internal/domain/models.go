@@ -146,22 +146,258 @@ type Subscription struct {
 	UpdatedAt            time.Time  `json:"updated_at"`
 }
 
-// Video represents video content (uploaded by admin only)
+// Video represents video content (highlights and clips uploaded by admin)
 type Video struct {
-	ID              uuid.UUID  `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
-	VideoType       string     `json:"video_type" gorm:"not null;index"`
-	Title           string     `json:"title" gorm:"not null"`
-	Description     *string    `json:"description,omitempty"`
-	BlobURL         string     `json:"-" gorm:"not null"`
-	ThumbnailURL    *string    `json:"thumbnail_url,omitempty"`
-	DurationSeconds *int       `json:"duration_seconds,omitempty"`
-	FileSizeBytes   *int64     `json:"file_size_bytes,omitempty"`
-	TournamentID    *uuid.UUID `json:"tournament_id,omitempty" gorm:"type:uuid;index"`
-	UploadedBy      uuid.UUID  `json:"-" gorm:"type:uuid;not null"`
-	CreatedAt       time.Time  `json:"created_at"`
+	ID              uuid.UUID `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	VideoType       string    `json:"video_type" gorm:"not null;index"` // highlight, full_match
+	Title           string    `json:"title" gorm:"not null"`
+	Description     *string   `json:"description,omitempty"`
+	BlobURL         string    `json:"-" gorm:"not null"`
+	ThumbnailURL    *string   `json:"thumbnail_url,omitempty"`
+	DurationSeconds *int      `json:"duration_seconds,omitempty"`
+	FileSizeBytes   *int64    `json:"file_size_bytes,omitempty"`
+
+	// Review workflow
+	Status      string     `json:"status" gorm:"default:'approved';index"` // pending, approved, rejected
+	ReviewNotes *string    `json:"review_notes,omitempty"`
+	ReviewedBy  *uuid.UUID `json:"-" gorm:"type:uuid"`
+	ReviewedAt  *time.Time `json:"-"`
+
+	// Associations
+	TournamentID *uuid.UUID `json:"tournament_id,omitempty" gorm:"type:uuid;index"`
+	MatchID      *uuid.UUID `json:"match_id,omitempty" gorm:"type:uuid;index"` // Source match for highlight
+	UploadedBy   uuid.UUID  `json:"-" gorm:"type:uuid;not null"`
+	CreatedAt    time.Time  `json:"created_at"`
+	UpdatedAt    time.Time  `json:"updated_at"`
 
 	Tournament *Tournament `json:"tournament,omitempty" gorm:"foreignKey:TournamentID"`
+	Match      *Match      `json:"match,omitempty" gorm:"foreignKey:MatchID"`
 	Players    []Player    `json:"players,omitempty" gorm:"many2many:player_videos;"`
+}
+
+// Match represents a game/fixture in a tournament
+type Match struct {
+	ID          uuid.UUID `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	Title       string    `json:"title" gorm:"not null"`
+	Description *string   `json:"description,omitempty"`
+	MatchDate   time.Time `json:"match_date" gorm:"not null;index"`
+	Location    *string   `json:"location,omitempty"`
+
+	// Match details
+	Stage       *string `json:"stage,omitempty"`        // group, round_of_16, quarterfinal, semifinal, final
+	HomeTeam    *string `json:"home_team,omitempty"`    // Team A name
+	AwayTeam    *string `json:"away_team,omitempty"`    // Team B name
+	HomeScore   *int    `json:"home_score,omitempty"`   // Final score
+	AwayScore   *int    `json:"away_score,omitempty"`   // Final score
+	MatchNumber *int    `json:"match_number,omitempty"` // Match # in tournament
+
+	// Status
+	Status string `json:"status" gorm:"default:'scheduled';index"` // scheduled, in_progress, completed, cancelled
+
+	// Associations
+	TournamentID *uuid.UUID `json:"tournament_id,omitempty" gorm:"type:uuid;index"`
+	AcademyID    *uuid.UUID `json:"academy_id,omitempty" gorm:"type:uuid;index"`
+
+	// Metadata
+	CreatedBy uuid.UUID `json:"-" gorm:"type:uuid;not null"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+
+	// Relationships
+	Tournament *Tournament `json:"tournament,omitempty" gorm:"foreignKey:TournamentID"`
+	Academy    *Academy    `json:"academy,omitempty" gorm:"foreignKey:AcademyID"`
+	Players    []Player    `json:"players,omitempty" gorm:"many2many:match_players;"`
+	Video      *MatchVideo `json:"video,omitempty" gorm:"foreignKey:MatchID"`
+}
+
+// MatchVideo represents the full match video (PAID content)
+type MatchVideo struct {
+	ID      uuid.UUID `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	MatchID uuid.UUID `json:"match_id" gorm:"type:uuid;uniqueIndex;not null"`
+
+	// Video storage (S3)
+	VideoURL        string  `json:"-" gorm:"not null"` // S3 key - hidden from JSON
+	ThumbnailURL    *string `json:"thumbnail_url,omitempty"`
+	DurationSeconds *int    `json:"duration_seconds,omitempty"`
+	FileSizeBytes   *int64  `json:"file_size_bytes,omitempty"`
+
+	// Processing status
+	Status          string  `json:"status" gorm:"default:'processing';index"` // processing, ready, failed, archived
+	ProcessingError *string `json:"-"`
+
+	// Pricing for pay-per-view
+	PriceCents int    `json:"price_cents" gorm:"default:999"` // Default $9.99
+	Currency   string `json:"currency" gorm:"default:'USD'"`
+
+	// Stats
+	ViewCount     int `json:"view_count" gorm:"default:0"`
+	PurchaseCount int `json:"purchase_count" gorm:"default:0"`
+
+	// Metadata
+	UploadedBy uuid.UUID `json:"-" gorm:"type:uuid;not null"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
+
+	// Relationships
+	Match *Match `json:"match,omitempty" gorm:"foreignKey:MatchID"`
+}
+
+// PlayerHighlight represents a short highlight clip (FREE content)
+type PlayerHighlight struct {
+	ID       uuid.UUID  `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	PlayerID uuid.UUID  `json:"player_id" gorm:"type:uuid;not null;index"`
+	MatchID  *uuid.UUID `json:"match_id,omitempty" gorm:"type:uuid;index"` // Optional - which match this is from
+
+	// Highlight categorization
+	HighlightType string `json:"highlight_type" gorm:"not null;index"` // goal, assist, dribbling, defending, etc.
+
+	// Video storage (S3)
+	VideoURL        string  `json:"-" gorm:"not null"` // S3 key - hidden from JSON
+	ThumbnailURL    *string `json:"thumbnail_url,omitempty"`
+	DurationSeconds *int    `json:"duration_seconds,omitempty"`
+	FileSizeBytes   *int64  `json:"file_size_bytes,omitempty"`
+
+	// Context
+	Title            *string `json:"title,omitempty"`
+	Description      *string `json:"description,omitempty"`
+	TimestampInMatch *int    `json:"timestamp_in_match,omitempty"` // When in match (seconds)
+
+	// Status
+	Status string `json:"status" gorm:"default:'approved';index"` // pending, approved, rejected, archived
+
+	// Stats
+	ViewCount int `json:"view_count" gorm:"default:0"`
+
+	// Metadata
+	UploadedBy uuid.UUID `json:"-" gorm:"type:uuid;not null"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
+
+	// Relationships
+	Player *Player `json:"player,omitempty" gorm:"foreignKey:PlayerID"`
+	Match  *Match  `json:"match,omitempty" gorm:"foreignKey:MatchID"`
+}
+
+// MatchPurchase tracks pay-per-view purchases
+type MatchPurchase struct {
+	ID           uuid.UUID `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	UserID       uuid.UUID `json:"user_id" gorm:"type:uuid;not null;index;uniqueIndex:idx_user_match_purchase"`
+	MatchVideoID uuid.UUID `json:"match_video_id" gorm:"type:uuid;not null;index;uniqueIndex:idx_user_match_purchase"`
+
+	// Payment info
+	AmountCents           int     `json:"amount_cents" gorm:"not null"`
+	Currency              string  `json:"currency" gorm:"default:'USD'"`
+	StripePaymentIntentID *string `json:"-"`
+	StripeChargeID        *string `json:"-"`
+
+	// Status
+	Status string `json:"status" gorm:"default:'completed';index"` // pending, completed, refunded, failed
+
+	// Access tracking
+	FirstViewedAt *time.Time `json:"first_viewed_at,omitempty"`
+	LastViewedAt  *time.Time `json:"last_viewed_at,omitempty"`
+	ViewCount     int        `json:"view_count" gorm:"default:0"`
+
+	// Metadata
+	CreatedAt time.Time `json:"created_at"`
+
+	// Relationships
+	User       *User       `json:"user,omitempty" gorm:"foreignKey:UserID"`
+	MatchVideo *MatchVideo `json:"match_video,omitempty" gorm:"foreignKey:MatchVideoID"`
+}
+
+// HighlightView tracks views on highlights for analytics
+type HighlightView struct {
+	ID          uuid.UUID  `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	HighlightID uuid.UUID  `json:"highlight_id" gorm:"type:uuid;not null;index"`
+	ViewerID    *uuid.UUID `json:"viewer_id,omitempty" gorm:"type:uuid;index"` // NULL for anonymous
+	Source      *string    `json:"source,omitempty"`                           // player_profile, search, direct
+	IPHash      *string    `json:"-"`                                          // For unique view counting
+	CreatedAt   time.Time  `json:"created_at"`
+}
+
+// MatchVideoView tracks full match video views
+type MatchVideoView struct {
+	ID                   uuid.UUID `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	MatchVideoID         uuid.UUID `json:"match_video_id" gorm:"type:uuid;not null;index"`
+	ViewerID             uuid.UUID `json:"viewer_id" gorm:"type:uuid;not null;index"`
+	WatchDurationSeconds *int      `json:"watch_duration_seconds,omitempty"`
+	Completed            bool      `json:"completed" gorm:"default:false"`
+	CreatedAt            time.Time `json:"created_at"`
+}
+
+// Highlight type constants
+const (
+	HighlightTypeGoal         = "goal"
+	HighlightTypeAssist       = "assist"
+	HighlightTypeDribbling    = "dribbling"
+	HighlightTypeDefending    = "defending"
+	HighlightTypeTackling     = "tackling"
+	HighlightTypePassing      = "passing"
+	HighlightTypeShooting     = "shooting"
+	HighlightTypeHeading      = "heading"
+	HighlightTypeSpeed        = "speed"
+	HighlightTypeSave         = "save"
+	HighlightTypeDistribution = "distribution"
+	HighlightTypePositioning  = "positioning"
+	HighlightTypeVision       = "vision"
+	HighlightTypeOther        = "other"
+)
+
+// ValidHighlightTypes returns all valid highlight types
+func ValidHighlightTypes() []string {
+	return []string{
+		HighlightTypeGoal, HighlightTypeAssist, HighlightTypeDribbling,
+		HighlightTypeDefending, HighlightTypeTackling, HighlightTypePassing,
+		HighlightTypeShooting, HighlightTypeHeading, HighlightTypeSpeed,
+		HighlightTypeSave, HighlightTypeDistribution, HighlightTypePositioning,
+		HighlightTypeVision, HighlightTypeOther,
+	}
+}
+
+// IsValidHighlightType checks if a highlight type is valid
+func IsValidHighlightType(t string) bool {
+	for _, valid := range ValidHighlightTypes() {
+		if t == valid {
+			return true
+		}
+	}
+	return false
+}
+
+// MatchPlayer links players to matches they participated in
+type MatchPlayer struct {
+	ID             uuid.UUID `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	MatchID        uuid.UUID `json:"match_id" gorm:"type:uuid;not null;uniqueIndex:idx_match_player_unique"`
+	PlayerID       uuid.UUID `json:"player_id" gorm:"type:uuid;not null;uniqueIndex:idx_match_player_unique"`
+	PositionPlayed *string   `json:"position_played,omitempty"`
+	MinutesPlayed  *int      `json:"minutes_played,omitempty"`
+	Goals          int       `json:"goals" gorm:"default:0"`
+	Assists        int       `json:"assists" gorm:"default:0"`
+	Notes          *string   `json:"notes,omitempty"`
+	CreatedAt      time.Time `json:"created_at"`
+
+	Match  *Match  `json:"match,omitempty" gorm:"foreignKey:MatchID"`
+	Player *Player `json:"player,omitempty" gorm:"foreignKey:PlayerID"`
+}
+
+// UploadSession tracks multipart uploads to S3
+type UploadSession struct {
+	ID          uuid.UUID  `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	UploadType  string     `json:"upload_type" gorm:"not null"`  // video, match, thumbnail, document
+	ContentType string     `json:"content_type" gorm:"not null"` // MIME type
+	FileName    string     `json:"file_name" gorm:"not null"`
+	FileSize    int64      `json:"file_size" gorm:"not null"`
+	S3UploadID  *string    `json:"-"`
+	S3Key       string     `json:"-" gorm:"not null"`
+	Status      string     `json:"status" gorm:"default:'pending';index"` // pending, uploading, completed, failed, expired
+	PartsTotal  *int       `json:"parts_total,omitempty"`
+	EntityType  *string    `json:"entity_type,omitempty"` // video, match
+	EntityID    *uuid.UUID `json:"entity_id,omitempty" gorm:"type:uuid"`
+	UploadedBy  uuid.UUID  `json:"-" gorm:"type:uuid;not null"`
+	CreatedAt   time.Time  `json:"created_at"`
+	ExpiresAt   time.Time  `json:"expires_at" gorm:"not null"`
+	CompletedAt *time.Time `json:"completed_at,omitempty"`
 }
 
 // PlayerVideo is many-to-many relationship between players and videos
@@ -221,6 +457,34 @@ type AuditLog struct {
 // TableName overrides
 func (PlayerVideo) TableName() string {
 	return "player_videos"
+}
+
+func (MatchPlayer) TableName() string {
+	return "match_players"
+}
+
+func (UploadSession) TableName() string {
+	return "upload_sessions"
+}
+
+func (MatchVideo) TableName() string {
+	return "match_videos"
+}
+
+func (PlayerHighlight) TableName() string {
+	return "player_highlights"
+}
+
+func (MatchPurchase) TableName() string {
+	return "match_purchases"
+}
+
+func (HighlightView) TableName() string {
+	return "highlight_views"
+}
+
+func (MatchVideoView) TableName() string {
+	return "match_video_views"
 }
 
 // Helper methods

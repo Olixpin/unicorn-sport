@@ -18,6 +18,15 @@
           </svg>
           Refresh
         </button>
+        <NuxtLink
+          to="/admin/videos/new"
+          class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-primary-600 to-emerald-600 text-white rounded-xl text-sm font-semibold hover:from-primary-700 hover:to-emerald-700 transition-all shadow-lg shadow-primary-600/25"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          Upload Video
+        </NuxtLink>
       </div>
     </div>
 
@@ -206,8 +215,8 @@
             </a>
             
             <!-- Duration Badge -->
-            <div v-if="video.duration" class="absolute bottom-3 right-3 bg-black/80 text-white text-xs px-2 py-1 rounded-lg font-medium">
-              {{ formatDuration(video.duration) }}
+            <div v-if="video.duration_seconds" class="absolute bottom-3 right-3 bg-black/80 text-white text-xs px-2 py-1 rounded-lg font-medium">
+              {{ formatDuration(video.duration_seconds) }}
             </div>
             
             <!-- Status Badge -->
@@ -221,15 +230,24 @@
 
           <!-- Video Info -->
           <div class="p-5">
+            <div class="flex items-center gap-2 mb-2">
+              <span :class="video.video_type === 'full_match' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'" class="text-xs font-medium px-2 py-0.5 rounded">
+                {{ video.video_type === 'full_match' ? 'Full Match' : 'Highlight' }}
+              </span>
+            </div>
+            
             <h3 class="font-semibold text-neutral-900 truncate group-hover:text-primary-600 transition-colors">
               {{ video.title }}
             </h3>
             
-            <div class="flex items-center gap-2 mt-2">
+            <div v-if="video.players && video.players.length > 0" class="flex items-center gap-2 mt-2">
               <div class="w-6 h-6 bg-gradient-to-br from-primary-500 to-emerald-600 rounded-full flex items-center justify-center text-white text-xs font-semibold">
-                {{ getInitials(video.player_name) }}
+                {{ getInitials(getPrimaryPlayerName(video)) }}
               </div>
-              <span class="text-sm text-neutral-600">{{ video.player_name }}</span>
+              <span class="text-sm text-neutral-600">
+                {{ getPrimaryPlayerName(video) }}
+                <span v-if="video.players.length > 1" class="text-neutral-400">+{{ video.players.length - 1 }}</span>
+              </span>
             </div>
             
             <p class="text-xs text-neutral-400 mt-3">Uploaded {{ formatDate(video.created_at) }}</p>
@@ -237,6 +255,7 @@
             <!-- Actions -->
             <div class="flex items-center justify-between mt-4 pt-4 border-t border-neutral-100">
               <a
+                v-if="video.video_url"
                 :href="video.video_url"
                 target="_blank"
                 class="inline-flex items-center gap-1.5 text-sm text-primary-600 hover:text-primary-700 font-medium transition-colors"
@@ -246,6 +265,7 @@
                 </svg>
                 Watch
               </a>
+              <span v-else class="text-sm text-neutral-400">Processing...</span>
               
               <div v-if="video.status === 'pending'" class="flex items-center gap-2">
                 <button
@@ -344,16 +364,37 @@
 <script setup lang="ts">
 import type { ApiResponse } from '~/types/index'
 
+interface Player {
+  id: string
+  first_name: string
+  last_name: string
+  position: string
+}
+
 interface Video {
   id: string
+  video_type: string
   title: string
-  player_id: string
-  player_name?: string
-  video_url: string
+  description?: string
   thumbnail_url?: string
-  duration?: number
+  video_url?: string
+  duration_seconds?: number
+  file_size_bytes?: number
   status: 'pending' | 'approved' | 'rejected'
+  review_notes?: string
+  tournament_id?: string
   created_at: string
+  updated_at: string
+  players?: Player[]
+}
+
+interface VideoStats {
+  total: number
+  pending: number
+  approved: number
+  rejected: number
+  highlights: number
+  full_matches: number
 }
 
 definePageMeta({
@@ -366,6 +407,7 @@ const authStore = useAuthStore()
 const toast = useToast()
 
 const videos = ref<Video[]>([])
+const stats = ref<VideoStats>({ total: 0, pending: 0, approved: 0, rejected: 0, highlights: 0, full_matches: 0 })
 const loading = ref(true)
 const processing = ref<string | null>(null)
 const searchQuery = ref('')
@@ -375,9 +417,9 @@ const perPage = ref(12)
 const total = ref(0)
 const totalPages = computed(() => Math.ceil(total.value / perPage.value))
 
-const pendingCount = computed(() => videos.value.filter(v => v.status === 'pending').length)
-const approvedCount = computed(() => videos.value.filter(v => v.status === 'approved').length)
-const rejectedCount = computed(() => videos.value.filter(v => v.status === 'rejected').length)
+const pendingCount = computed(() => stats.value.pending)
+const approvedCount = computed(() => stats.value.approved)
+const rejectedCount = computed(() => stats.value.rejected)
 
 const hasActiveFilters = computed(() => searchQuery.value || statusFilter.value)
 
@@ -416,6 +458,25 @@ function getInitials(name?: string): string {
   return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
 }
 
+function getPrimaryPlayerName(video: Video): string {
+  if (!video.players || video.players.length === 0) return ''
+  const player = video.players[0]
+  if (!player) return ''
+  return `${player.first_name} ${player.last_name}`
+}
+
+function formatDuration(seconds?: number): string {
+  if (!seconds) return '0:00'
+  const hrs = Math.floor(seconds / 3600)
+  const mins = Math.floor((seconds % 3600) / 60)
+  const secs = Math.floor(seconds % 60)
+  
+  if (hrs > 0) {
+    return `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+  }
+  return `${mins}:${secs.toString().padStart(2, '0')}`
+}
+
 function getStatusBadgeClass(status: string): string {
   const baseClass = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium backdrop-blur-sm'
   switch (status) {
@@ -443,6 +504,26 @@ function capitalizeFirst(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1)
 }
 
+async function fetchStats() {
+  try {
+    const response = await $fetch<ApiResponse<VideoStats>>(
+      '/admin/videos/stats',
+      {
+        baseURL: config.public.apiBase,
+        headers: {
+          Authorization: `Bearer ${authStore.accessToken}`,
+        },
+      }
+    )
+
+    if (response.success && response.data) {
+      stats.value = response.data
+    }
+  } catch (error) {
+    console.error('Failed to fetch video stats:', error)
+  }
+}
+
 async function fetchVideos() {
   loading.value = true
 
@@ -453,19 +534,22 @@ async function fetchVideos() {
     if (searchQuery.value) params.append('q', searchQuery.value)
     if (statusFilter.value) params.append('status', statusFilter.value)
 
-    const response = await $fetch<ApiResponse<{ videos: Video[]; total: number }>>(
-      `/admin/videos?${params.toString()}`,
-      {
-        baseURL: config.public.apiBase,
-        headers: {
-          Authorization: `Bearer ${authStore.accessToken}`,
-        },
-      }
-    )
+    const [videosResponse] = await Promise.all([
+      $fetch<ApiResponse<{ videos: Video[]; total: number }>>(
+        `/admin/videos?${params.toString()}`,
+        {
+          baseURL: config.public.apiBase,
+          headers: {
+            Authorization: `Bearer ${authStore.accessToken}`,
+          },
+        }
+      ),
+      fetchStats(),
+    ])
 
-    if (response.success && response.data) {
-      videos.value = response.data.videos || []
-      total.value = response.data.total || 0
+    if (videosResponse.success && videosResponse.data) {
+      videos.value = videosResponse.data.videos || []
+      total.value = videosResponse.data.total || 0
     }
   } catch (error) {
     console.error('Failed to fetch videos:', error)
@@ -518,12 +602,6 @@ async function rejectVideo(videoId: string) {
   } finally {
     processing.value = null
   }
-}
-
-function formatDuration(seconds: number): string {
-  const mins = Math.floor(seconds / 60)
-  const secs = seconds % 60
-  return `${mins}:${secs.toString().padStart(2, '0')}`
 }
 
 function formatDate(dateString: string): string {
