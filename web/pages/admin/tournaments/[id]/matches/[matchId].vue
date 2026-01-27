@@ -16,6 +16,12 @@
             </NuxtLink>
           </div>
           <div class="flex items-center gap-3">
+            <span v-if="isFutureMatch" class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium flex items-center gap-1">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Upcoming
+            </span>
             <span :class="getStatusClass(match?.status)" class="px-3 py-1 rounded-full text-sm font-medium">
               {{ match?.status || 'Loading...' }}
             </span>
@@ -157,14 +163,30 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
               </svg>
             </div>
-            <p class="text-neutral-900 font-medium mb-1">No video uploaded yet</p>
-            <p class="text-sm text-neutral-500 mb-4">Upload the full match recording (max 25GB)</p>
-            <button
-              @click="showUploadVideoModal = true"
-              class="px-6 py-2.5 bg-gradient-to-r from-primary-500 to-emerald-600 text-white rounded-xl font-medium hover:from-primary-600 hover:to-emerald-700 transition-all"
-            >
-              Upload Full Match Video
-            </button>
+            
+            <!-- Future match warning -->
+            <template v-if="isFutureMatch">
+              <p class="text-neutral-900 font-medium mb-1">Match hasn't happened yet</p>
+              <p class="text-sm text-neutral-500 mb-2">Scheduled for {{ formatDate(match.match_date) }}</p>
+              <div class="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg text-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Video upload available after match date
+              </div>
+            </template>
+            
+            <!-- Normal upload state -->
+            <template v-else>
+              <p class="text-neutral-900 font-medium mb-1">No video uploaded yet</p>
+              <p class="text-sm text-neutral-500 mb-4">Upload the full match recording (max 25GB)</p>
+              <button
+                @click="showUploadVideoModal = true"
+                class="px-6 py-2.5 bg-gradient-to-r from-primary-500 to-emerald-600 text-white rounded-xl font-medium hover:from-primary-600 hover:to-emerald-700 transition-all"
+              >
+                Upload Full Match Video
+              </button>
+            </template>
           </div>
         </div>
       </div>
@@ -235,6 +257,7 @@
               <!-- Actions -->
               <div class="flex items-center gap-2">
                 <button
+                  v-if="!isFutureMatch"
                   @click="openHighlightUpload(player)"
                   class="p-2 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100 transition-colors"
                   title="Add Highlight"
@@ -243,6 +266,15 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                   </svg>
                 </button>
+                <span
+                  v-else
+                  class="p-2 bg-neutral-100 text-neutral-400 rounded-lg cursor-not-allowed"
+                  title="Available after match date"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                  </svg>
+                </span>
                 <button
                   @click="viewPlayerHighlights(player)"
                   class="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
@@ -797,6 +829,16 @@ const filteredHighlights = computed(() => {
 
 const canUploadHighlight = computed(() => {
   return highlightFile.value && highlightForm.highlight_type
+})
+
+// Check if match is in the future - restrict video/highlight uploads
+const isFutureMatch = computed(() => {
+  if (!match.value?.match_date) return false
+  const matchDate = new Date(match.value.match_date)
+  const now = new Date()
+  // Consider match as "past" if it's today or earlier
+  matchDate.setHours(23, 59, 59, 999)
+  return matchDate > now
 })
 
 // Fetch data

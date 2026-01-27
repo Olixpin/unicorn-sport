@@ -1,309 +1,449 @@
 <template>
-  <div class="min-h-screen bg-neutral-50">
-    <!-- Header -->
-    <div class="bg-white border-b border-neutral-200 sticky top-0 z-10">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  <div class="max-w-7xl mx-auto">
+    <!-- Page Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+      <div>
+        <h1 class="font-display text-2xl lg:text-3xl font-bold text-neutral-900">
+          Tournaments & Videos
+        </h1>
+        <p class="mt-1 text-neutral-600">Manage tournaments, matches, and player highlights</p>
+      </div>
+      <button
+        @click="openCreateModal"
+        class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary-600 to-emerald-600 text-white rounded-xl text-sm font-semibold hover:from-primary-700 hover:to-emerald-700 transition-all shadow-lg shadow-primary-600/25"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        Create Tournament
+      </button>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <!-- Total Tournaments -->
+      <div class="bg-gradient-to-br from-primary-500 to-emerald-600 rounded-2xl p-5 text-white shadow-lg shadow-primary-500/25">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-2xl font-bold text-neutral-900">Tournaments & Videos</h1>
-            <p class="text-neutral-500 mt-1">Manage tournaments, matches, and player highlights</p>
+            <p class="text-primary-100 text-sm font-medium">Tournaments</p>
+            <p class="text-3xl font-bold mt-1">{{ tournaments.length }}</p>
           </div>
-          <button
-            @click="showCreateModal = true"
-            class="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-primary-500 to-emerald-600 text-white rounded-xl font-medium hover:from-primary-600 hover:to-emerald-700 transition-all shadow-lg shadow-primary-500/25"
-          >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
             </svg>
-            Create Tournament
-          </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Total Matches -->
+      <div class="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl p-5 text-white shadow-lg shadow-blue-500/25">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-blue-100 text-sm font-medium">Total Matches</p>
+            <p class="text-3xl font-bold mt-1">{{ stats.total_matches }}</p>
+          </div>
+          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Full Match Videos (PAID) -->
+      <div class="bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl p-5 text-white shadow-lg shadow-amber-500/25">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-amber-100 text-sm font-medium">Match Videos</p>
+            <p class="text-3xl font-bold mt-1">{{ stats.total_match_videos }}</p>
+            <p class="text-xs text-amber-200 mt-0.5">💰 Paid content</p>
+          </div>
+          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Player Highlights (FREE) -->
+      <div class="bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl p-5 text-white shadow-lg shadow-emerald-500/25">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-emerald-100 text-sm font-medium">Highlights</p>
+            <p class="text-3xl font-bold mt-1">{{ stats.total_highlights }}</p>
+            <p class="text-xs text-emerald-200 mt-0.5">🆓 Free content</p>
+          </div>
+          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Content -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <!-- Stats Cards -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <!-- Total Tournaments -->
-        <div class="bg-gradient-to-br from-primary-500 to-emerald-600 rounded-2xl p-5 text-white shadow-lg shadow-primary-500/25">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-primary-100 text-sm font-medium">Tournaments</p>
-              <p class="text-3xl font-bold mt-1">{{ tournaments.length }}</p>
-            </div>
-            <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-              </svg>
-            </div>
+    <!-- Loading State -->
+    <div v-if="loading" class="bg-white rounded-2xl border border-neutral-200 p-16">
+      <div class="flex flex-col items-center justify-center">
+        <div class="w-12 h-12 border-4 border-primary-500/30 border-t-primary-500 rounded-full animate-spin mb-4"></div>
+        <p class="text-neutral-500">Loading tournaments...</p>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div v-else-if="tournaments.length === 0" class="bg-white rounded-2xl border border-neutral-200 p-12 text-center">
+      <div class="w-20 h-20 bg-gradient-to-br from-primary-100 to-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+        <svg class="w-10 h-10 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+        </svg>
+      </div>
+      <h3 class="text-xl font-semibold text-neutral-900 mb-2">Start Building Your Video Library</h3>
+      <p class="text-neutral-500 mb-6 max-w-md mx-auto">
+        Create a tournament to begin uploading match videos and player highlights. 
+        Scouts will discover players through free highlights and pay for full match access.
+      </p>
+      <button
+        @click="openCreateModal"
+        class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary-600 to-emerald-600 text-white rounded-xl font-semibold hover:from-primary-700 hover:to-emerald-700 transition-all shadow-lg shadow-primary-600/25"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        Create Your First Tournament
+      </button>
+      
+      <!-- How it works -->
+      <div class="mt-10 pt-8 border-t border-neutral-100">
+        <p class="text-sm font-medium text-neutral-700 mb-4">How it works:</p>
+        <div class="flex flex-col sm:flex-row justify-center gap-4 text-sm text-neutral-600">
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center text-xs font-bold">1</span>
+            Create Tournament
+          </div>
+          <svg class="w-4 h-4 text-neutral-300 hidden sm:block self-center" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center text-xs font-bold">2</span>
+            Add Matches
+          </div>
+          <svg class="w-4 h-4 text-neutral-300 hidden sm:block self-center" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center text-xs font-bold">3</span>
+            Upload Videos & Highlights
           </div>
         </div>
+      </div>
+    </div>
 
-        <!-- Total Matches -->
-        <div class="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl p-5 text-white shadow-lg shadow-blue-500/25">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-blue-100 text-sm font-medium">Total Matches</p>
-              <p class="text-3xl font-bold mt-1">{{ stats.total_matches }}</p>
-            </div>
-            <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <!-- Tournaments Grid -->
+    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <NuxtLink
+        v-for="tournament in tournaments"
+        :key="tournament.id"
+        :to="`/admin/tournaments/${tournament.id}`"
+        class="group bg-white rounded-2xl border border-neutral-200 overflow-hidden hover:shadow-lg hover:border-primary-200 transition-all"
+      >
+        <!-- Thumbnail -->
+        <div class="aspect-video bg-gradient-to-br from-primary-500 to-emerald-600 relative">
+          <img
+            v-if="tournament.thumbnail_url"
+            :src="tournament.thumbnail_url"
+            :alt="tournament.name"
+            class="w-full h-full object-cover"
+          />
+          <div v-else class="w-full h-full flex items-center justify-center">
+            <svg class="w-16 h-16 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+            </svg>
+          </div>
+          <!-- Status Badge -->
+          <span
+            :class="getStatusClass(tournament.status)"
+            class="absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-medium capitalize"
+          >
+            {{ tournament.status }}
+          </span>
+        </div>
+
+        <!-- Content -->
+        <div class="p-5">
+          <h3 class="font-semibold text-neutral-900 group-hover:text-primary-600 transition-colors mb-2">
+            {{ tournament.name }}
+          </h3>
+          <div class="flex items-center gap-4 text-sm text-neutral-500">
+            <span v-if="tournament.location" class="flex items-center gap-1">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              </svg>
+              {{ tournament.location }}
+            </span>
+            <span class="flex items-center gap-1">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-            </div>
+              {{ formatDateRange(tournament.start_date, tournament.end_date) }}
+            </span>
           </div>
-        </div>
-
-        <!-- Full Match Videos (PAID) -->
-        <div class="bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl p-5 text-white shadow-lg shadow-amber-500/25">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-amber-100 text-sm font-medium">Match Videos</p>
-              <p class="text-3xl font-bold mt-1">{{ stats.total_match_videos }}</p>
-              <p class="text-xs text-amber-200 mt-0.5">💰 Paid content</p>
-            </div>
-            <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          
+          <!-- Video Stats -->
+          <div class="flex items-center gap-4 mt-3 pt-3 border-t border-neutral-100">
+            <span class="flex items-center gap-1 text-sm">
+              <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <span class="text-neutral-700 font-medium">{{ tournament.match_count || 0 }}</span>
+              <span class="text-neutral-500">matches</span>
+            </span>
+            <span class="flex items-center gap-1 text-sm">
+              <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
               </svg>
-            </div>
-          </div>
-        </div>
-
-        <!-- Player Highlights (FREE) -->
-        <div class="bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl p-5 text-white shadow-lg shadow-emerald-500/25">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-emerald-100 text-sm font-medium">Highlights</p>
-              <p class="text-3xl font-bold mt-1">{{ stats.total_highlights }}</p>
-              <p class="text-xs text-emerald-200 mt-0.5">🆓 Free content</p>
-            </div>
-            <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <span class="text-neutral-700 font-medium">{{ tournament.video_count || 0 }}</span>
+            </span>
+            <span class="flex items-center gap-1 text-sm">
+              <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
-            </div>
+              <span class="text-neutral-700 font-medium">{{ tournament.highlight_count || 0 }}</span>
+            </span>
           </div>
         </div>
-      </div>
-
-      <!-- Loading -->
-      <div v-if="loading" class="flex justify-center items-center h-64">
-        <div class="animate-spin rounded-full h-12 w-12 border-4 border-primary-500 border-t-transparent"></div>
-      </div>
-
-      <!-- Empty State -->
-      <div v-else-if="tournaments.length === 0" class="bg-white rounded-2xl border border-neutral-200 p-12 text-center">
-        <div class="w-20 h-20 bg-gradient-to-br from-primary-100 to-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <svg class="w-10 h-10 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-          </svg>
-        </div>
-        <h3 class="text-xl font-semibold text-neutral-900 mb-2">Start Building Your Video Library</h3>
-        <p class="text-neutral-500 mb-6 max-w-md mx-auto">
-          Create a tournament to begin uploading match videos and player highlights. 
-          Scouts will discover players through free highlights and pay for full match access.
-        </p>
-        <button
-          @click="showCreateModal = true"
-          class="px-6 py-3 bg-gradient-to-r from-primary-500 to-emerald-600 text-white rounded-xl font-medium hover:from-primary-600 hover:to-emerald-700 transition-all shadow-lg shadow-primary-500/25"
-        >
-          Create Your First Tournament
-        </button>
-        
-        <!-- How it works -->
-        <div class="mt-10 pt-8 border-t border-neutral-100">
-          <p class="text-sm font-medium text-neutral-700 mb-4">How it works:</p>
-          <div class="flex flex-col sm:flex-row justify-center gap-4 text-sm text-neutral-600">
-            <div class="flex items-center gap-2">
-              <span class="w-6 h-6 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center text-xs font-bold">1</span>
-              Create Tournament
-            </div>
-            <svg class="w-4 h-4 text-neutral-300 hidden sm:block self-center" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-            </svg>
-            <div class="flex items-center gap-2">
-              <span class="w-6 h-6 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center text-xs font-bold">2</span>
-              Add Matches
-            </div>
-            <svg class="w-4 h-4 text-neutral-300 hidden sm:block self-center" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-            </svg>
-            <div class="flex items-center gap-2">
-              <span class="w-6 h-6 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center text-xs font-bold">3</span>
-              Upload Videos & Highlights
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tournaments Grid -->
-      <div v-else>
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-semibold text-neutral-900">All Tournaments</h2>
-        </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <NuxtLink
-            v-for="tournament in tournaments"
-            :key="tournament.id"
-            :to="`/admin/tournaments/${tournament.id}`"
-            class="group bg-white rounded-2xl border border-neutral-200 overflow-hidden hover:shadow-lg hover:border-primary-200 transition-all"
-          >
-            <!-- Thumbnail -->
-            <div class="aspect-video bg-gradient-to-br from-primary-500 to-emerald-600 relative">
-              <img
-                v-if="tournament.thumbnail_url"
-                :src="tournament.thumbnail_url"
-                :alt="tournament.name"
-                class="w-full h-full object-cover"
-              />
-              <div v-else class="w-full h-full flex items-center justify-center">
-                <svg class="w-16 h-16 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-                </svg>
-              </div>
-              <!-- Status Badge -->
-              <span
-                :class="getStatusClass(tournament.status)"
-                class="absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-medium capitalize"
-              >
-                {{ tournament.status }}
-              </span>
-            </div>
-
-            <!-- Content -->
-            <div class="p-5">
-              <h3 class="font-semibold text-neutral-900 group-hover:text-primary-600 transition-colors mb-2">
-                {{ tournament.name }}
-              </h3>
-              <div class="flex items-center gap-4 text-sm text-neutral-500">
-                <span class="flex items-center gap-1">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  {{ formatDateRange(tournament.start_date, tournament.end_date) }}
-                </span>
-              </div>
-              
-              <!-- Video Stats -->
-              <div class="flex items-center gap-4 mt-3 pt-3 border-t border-neutral-100">
-                <span class="flex items-center gap-1 text-sm">
-                  <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <span class="text-neutral-700 font-medium">{{ tournament.match_count || 0 }}</span>
-                  <span class="text-neutral-500">matches</span>
-                </span>
-                <span class="flex items-center gap-1 text-sm">
-                  <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                  </svg>
-                  <span class="text-neutral-700 font-medium">{{ tournament.video_count || 0 }}</span>
-                  <span class="text-neutral-500">videos</span>
-                </span>
-                <span class="flex items-center gap-1 text-sm">
-                  <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                  <span class="text-neutral-700 font-medium">{{ tournament.highlight_count || 0 }}</span>
-                  <span class="text-neutral-500">highlights</span>
-                </span>
-              </div>
-            </div>
-          </NuxtLink>
-        </div>
-      </div>
+      </NuxtLink>
     </div>
 
     <!-- Create Tournament Modal -->
     <Teleport to="body">
-      <div v-if="showCreateModal" class="fixed inset-0 z-50 overflow-y-auto">
-        <div class="fixed inset-0 bg-black/50" @click="showCreateModal = false"></div>
-        <div class="relative min-h-screen flex items-center justify-center p-4">
-          <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-lg p-6">
-            <h3 class="text-xl font-semibold mb-6">Create Tournament</h3>
-
-            <form @submit.prevent="createTournament" class="space-y-4">
-              <div>
-                <label class="block text-sm font-medium text-neutral-700 mb-1">Name *</label>
-                <input
-                  v-model="form.name"
-                  type="text"
-                  class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  placeholder="e.g., Summer Cup 2026"
-                  required
-                />
-              </div>
-
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-sm font-medium text-neutral-700 mb-1">Start Date *</label>
-                  <input
-                    v-model="form.start_date"
-                    type="date"
-                    class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    required
-                  />
+      <Transition
+        enter-active-class="transition-opacity duration-200"
+        enter-from-class="opacity-0"
+        enter-to-class="opacity-100"
+        leave-active-class="transition-opacity duration-150"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
+      >
+        <div v-if="showCreateModal" class="fixed inset-0 z-50 overflow-y-auto">
+          <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" @click="closeCreateModal"></div>
+          <div class="relative min-h-screen flex items-center justify-center p-4">
+            <Transition
+              enter-active-class="transition-all duration-200"
+              enter-from-class="opacity-0 scale-95"
+              enter-to-class="opacity-100 scale-100"
+              leave-active-class="transition-all duration-150"
+              leave-from-class="opacity-100 scale-100"
+              leave-to-class="opacity-0 scale-95"
+            >
+              <div v-if="showCreateModal" class="relative bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden">
+                <!-- Modal Header -->
+                <div class="px-6 py-4 border-b border-neutral-200 bg-gradient-to-r from-primary-50 to-emerald-50">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-emerald-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary-500/25">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h3 class="font-semibold text-neutral-900">Create Tournament</h3>
+                        <p class="text-sm text-neutral-500">Add a new tournament to manage videos</p>
+                      </div>
+                    </div>
+                    <button
+                      @click="closeCreateModal"
+                      class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-neutral-100 text-neutral-400 hover:text-neutral-600 transition-colors"
+                    >
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
-                <div>
-                  <label class="block text-sm font-medium text-neutral-700 mb-1">End Date *</label>
-                  <input
-                    v-model="form.end_date"
-                    type="date"
-                    class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    required
-                  />
-                </div>
-              </div>
 
-              <div>
-                <label class="block text-sm font-medium text-neutral-700 mb-1">Location</label>
-                <input
-                  v-model="form.location"
-                  type="text"
-                  class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  placeholder="e.g., Lagos, Nigeria"
-                />
-              </div>
+                <!-- Modal Body -->
+                <form @submit.prevent="createTournament" class="p-6 space-y-5">
+                  <!-- Tournament Name -->
+                  <div>
+                    <label class="block text-sm font-medium text-neutral-700 mb-2">Tournament Name *</label>
+                    <input
+                      v-model="form.name"
+                      type="text"
+                      placeholder="e.g., Summer Cup 2026"
+                      class="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                      required
+                    />
+                  </div>
 
-              <div>
-                <label class="block text-sm font-medium text-neutral-700 mb-1">Description</label>
-                <textarea
-                  v-model="form.description"
-                  rows="3"
-                  class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
-                  placeholder="Brief description of the tournament..."
-                ></textarea>
-              </div>
+                  <!-- Date Range -->
+                  <div class="grid grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-sm font-medium text-neutral-700 mb-2">Start Date *</label>
+                      <input
+                        v-model="form.start_date"
+                        type="date"
+                        class="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-neutral-700 mb-2">End Date *</label>
+                      <input
+                        v-model="form.end_date"
+                        type="date"
+                        class="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                        required
+                      />
+                    </div>
+                  </div>
 
-              <div class="flex justify-end gap-3 pt-4">
-                <button
-                  type="button"
-                  @click="showCreateModal = false"
-                  class="px-4 py-2.5 border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  :disabled="creating"
-                  class="px-6 py-2.5 bg-gradient-to-r from-primary-500 to-emerald-600 text-white rounded-xl font-medium hover:from-primary-600 hover:to-emerald-700 transition-all disabled:opacity-50"
-                >
-                  {{ creating ? 'Creating...' : 'Create Tournament' }}
-                </button>
+                  <!-- Location Section -->
+                  <div class="space-y-4">
+                    <div class="flex items-center gap-2 text-sm font-medium text-neutral-700">
+                      <svg class="w-4 h-4 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      Location
+                    </div>
+
+                    <!-- Country Dropdown -->
+                    <div>
+                      <label class="block text-sm font-medium text-neutral-700 mb-2">Country</label>
+                      <div class="relative">
+                        <select
+                          v-model="form.country"
+                          @change="onCountryChange"
+                          class="appearance-none w-full px-4 py-3 pr-10 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                        >
+                          <option value="">Select country</option>
+                          <option v-for="country in AFRICAN_COUNTRIES" :key="country" :value="country">
+                            {{ country }}
+                          </option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                          <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- State/City Row -->
+                    <div class="grid grid-cols-2 gap-4">
+                      <!-- State Dropdown -->
+                      <div>
+                        <label class="block text-sm font-medium text-neutral-700 mb-2">State/Region</label>
+                        <div v-if="countryHasLocationData && availableStates.length > 0" class="relative">
+                          <select
+                            v-model="form.state"
+                            @change="onStateChange"
+                            :disabled="!form.country"
+                            class="appearance-none w-full px-4 py-3 pr-10 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all disabled:bg-neutral-100 disabled:cursor-not-allowed"
+                          >
+                            <option value="">Select state</option>
+                            <option v-for="state in availableStates" :key="state" :value="state">
+                              {{ state }}
+                            </option>
+                          </select>
+                          <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </div>
+                        </div>
+                        <input
+                          v-else
+                          v-model="form.state"
+                          type="text"
+                          :disabled="!form.country"
+                          placeholder="Enter state"
+                          class="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all disabled:bg-neutral-100 disabled:cursor-not-allowed"
+                        />
+                      </div>
+
+                      <!-- City Dropdown -->
+                      <div>
+                        <label class="block text-sm font-medium text-neutral-700 mb-2">City</label>
+                        <div v-if="countryHasLocationData && availableCities.length > 0" class="relative">
+                          <select
+                            v-model="form.city"
+                            :disabled="!form.state"
+                            class="appearance-none w-full px-4 py-3 pr-10 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all disabled:bg-neutral-100 disabled:cursor-not-allowed"
+                          >
+                            <option value="">Select city</option>
+                            <option v-for="city in availableCities" :key="city" :value="city">
+                              {{ city }}
+                            </option>
+                          </select>
+                          <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </div>
+                        </div>
+                        <input
+                          v-else
+                          v-model="form.city"
+                          type="text"
+                          :disabled="!form.country"
+                          placeholder="Enter city"
+                          class="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all disabled:bg-neutral-100 disabled:cursor-not-allowed"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Description -->
+                  <div>
+                    <label class="block text-sm font-medium text-neutral-700 mb-2">Description</label>
+                    <textarea
+                      v-model="form.description"
+                      rows="3"
+                      placeholder="Brief description of the tournament..."
+                      class="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all resize-none"
+                    ></textarea>
+                  </div>
+
+                  <!-- Modal Footer -->
+                  <div class="flex gap-3 pt-4 border-t border-neutral-100">
+                    <button
+                      type="button"
+                      @click="closeCreateModal"
+                      class="flex-1 px-4 py-3 border border-neutral-300 text-neutral-700 rounded-xl text-sm font-medium hover:bg-neutral-50 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      :disabled="creating"
+                      class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-primary-600 to-emerald-600 text-white rounded-xl text-sm font-semibold hover:from-primary-700 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-primary-600/25"
+                    >
+                      <svg v-if="creating" class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" />
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                      </svg>
+                      {{ creating ? 'Creating...' : 'Create Tournament' }}
+                    </button>
+                  </div>
+                </form>
               </div>
-            </form>
+            </Transition>
           </div>
         </div>
-      </div>
+      </Transition>
     </Teleport>
   </div>
 </template>
 
 <script setup lang="ts">
 import type { ApiResponse } from '~/types/index'
+import { AFRICAN_COUNTRIES, getStatesForCountry, getCitiesForState, hasLocationData } from '~/data/locations'
 
 interface Tournament {
   id: string
@@ -349,18 +489,57 @@ const form = reactive({
   name: '',
   start_date: '',
   end_date: '',
-  location: '',
+  country: '',
+  state: '',
+  city: '',
   description: '',
 })
 
+// Location helpers
+const countryHasLocationData = computed(() => hasLocationData(form.country))
+const availableStates = computed(() => getStatesForCountry(form.country))
+const availableCities = computed(() => getCitiesForState(form.country, form.state))
+
+function onCountryChange() {
+  form.state = ''
+  form.city = ''
+}
+
+function onStateChange() {
+  form.city = ''
+}
+
+function openCreateModal() {
+  // Reset form
+  form.name = ''
+  form.start_date = ''
+  form.end_date = ''
+  form.country = ''
+  form.state = ''
+  form.city = ''
+  form.description = ''
+  showCreateModal.value = true
+}
+
+function closeCreateModal() {
+  showCreateModal.value = false
+}
+
+// Build location string from parts
+function buildLocationString(): string {
+  const parts = [form.city, form.state, form.country].filter(Boolean)
+  return parts.join(', ')
+}
+
 async function fetchTournaments() {
   try {
-    const response = await $fetch<ApiResponse<{ tournaments: Tournament[] }>>('/admin/events', {
+    const response = await $fetch<ApiResponse<{ events: Tournament[] }>>('/admin/events', {
       baseURL: config.public.apiBase,
       headers: { Authorization: `Bearer ${authStore.accessToken}` },
     })
     if (response.success && response.data) {
-      tournaments.value = response.data.tournaments || []
+      // Backend returns "events" not "tournaments"
+      tournaments.value = response.data.events || []
       
       // Calculate aggregate stats from tournaments
       stats.value = {
@@ -380,15 +559,28 @@ async function fetchTournaments() {
 async function createTournament() {
   creating.value = true
   try {
+    // Extract year from start_date
+    const year = form.start_date ? new Date(form.start_date).getFullYear() : new Date().getFullYear()
+    
+    const payload = {
+      name: form.name,
+      year: year,
+      start_date: form.start_date,
+      end_date: form.end_date,
+      location: buildLocationString() || undefined,
+      country: form.country || undefined,
+      description: form.description || undefined,
+    }
+    
     const response = await $fetch<ApiResponse<Tournament>>('/admin/events', {
       baseURL: config.public.apiBase,
       method: 'POST',
       headers: { Authorization: `Bearer ${authStore.accessToken}` },
-      body: form,
+      body: payload,
     })
     if (response.success && response.data) {
       toast.success('Tournament Created', 'Tournament has been created successfully')
-      showCreateModal.value = false
+      closeCreateModal()
       router.push(`/admin/tournaments/${response.data.id}`)
     }
   } catch (error: any) {

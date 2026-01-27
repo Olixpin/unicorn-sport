@@ -1,105 +1,140 @@
 <template>
-  <div class="min-h-screen bg-neutral-50">
-    <!-- Header -->
-    <div class="bg-white border-b border-neutral-200 sticky top-0 z-10">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-4">
-            <NuxtLink
-              to="/admin/tournaments"
-              class="flex items-center gap-2 text-neutral-600 hover:text-neutral-900 transition-colors"
-            >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-              </svg>
-              Back to Tournaments
-            </NuxtLink>
+  <div class="max-w-7xl mx-auto">
+    <!-- Page Header -->
+    <div class="mb-8">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <NuxtLink 
+            to="/admin/tournaments" 
+            class="w-10 h-10 flex items-center justify-center rounded-xl bg-neutral-100 hover:bg-neutral-200 text-neutral-600 transition-colors"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+          </NuxtLink>
+          <div>
+            <h1 class="font-display text-2xl lg:text-3xl font-bold text-neutral-900">
+              Tournament Details
+            </h1>
+            <p class="mt-1 text-neutral-600">Manage matches and upload videos</p>
           </div>
-          <div class="flex items-center gap-3">
-            <button
-              @click="showEditModal = true"
-              class="flex items-center gap-2 px-4 py-2 bg-neutral-100 text-neutral-700 rounded-lg hover:bg-neutral-200 transition-colors"
-            >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-              </svg>
-              Edit
-            </button>
-          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <button
+            @click="showEditModal = true"
+            class="inline-flex items-center gap-2 px-5 py-2.5 bg-neutral-100 text-neutral-700 rounded-xl text-sm font-semibold hover:bg-neutral-200 transition-colors"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+            </svg>
+            Edit Tournament
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- Loading -->
-    <div v-if="loading" class="flex justify-center items-center h-64">
-      <div class="animate-spin rounded-full h-12 w-12 border-4 border-primary-500 border-t-transparent"></div>
+    <!-- Loading State -->
+    <div v-if="loading" class="flex flex-col items-center justify-center py-20">
+      <div class="w-12 h-12 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin"></div>
+      <p class="mt-4 text-neutral-600">Loading tournament...</p>
     </div>
 
     <!-- Content -->
-    <div v-else-if="tournament" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div v-else-if="tournament" class="space-y-6">
       <!-- Tournament Header -->
-      <div class="bg-white rounded-2xl border border-neutral-200 p-6 mb-6">
-        <div class="flex flex-col md:flex-row md:items-start gap-6">
-          <!-- Thumbnail -->
-          <div class="w-full md:w-64 h-40 bg-gradient-to-br from-primary-500 to-emerald-600 rounded-xl flex items-center justify-center overflow-hidden">
-            <img
-              v-if="tournament.thumbnail_url"
-              :src="tournament.thumbnail_url"
-              :alt="tournament.name"
-              class="w-full h-full object-cover"
-            />
-            <svg v-else class="w-16 h-16 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-            </svg>
-          </div>
-
-          <!-- Info -->
-          <div class="flex-1">
-            <div class="flex items-center gap-3 mb-2">
-              <h1 class="text-2xl font-bold text-neutral-900">{{ tournament.name }}</h1>
-              <span :class="getStatusClass(tournament.status)" class="px-3 py-1 rounded-full text-sm font-medium capitalize">
-                {{ tournament.status }}
-              </span>
+      <!-- Tournament Header Card -->
+      <div class="bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-neutral-200 bg-gradient-to-r from-primary-50 to-emerald-50">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-emerald-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary-500/25">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+              </svg>
             </div>
-            <p v-if="tournament.description" class="text-neutral-600 mb-4">{{ tournament.description }}</p>
-            <div class="flex flex-wrap items-center gap-6 text-sm text-neutral-600">
-              <span class="flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                {{ formatDateRange(tournament.start_date, tournament.end_date) }}
-              </span>
-              <span v-if="tournament.location" class="flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                </svg>
-                {{ tournament.location }}
-              </span>
-              <span class="flex items-center gap-2 font-medium text-primary-600">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-                {{ matches.length }} matches
-              </span>
+            <div>
+              <h2 class="font-semibold text-neutral-900">Tournament Overview</h2>
+              <p class="text-sm text-neutral-500">Details and stats</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="p-6">
+          <div class="flex flex-col md:flex-row md:items-start gap-6">
+            <!-- Thumbnail -->
+            <div class="w-full md:w-64 h-40 bg-gradient-to-br from-primary-500 to-emerald-600 rounded-xl flex items-center justify-center overflow-hidden">
+              <img
+                v-if="tournament.thumbnail_url"
+                :src="tournament.thumbnail_url"
+                :alt="tournament.name"
+                class="w-full h-full object-cover"
+              />
+              <svg v-else class="w-16 h-16 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+              </svg>
+            </div>
+
+            <!-- Info -->
+            <div class="flex-1">
+              <div class="flex items-center gap-3 mb-2">
+                <h3 class="text-xl font-bold text-neutral-900">{{ tournament.name }}</h3>
+                <span :class="getStatusClass(tournament.status)" class="px-3 py-1 rounded-full text-sm font-medium capitalize">
+                  {{ tournament.status }}
+                </span>
+              </div>
+              <p v-if="tournament.description" class="text-neutral-600 mb-4">{{ tournament.description }}</p>
+              <div class="flex flex-wrap items-center gap-6 text-sm text-neutral-600">
+                <span class="flex items-center gap-2">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  {{ formatDateRange(tournament.start_date, tournament.end_date) }}
+                </span>
+                <span v-if="tournament.location" class="flex items-center gap-2">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  </svg>
+                  {{ tournament.location }}
+                </span>
+                <span class="flex items-center gap-2 font-medium text-primary-600">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                  {{ matches.length }} matches
+                </span>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Matches Section -->
-      <div class="bg-white rounded-2xl border border-neutral-200 p-6">
-        <div class="flex items-center justify-between mb-6">
-          <h2 class="text-lg font-semibold text-neutral-900">Matches</h2>
-          <button
-            @click="showCreateMatchModal = true"
-            class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-500 to-emerald-600 text-white rounded-xl font-medium hover:from-primary-600 hover:to-emerald-700 transition-all"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-            </svg>
-            Add Match
-          </button>
+      <div class="bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-neutral-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-500/25">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div>
+                <h2 class="font-semibold text-neutral-900">Matches</h2>
+                <p class="text-sm text-neutral-500">Manage matches and upload videos</p>
+              </div>
+            </div>
+            <button
+              @click="showCreateMatchModal = true"
+              class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-600 to-emerald-600 text-white rounded-xl text-sm font-semibold hover:from-primary-700 hover:to-emerald-700 transition-all shadow-lg shadow-primary-600/25"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Add Match
+            </button>
+          </div>
         </div>
+
+        <div class="p-6">
 
         <!-- Empty State -->
         <div v-if="matches.length === 0" class="text-center py-12">
@@ -188,6 +223,7 @@
             </div>
           </NuxtLink>
         </div>
+        </div>
       </div>
     </div>
 
@@ -238,9 +274,12 @@
                   <input
                     v-model="matchForm.match_date"
                     type="datetime-local"
-                    class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    :min="matchDateMin ? matchDateMin + 'T00:00' : undefined"
+                    :max="matchDateMax ? matchDateMax + 'T23:59' : undefined"
+                    :class="['w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent', !isMatchDateValid ? 'border-rose-300 bg-rose-50' : 'border-neutral-200']"
                     required
                   />
+                  <p v-if="matchDateError" class="mt-1 text-xs text-rose-600">{{ matchDateError }}</p>
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-neutral-700 mb-1">Stage</label>
@@ -278,8 +317,8 @@
                 </button>
                 <button
                   type="submit"
-                  :disabled="creatingMatch"
-                  class="px-6 py-2.5 bg-gradient-to-r from-primary-500 to-emerald-600 text-white rounded-xl font-medium hover:from-primary-600 hover:to-emerald-700 transition-all disabled:opacity-50"
+                  :disabled="creatingMatch || !isMatchDateValid"
+                  class="px-6 py-2.5 bg-gradient-to-r from-primary-500 to-emerald-600 text-white rounded-xl font-medium hover:from-primary-600 hover:to-emerald-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {{ creatingMatch ? 'Creating...' : 'Create Match' }}
                 </button>
@@ -352,15 +391,42 @@ const matchForm = reactive({
   location: '',
 })
 
+// Match date validation - must be within tournament dates
+const matchDateMin = computed(() => {
+  if (!tournament.value?.start_date) return ''
+  return tournament.value.start_date.split('T')[0]
+})
+
+const matchDateMax = computed(() => {
+  if (!tournament.value?.end_date) return ''
+  return tournament.value.end_date.split('T')[0]
+})
+
+const isMatchDateValid = computed(() => {
+  if (!matchForm.match_date || !tournament.value) return true
+  const matchDate = new Date(matchForm.match_date)
+  const startDate = new Date(tournament.value.start_date)
+  const endDate = new Date(tournament.value.end_date)
+  // Set to start/end of day for comparison
+  startDate.setHours(0, 0, 0, 0)
+  endDate.setHours(23, 59, 59, 999)
+  return matchDate >= startDate && matchDate <= endDate
+})
+
+const matchDateError = computed(() => {
+  if (!matchForm.match_date || isMatchDateValid.value) return ''
+  return `Match date must be between ${formatDate(tournament.value!.start_date)} and ${formatDate(tournament.value!.end_date)}`
+})
+
 async function fetchTournament() {
   try {
-    // For now, use the events endpoint
-    const response = await $fetch<ApiResponse<{ tournaments: Tournament[] }>>('/admin/events', {
+    // Backend returns "events" not "tournaments"
+    const response = await $fetch<ApiResponse<{ events: Tournament[] }>>('/admin/events', {
       baseURL: config.public.apiBase,
       headers: { Authorization: `Bearer ${authStore.accessToken}` },
     })
     if (response.success && response.data) {
-      tournament.value = response.data.tournaments?.find(t => t.id === tournamentId) || null
+      tournament.value = response.data.events?.find(t => t.id === tournamentId) || null
     }
   } catch (error) {
     console.error('Failed to fetch tournament:', error)
