@@ -351,7 +351,7 @@
             <!-- Add Highlight Button -->
             <button
               v-if="players.length > 0 && !isFutureMatch"
-              @click="showAddHighlightPicker = true"
+              @click="handleAddHighlight"
               class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors text-sm font-medium"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -443,7 +443,7 @@
           <p class="text-sm mb-4" v-else>Capture the best moments from this match</p>
           <button
             v-if="players.length > 0 && !isFutureMatch"
-            @click="showAddHighlightPicker = true"
+            @click="handleAddHighlight"
             class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors text-sm font-medium"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1590,6 +1590,20 @@ async function removePlayer(player: MatchPlayer) {
 function openHighlightUpload(player: MatchPlayer) {
   selectedPlayerForHighlight.value = player
   showHighlightUploadModal.value = true
+}
+
+// Smart add highlight - if player is already filtered, skip picker
+function handleAddHighlight() {
+  if (highlightPlayerFilter.value) {
+    // Find the player from the filter
+    const filteredPlayer = players.value.find(p => p.player_id === highlightPlayerFilter.value)
+    if (filteredPlayer) {
+      openHighlightUpload(filteredPlayer)
+      return
+    }
+  }
+  // Otherwise show the player picker
+  showAddHighlightPicker.value = true
 }
 
 function selectPlayerForHighlight(player: MatchPlayer) {
