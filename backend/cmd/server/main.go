@@ -299,8 +299,8 @@ func setupRouter(
 				adminRoutes.POST("/highlights", highlightsModule.CreateHighlight)
 
 				// Highlight CRUD
-				adminRoutes.GET("/players/:playerId/highlights", highlightsModule.ListPlayerHighlights)
-				adminRoutes.GET("/matches/:matchId/highlights", highlightsModule.ListMatchHighlights)
+				adminRoutes.GET("/players/:id/highlights", highlightsModule.ListPlayerHighlights)
+				adminRoutes.GET("/matches/:id/highlights", highlightsModule.ListMatchHighlights)
 				adminRoutes.PUT("/highlights/:id", highlightsModule.UpdateHighlight)
 				adminRoutes.DELETE("/highlights/:id", highlightsModule.DeleteHighlight)
 

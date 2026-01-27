@@ -216,7 +216,7 @@ func (m *Module) CreateHighlight(c *gin.Context) {
 
 // ListPlayerHighlights lists all highlights for a player
 func (m *Module) ListPlayerHighlights(c *gin.Context) {
-	playerID := c.Param("playerId")
+	playerID := c.Param("id")
 	pid, err := uuid.Parse(playerID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Invalid player ID"})
@@ -266,7 +266,7 @@ func (m *Module) ListPlayerHighlights(c *gin.Context) {
 
 // ListMatchHighlights lists all highlights for a match
 func (m *Module) ListMatchHighlights(c *gin.Context) {
-	matchID := c.Param("matchId")
+	matchID := c.Param("id")
 	mid, err := uuid.Parse(matchID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Invalid match ID"})
