@@ -29,3 +29,6 @@ vendor/
 # Temporary files
 *.tmp
 *.swp
+
+# Backend build output
+backend/bin/
