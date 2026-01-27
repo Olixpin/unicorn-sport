@@ -91,10 +91,10 @@ func (m *AdminModule) ListAcademies(c *gin.Context) {
 	// Build query
 	query := m.db.Model(&domain.Academy{})
 
-	// Search filter (name or city)
+	// Search filter (name, city, or country)
 	if search := c.Query("q"); search != "" {
 		searchPattern := "%" + strings.ToLower(search) + "%"
-		query = query.Where("LOWER(name) LIKE ? OR LOWER(city) LIKE ?", searchPattern, searchPattern)
+		query = query.Where("LOWER(name) LIKE ? OR LOWER(city) LIKE ? OR LOWER(country) LIKE ?", searchPattern, searchPattern, searchPattern)
 	}
 
 	// Country filter (case-insensitive)
