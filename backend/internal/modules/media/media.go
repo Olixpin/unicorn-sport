@@ -63,7 +63,7 @@ func (m *MediaModule) GetS3Client() *s3.Client {
 
 // InitUploadRequest initiates a new upload session
 type InitUploadRequest struct {
-	UploadType  string `json:"upload_type" binding:"required,oneof=highlight full_match thumbnail"`
+	UploadType  string `json:"upload_type" binding:"required,oneof=highlight full_match thumbnail profile_photo"`
 	FileName    string `json:"file_name" binding:"required"`
 	ContentType string `json:"content_type" binding:"required"`
 	FileSize    int64  `json:"file_size" binding:"required"`
