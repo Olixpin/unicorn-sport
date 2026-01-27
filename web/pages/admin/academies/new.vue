@@ -191,11 +191,32 @@
               </div>
               <div>
                 <label class="block text-sm font-medium text-neutral-700 mb-2">State/Region</label>
+                <!-- Dropdown when country has predefined states -->
+                <div v-if="countryHasLocationData && availableStates.length > 0" class="relative">
+                  <select
+                    v-model="form.state"
+                    :disabled="!form.country"
+                    class="appearance-none w-full px-4 py-3 pr-10 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all disabled:bg-neutral-100 disabled:cursor-not-allowed"
+                  >
+                    <option value="">Select state/region</option>
+                    <option v-for="state in availableStates" :key="state" :value="state">
+                      {{ state }}
+                    </option>
+                  </select>
+                  <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+                <!-- Text input fallback for countries without predefined data -->
                 <input
+                  v-else
                   v-model="form.state"
                   type="text"
-                  placeholder="Lagos State"
-                  class="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                  :disabled="!form.country"
+                  placeholder="Enter state/region"
+                  class="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all disabled:bg-neutral-100 disabled:cursor-not-allowed"
                 />
               </div>
             </div>
@@ -203,11 +224,32 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
                 <label class="block text-sm font-medium text-neutral-700 mb-2">City</label>
+                <!-- Dropdown when state has predefined cities -->
+                <div v-if="countryHasLocationData && availableCities.length > 0" class="relative">
+                  <select
+                    v-model="form.city"
+                    :disabled="!form.state"
+                    class="appearance-none w-full px-4 py-3 pr-10 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all disabled:bg-neutral-100 disabled:cursor-not-allowed"
+                  >
+                    <option value="">Select city</option>
+                    <option v-for="city in availableCities" :key="city" :value="city">
+                      {{ city }}
+                    </option>
+                  </select>
+                  <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+                <!-- Text input fallback -->
                 <input
+                  v-else
                   v-model="form.city"
                   type="text"
-                  placeholder="Lagos"
-                  class="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                  :disabled="!form.country"
+                  placeholder="Enter city"
+                  class="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all disabled:bg-neutral-100 disabled:cursor-not-allowed"
                 />
               </div>
               <div>
@@ -373,7 +415,7 @@
 
 <script setup lang="ts">
 import { academySchema, type AcademyFormData } from '~/schemas/academy'
-import { AFRICAN_COUNTRIES } from '~/schemas/player'
+import { AFRICAN_COUNTRIES, getStatesForCountry, getCitiesForState, hasLocationData } from '~/data/locations'
 import type { ApiResponse } from '~/types/index'
 
 definePageMeta({
@@ -403,6 +445,32 @@ const form = reactive<Partial<AcademyFormData> & { is_verified?: boolean }>({
 
 const errors = reactive<Record<string, string>>({})
 const submitting = ref(false)
+
+// Computed states based on selected country
+const availableStates = computed(() => {
+  if (!form.country) return []
+  return getStatesForCountry(form.country)
+})
+
+// Computed cities based on selected state
+const availableCities = computed(() => {
+  if (!form.country || !form.state) return []
+  return getCitiesForState(form.country, form.state)
+})
+
+// Check if country has predefined location data
+const countryHasLocationData = computed(() => form.country ? hasLocationData(form.country) : false)
+
+// Watch country changes to reset state and city
+watch(() => form.country, () => {
+  form.state = ''
+  form.city = ''
+})
+
+// Watch state changes to reset city
+watch(() => form.state, () => {
+  form.city = ''
+})
 
 function validateForm(): boolean {
   Object.keys(errors).forEach((key) => delete errors[key])

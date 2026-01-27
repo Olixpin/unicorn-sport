@@ -33,24 +33,69 @@ func NewAdminModule(db *gorm.DB) *AdminModule {
 func (m *AdminModule) GetStats(c *gin.Context) {
 	var totalPlayers int64
 	var verifiedPlayers int64
+	var pendingPlayers int64
+	var totalAcademies int64
+	var verifiedAcademies int64
 	var totalScouts int64
 	var totalVideos int64
 	var totalTournaments int64
 
+	// Current counts
 	m.db.Model(&domain.Player{}).Count(&totalPlayers)
-	m.db.Model(&domain.Player{}).Where("is_verified = ?", true).Count(&verifiedPlayers)
+	m.db.Model(&domain.Player{}).Where("verification_status = ?", "verified").Count(&verifiedPlayers)
+	m.db.Model(&domain.Player{}).Where("verification_status = ?", "pending").Count(&pendingPlayers)
+	m.db.Model(&domain.Academy{}).Count(&totalAcademies)
+	m.db.Model(&domain.Academy{}).Where("is_verified = ?", true).Count(&verifiedAcademies)
 	m.db.Model(&domain.User{}).Where("role = ?", "scout").Count(&totalScouts)
 	m.db.Model(&domain.Video{}).Count(&totalVideos)
 	m.db.Model(&domain.Tournament{}).Count(&totalTournaments)
 
+	// Calculate growth (last 30 days vs previous 30 days)
+	now := time.Now()
+	thirtyDaysAgo := now.AddDate(0, 0, -30)
+	sixtyDaysAgo := now.AddDate(0, 0, -60)
+
+	var playersLast30 int64
+	var playersPrev30 int64
+	var academiesLast30 int64
+	var academiesPrev30 int64
+	var scoutsLast30 int64
+	var scoutsPrev30 int64
+
+	m.db.Model(&domain.Player{}).Where("created_at >= ?", thirtyDaysAgo).Count(&playersLast30)
+	m.db.Model(&domain.Player{}).Where("created_at >= ? AND created_at < ?", sixtyDaysAgo, thirtyDaysAgo).Count(&playersPrev30)
+	m.db.Model(&domain.Academy{}).Where("created_at >= ?", thirtyDaysAgo).Count(&academiesLast30)
+	m.db.Model(&domain.Academy{}).Where("created_at >= ? AND created_at < ?", sixtyDaysAgo, thirtyDaysAgo).Count(&academiesPrev30)
+	m.db.Model(&domain.User{}).Where("role = ? AND created_at >= ?", "scout", thirtyDaysAgo).Count(&scoutsLast30)
+	m.db.Model(&domain.User{}).Where("role = ? AND created_at >= ? AND created_at < ?", "scout", sixtyDaysAgo, thirtyDaysAgo).Count(&scoutsPrev30)
+
+	// Calculate percentage growth
+	calcGrowth := func(current, previous int64) float64 {
+		if previous == 0 {
+			if current > 0 {
+				return 100.0
+			}
+			return 0.0
+		}
+		return float64(current-previous) / float64(previous) * 100
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"data": gin.H{
-			"total_players":    totalPlayers,
-			"verified_players": verifiedPlayers,
-			"total_scouts":     totalScouts,
-			"total_videos":     totalVideos,
-			"total_events":     totalTournaments,
+			"total_players":      totalPlayers,
+			"verified_players":   verifiedPlayers,
+			"pending_players":    pendingPlayers,
+			"total_academies":    totalAcademies,
+			"verified_academies": verifiedAcademies,
+			"total_scouts":       totalScouts,
+			"total_videos":       totalVideos,
+			"total_events":       totalTournaments,
+			"growth": gin.H{
+				"players":   calcGrowth(playersLast30, playersPrev30),
+				"academies": calcGrowth(academiesLast30, academiesPrev30),
+				"scouts":    calcGrowth(scoutsLast30, scoutsPrev30),
+			},
 		},
 	})
 }

@@ -223,11 +223,32 @@
               </div>
               <div>
                 <label class="block text-sm font-medium text-neutral-700 mb-2">State/Region</label>
+                <!-- Dropdown when country has predefined states -->
+                <div v-if="countryHasLocationData && availableStates.length > 0" class="relative">
+                  <select
+                    v-model="form.state"
+                    :disabled="!form.country"
+                    class="appearance-none w-full px-4 py-3 pr-10 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all disabled:bg-neutral-100 disabled:cursor-not-allowed"
+                  >
+                    <option value="">Select state/region</option>
+                    <option v-for="state in availableStates" :key="state" :value="state">
+                      {{ state }}
+                    </option>
+                  </select>
+                  <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+                <!-- Text input fallback for countries without predefined data -->
                 <input
+                  v-else
                   v-model="form.state"
                   type="text"
-                  placeholder="Lagos State"
-                  class="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                  :disabled="!form.country"
+                  placeholder="Enter state/region"
+                  class="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all disabled:bg-neutral-100 disabled:cursor-not-allowed"
                 />
               </div>
             </div>
@@ -235,11 +256,32 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
                 <label class="block text-sm font-medium text-neutral-700 mb-2">City</label>
+                <!-- Dropdown when state has predefined cities -->
+                <div v-if="countryHasLocationData && availableCities.length > 0" class="relative">
+                  <select
+                    v-model="form.city"
+                    :disabled="!form.state"
+                    class="appearance-none w-full px-4 py-3 pr-10 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all disabled:bg-neutral-100 disabled:cursor-not-allowed"
+                  >
+                    <option value="">Select city</option>
+                    <option v-for="city in availableCities" :key="city" :value="city">
+                      {{ city }}
+                    </option>
+                  </select>
+                  <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+                <!-- Text input fallback -->
                 <input
+                  v-else
                   v-model="form.city"
                   type="text"
-                  placeholder="Lagos"
-                  class="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                  :disabled="!form.country"
+                  placeholder="Enter city"
+                  class="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all disabled:bg-neutral-100 disabled:cursor-not-allowed"
                 />
               </div>
               <div>
@@ -247,13 +289,18 @@
                 <div class="relative">
                   <select
                     v-model="form.academy_id"
-                    class="appearance-none w-full px-4 py-3 pr-10 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
-                    :disabled="loadingAcademies"
+                    :disabled="loadingAcademies || !form.country"
+                    :class="[
+                      'appearance-none w-full px-4 py-3 pr-10 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all',
+                      loadingAcademies || !form.country ? 'bg-neutral-100 cursor-not-allowed' : 'bg-neutral-50 border-neutral-200'
+                    ]"
                   >
-                    <option value="">{{ loadingAcademies ? 'Loading...' : 'Select academy' }}</option>
-                    <option v-for="academy in academies" :key="academy.id" :value="academy.id">
-                      {{ academy.name }} ({{ academy.country }})
-                      <template v-if="academy.is_verified">✓</template>
+                    <option value="" disabled v-if="loadingAcademies">Loading...</option>
+                    <option value="" v-else-if="!form.country">Select a country first</option>
+                    <option value="" v-else-if="filteredAcademies.length === 0">No academies in {{ form.country }}</option>
+                    <option value="">No academy assigned</option>
+                    <option v-for="academy in filteredAcademies" :key="academy.id" :value="academy.id">
+                      {{ academy.name }}
                     </option>
                   </select>
                   <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -266,7 +313,18 @@
                     </svg>
                   </div>
                 </div>
-                <p class="mt-1.5 text-xs text-neutral-500">Link player to a registered academy</p>
+                <div class="mt-1.5 flex items-center justify-between">
+                  <p class="text-xs text-neutral-500">Link player to a registered academy</p>
+                  <NuxtLink 
+                    to="/admin/academies/new" 
+                    class="text-xs font-medium text-primary-600 hover:text-primary-700 flex items-center gap-1 hover:underline"
+                  >
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Add new
+                  </NuxtLink>
+                </div>
               </div>
             </div>
           </div>
@@ -477,7 +535,8 @@
 </template>
 
 <script setup lang="ts">
-import { PLAYER_POSITIONS, AFRICAN_COUNTRIES } from '~/schemas/player'
+import { PLAYER_POSITIONS } from '~/schemas/player'
+import { AFRICAN_COUNTRIES, getStatesForCountry, getCitiesForState, hasLocationData } from '~/data/locations'
 import type { Player, ApiResponse } from '~/types/index'
 
 definePageMeta({
@@ -518,7 +577,48 @@ const form = reactive({
 
 // Academies list for dropdown
 const academies = ref<Array<{ id: string; name: string; country: string; is_verified: boolean }>>([])
+const allAcademies = ref<Array<{ id: string; name: string; country: string; is_verified: boolean }>>([])
 const loadingAcademies = ref(false)
+
+// Computed states based on selected country
+const availableStates = computed(() => {
+  if (!form.country) return []
+  return getStatesForCountry(form.country)
+})
+
+// Computed cities based on selected state
+const availableCities = computed(() => {
+  if (!form.country || !form.state) return []
+  return getCitiesForState(form.country, form.state)
+})
+
+// Filter academies by selected country
+const filteredAcademies = computed(() => {
+  if (!form.country) return allAcademies.value
+  return allAcademies.value.filter(a => a.country === form.country)
+})
+
+// Check if country has predefined location data
+const countryHasLocationData = computed(() => hasLocationData(form.country))
+
+// Track if initial load is complete to avoid resetting on load
+const initialLoadComplete = ref(false)
+
+// Watch country changes to reset state and city (only after initial load)
+watch(() => form.country, (newVal, oldVal) => {
+  if (initialLoadComplete.value && oldVal !== newVal) {
+    form.state = ''
+    form.city = ''
+    form.academy_id = ''
+  }
+})
+
+// Watch state changes to reset city (only after initial load)
+watch(() => form.state, (newVal, oldVal) => {
+  if (initialLoadComplete.value && oldVal !== newVal) {
+    form.city = ''
+  }
+})
 
 function getInitials(firstName?: string, lastName?: string): string {
   const first = firstName?.charAt(0)?.toUpperCase() || ''
@@ -564,6 +664,10 @@ onMounted(async () => {
         school_name: player.value.school_name || '',
         verification_status: player.value.verification_status || 'pending',
       })
+      // Mark initial load complete after a tick to avoid watchers resetting values
+      nextTick(() => {
+        initialLoadComplete.value = true
+      })
     }
   } catch (error) {
     console.error('Failed to fetch player:', error)
@@ -586,6 +690,7 @@ async function fetchAcademies() {
       },
     })
     if (response.success && response.data?.academies) {
+      allAcademies.value = response.data.academies
       academies.value = response.data.academies
     }
   } catch (error) {

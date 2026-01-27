@@ -36,12 +36,16 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
             </div>
-            <div class="flex items-center gap-1 text-primary-600 text-sm font-medium">
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div v-if="stats.growth.players !== 0" :class="['flex items-center gap-1 text-sm font-medium', stats.growth.players >= 0 ? 'text-primary-600' : 'text-red-500']">
+              <svg v-if="stats.growth.players >= 0" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
               </svg>
-              12%
+              <svg v-else class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
+              {{ Math.abs(stats.growth.players).toFixed(0) }}%
             </div>
+            <span v-else class="text-xs text-neutral-400">—</span>
           </div>
           <div class="space-y-1">
             <p class="text-3xl font-bold text-neutral-900">{{ stats.totalPlayers.toLocaleString() }}</p>
@@ -60,12 +64,16 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
               </svg>
             </div>
-            <div class="flex items-center gap-1 text-amber-600 text-sm font-medium">
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div v-if="stats.growth.academies !== 0" :class="['flex items-center gap-1 text-sm font-medium', stats.growth.academies >= 0 ? 'text-amber-600' : 'text-red-500']">
+              <svg v-if="stats.growth.academies >= 0" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
               </svg>
-              8%
+              <svg v-else class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
+              {{ Math.abs(stats.growth.academies).toFixed(0) }}%
             </div>
+            <span v-else class="text-xs text-neutral-400">—</span>
           </div>
           <div class="space-y-1">
             <p class="text-3xl font-bold text-neutral-900">{{ stats.totalAcademies.toLocaleString() }}</p>
@@ -74,7 +82,7 @@
         </div>
       </div>
 
-      <!-- Subscribers -->
+      <!-- Active Scouts -->
       <div class="group relative bg-white rounded-2xl border border-neutral-200 p-6 hover:shadow-lg hover:shadow-blue-500/5 transition-all duration-300 overflow-hidden">
         <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/5 to-transparent rounded-bl-full"></div>
         <div class="relative">
@@ -84,40 +92,39 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197" />
               </svg>
             </div>
-            <div class="flex items-center gap-1 text-blue-600 text-sm font-medium">
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div v-if="stats.growth.scouts !== 0" :class="['flex items-center gap-1 text-sm font-medium', stats.growth.scouts >= 0 ? 'text-blue-600' : 'text-red-500']">
+              <svg v-if="stats.growth.scouts >= 0" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
               </svg>
-              24%
+              <svg v-else class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
+              {{ Math.abs(stats.growth.scouts).toFixed(0) }}%
             </div>
+            <span v-else class="text-xs text-neutral-400">—</span>
           </div>
           <div class="space-y-1">
-            <p class="text-3xl font-bold text-neutral-900">{{ stats.totalSubscribers.toLocaleString() }}</p>
+            <p class="text-3xl font-bold text-neutral-900">{{ stats.totalScouts.toLocaleString() }}</p>
             <p class="text-sm text-neutral-500">Active Scouts</p>
           </div>
         </div>
       </div>
 
-      <!-- Monthly Revenue -->
+      <!-- Total Videos -->
       <div class="group relative bg-white rounded-2xl border border-neutral-200 p-6 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-300 overflow-hidden">
         <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-500/5 to-transparent rounded-bl-full"></div>
         <div class="relative">
           <div class="flex items-center justify-between mb-4">
             <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/30">
               <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
               </svg>
             </div>
-            <div class="flex items-center gap-1 text-emerald-600 text-sm font-medium">
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-              </svg>
-              18%
-            </div>
+            <span class="text-xs text-neutral-400">Total</span>
           </div>
           <div class="space-y-1">
-            <p class="text-3xl font-bold text-neutral-900">${{ stats.monthlyRevenue.toLocaleString() }}</p>
-            <p class="text-sm text-neutral-500">Monthly Revenue</p>
+            <p class="text-3xl font-bold text-neutral-900">{{ stats.totalVideos.toLocaleString() }}</p>
+            <p class="text-sm text-neutral-500">Player Videos</p>
           </div>
         </div>
       </div>
@@ -229,18 +236,26 @@
               </div>
               <div>
                 <p class="font-medium text-neutral-900">{{ player.first_name }} {{ player.last_name }}</p>
-                <p class="text-sm text-neutral-500">{{ player.position }} • {{ player.country }}</p>
+                <div class="flex items-center gap-2 text-sm text-neutral-500">
+                  <span>{{ player.position }}</span>
+                  <span class="text-neutral-300">•</span>
+                  <span>{{ player.country }}</span>
+                  <template v-if="player.academy">
+                    <span class="text-neutral-300">•</span>
+                    <span class="text-amber-600">{{ player.academy.name }}</span>
+                  </template>
+                </div>
               </div>
             </div>
             <span 
               :class="[
                 'px-3 py-1 rounded-full text-xs font-medium',
-                player.is_verified 
+                player.verification_status === 'verified'
                   ? 'bg-primary-100 text-primary-700' 
                   : 'bg-amber-100 text-amber-700'
               ]"
             >
-              {{ player.is_verified ? 'Verified' : 'Pending' }}
+              {{ player.verification_status === 'verified' ? 'Verified' : 'Pending' }}
             </span>
           </div>
         </div>
@@ -362,19 +377,47 @@ const currentDate = computed(() => {
 const stats = reactive({
   totalPlayers: 0,
   totalAcademies: 0,
-  totalSubscribers: 0,
-  monthlyRevenue: 0,
+  totalScouts: 0,
+  totalVideos: 0,
+  verifiedPlayers: 0,
+  pendingPlayers: 0,
+  growth: {
+    players: 0,
+    academies: 0,
+    scouts: 0,
+  },
 })
 
 const recentPlayers = ref<Player[]>([])
 const pendingContacts = ref<PendingContact[]>([])
 
+interface StatsResponse {
+  total_players: number
+  total_academies: number
+  total_scouts: number
+  total_videos: number
+  verified_players: number
+  pending_players: number
+  growth: {
+    players: number
+    academies: number
+    scouts: number
+  }
+}
+
 async function loadDashboardData() {
   try {
     // Fetch admin stats
-    const statsResponse = await api.get<ApiResponse<typeof stats>>('/admin/stats', {}, true)
+    const statsResponse = await api.get<ApiResponse<StatsResponse>>('/admin/stats', {}, true)
     if (statsResponse.success && statsResponse.data) {
-      Object.assign(stats, statsResponse.data)
+      const data = statsResponse.data
+      stats.totalPlayers = data.total_players || 0
+      stats.totalAcademies = data.total_academies || 0
+      stats.totalScouts = data.total_scouts || 0
+      stats.totalVideos = data.total_videos || 0
+      stats.verifiedPlayers = data.verified_players || 0
+      stats.pendingPlayers = data.pending_players || 0
+      stats.growth = data.growth || { players: 0, academies: 0, scouts: 0 }
     }
 
     // Fetch recent players

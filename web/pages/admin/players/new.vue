@@ -220,34 +220,65 @@
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-neutral-700 mb-2">State/Region</label>
+                  <!-- Dropdown when country has predefined states -->
+                  <div v-if="countryHasLocationData && availableStates.length > 0" class="relative">
+                    <select
+                      v-model="form.state"
+                      :disabled="!form.country"
+                      class="appearance-none w-full px-4 py-3 pr-10 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all disabled:bg-neutral-100 disabled:cursor-not-allowed"
+                    >
+                      <option value="">Select state/region</option>
+                      <option v-for="state in availableStates" :key="state" :value="state">
+                        {{ state }}
+                      </option>
+                    </select>
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                      <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </div>
+                  <!-- Text input fallback for countries without predefined data -->
                   <input
+                    v-else
                     v-model="form.state"
                     type="text"
-                    placeholder="Lagos State"
-                    class="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                    :disabled="!form.country"
+                    placeholder="Enter state/region"
+                    class="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all disabled:bg-neutral-100 disabled:cursor-not-allowed"
                   />
                 </div>
               </div>
 
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <div>
-                  <label class="block text-sm font-medium text-neutral-700 mb-2">City</label>
-                  <input
+              <div>
+                <label class="block text-sm font-medium text-neutral-700 mb-2">City</label>
+                <!-- Dropdown when state has predefined cities -->
+                <div v-if="countryHasLocationData && availableCities.length > 0" class="relative">
+                  <select
                     v-model="form.city"
-                    type="text"
-                    placeholder="Lagos"
-                    class="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
-                  />
+                    :disabled="!form.state"
+                    class="appearance-none w-full px-4 py-3 pr-10 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all disabled:bg-neutral-100 disabled:cursor-not-allowed"
+                  >
+                    <option value="">Select city</option>
+                    <option v-for="city in availableCities" :key="city" :value="city">
+                      {{ city }}
+                    </option>
+                  </select>
+                  <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
                 </div>
-                <div>
-                  <label class="block text-sm font-medium text-neutral-700 mb-2">School Name</label>
-                  <input
-                    v-model="form.school_name"
-                    type="text"
-                    placeholder="Secondary School"
-                    class="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
-                  />
-                </div>
+                <!-- Text input fallback -->
+                <input
+                  v-else
+                  v-model="form.city"
+                  type="text"
+                  :disabled="!form.country"
+                  placeholder="Enter city"
+                  class="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all disabled:bg-neutral-100 disabled:cursor-not-allowed"
+                />
               </div>
             </div>
           </div>
@@ -272,31 +303,123 @@
               <div class="relative">
                 <select
                   v-model="form.academy_id"
-                  class="appearance-none w-full px-4 py-3 pr-10 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                  :disabled="loadingAcademies || !form.country"
+                  :class="[
+                    'appearance-none w-full px-4 py-3 pr-10 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all',
+                    loadingAcademies || !form.country ? 'bg-neutral-100 cursor-not-allowed' : 'bg-neutral-50'
+                  ]"
                 >
+                  <option value="" disabled v-if="loadingAcademies">Loading academies...</option>
+                  <option value="" v-else-if="!form.country">Select a country first</option>
+                  <option value="" v-else-if="filteredAcademies.length === 0">No academies in {{ form.country }}</option>
                   <option value="">No academy assigned</option>
-                  <option v-for="academy in academies" :key="academy.id" :value="academy.id">
+                  <option v-for="academy in filteredAcademies" :key="academy.id" :value="academy.id">
                     {{ academy.name }}
                   </option>
                 </select>
                 <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                  <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg v-if="loadingAcademies" class="w-5 h-5 text-neutral-400 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <svg v-else class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                   </svg>
                 </div>
               </div>
-              <p class="mt-3 text-xs text-neutral-500 flex items-center gap-1.5">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                This links the player to an academy for tracking and management purposes.
-              </p>
+              
+              <!-- Create new academy link -->
+              <div class="mt-3 flex items-center justify-between">
+                <p class="text-xs text-neutral-500 flex items-center gap-1.5">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Links player to an academy for tracking.
+                </p>
+                <NuxtLink 
+                  to="/admin/academies/new" 
+                  class="text-xs font-medium text-primary-600 hover:text-primary-700 flex items-center gap-1 hover:underline"
+                >
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                  </svg>
+                  Create new academy
+                </NuxtLink>
+              </div>
+            </div>
+          </div>
+
+          <!-- Status & Save Section -->
+          <div class="bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-neutral-200 bg-gradient-to-r from-emerald-50 to-green-50">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/25">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <h2 class="font-semibold text-neutral-900">Status & Save</h2>
+                  <p class="text-sm text-neutral-500">Set verification status and create player</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="p-6 space-y-6">
+              <!-- Verification Toggle -->
+              <label class="flex items-center gap-4 cursor-pointer p-4 bg-neutral-50 rounded-xl border border-neutral-200 hover:border-primary-300 transition-colors">
+                <div class="relative">
+                  <input
+                    v-model="form.is_verified"
+                    type="checkbox"
+                    class="sr-only peer"
+                  />
+                  <div class="w-12 h-7 bg-neutral-300 rounded-full peer-checked:bg-emerald-500 transition-colors"></div>
+                  <div class="absolute left-1 top-1 w-5 h-5 bg-white rounded-full shadow peer-checked:translate-x-5 transition-transform"></div>
+                </div>
+                <div class="flex-1">
+                  <span class="text-sm font-semibold text-neutral-900">Mark as Verified</span>
+                  <p class="text-xs text-neutral-500 mt-0.5">Pre-approve this player for immediate visibility to scouts</p>
+                </div>
+                <div class="w-8 h-8 rounded-full flex items-center justify-center" :class="form.is_verified ? 'bg-emerald-100 text-emerald-600' : 'bg-neutral-200 text-neutral-400'">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+              </label>
+
+              <!-- Action Buttons -->
+              <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                <button
+                  type="submit"
+                  :disabled="submitting"
+                  class="flex-1 inline-flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-primary-600 to-emerald-600 text-white rounded-xl text-base font-semibold hover:from-primary-700 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-primary-600/25"
+                >
+                  <svg v-if="submitting" class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" />
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                  </svg>
+                  {{ submitting ? 'Creating Player...' : 'Create Player' }}
+                </button>
+                
+                <NuxtLink to="/admin/players" class="sm:w-auto">
+                  <button
+                    type="button"
+                    class="w-full px-6 py-4 border border-neutral-300 text-neutral-700 rounded-xl text-base font-medium hover:bg-neutral-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </NuxtLink>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Sidebar -->
-        <div class="space-y-6">
+        <!-- Sidebar - Hidden on mobile, shown on desktop -->
+        <div class="hidden lg:block space-y-6 lg:sticky lg:top-6 lg:self-start">
           <!-- Player Preview Card -->
           <div class="bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden">
             <div class="px-6 py-4 border-b border-neutral-200">
@@ -346,37 +469,6 @@
             </div>
           </div>
 
-          <!-- Verification Status -->
-          <div class="bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden">
-            <div class="px-6 py-4 border-b border-neutral-200 bg-gradient-to-r from-emerald-50 to-green-50">
-              <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-gradient-to-br from-emerald-500 to-green-600 rounded-lg flex items-center justify-center text-white shadow-lg shadow-emerald-500/25">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-                  </svg>
-                </div>
-                <h3 class="font-semibold text-neutral-900">Verification</h3>
-              </div>
-            </div>
-            <div class="p-6">
-              <label class="flex items-center gap-3 cursor-pointer">
-                <div class="relative">
-                  <input
-                    v-model="form.is_verified"
-                    type="checkbox"
-                    class="sr-only peer"
-                  />
-                  <div class="w-11 h-6 bg-neutral-200 rounded-full peer-checked:bg-emerald-500 transition-colors"></div>
-                  <div class="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow peer-checked:translate-x-5 transition-transform"></div>
-                </div>
-                <div>
-                  <span class="text-sm font-medium text-neutral-900">Verified Player</span>
-                  <p class="text-xs text-neutral-500">Player will be visible to scouts</p>
-                </div>
-              </label>
-            </div>
-          </div>
-
           <!-- Tips Card -->
           <div class="bg-gradient-to-br from-violet-50 to-purple-50 rounded-2xl border border-violet-100 p-5">
             <div class="flex items-start gap-3">
@@ -405,35 +497,6 @@
             </div>
           </div>
 
-          <!-- Actions -->
-          <div class="bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden">
-            <div class="p-6 space-y-3">
-              <button
-                type="submit"
-                :disabled="submitting"
-                class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-primary-600 to-emerald-600 text-white rounded-xl text-sm font-semibold hover:from-primary-700 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-primary-600/25"
-              >
-                <svg v-if="submitting" class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" />
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                </svg>
-                <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-                {{ submitting ? 'Creating...' : 'Create Player' }}
-              </button>
-              
-              <NuxtLink to="/admin/players" class="block">
-                <button
-                  type="button"
-                  class="w-full px-6 py-3 border border-neutral-300 text-neutral-700 rounded-xl text-sm font-medium hover:bg-neutral-50 transition-colors"
-                >
-                  Cancel
-                </button>
-              </NuxtLink>
-            </div>
-          </div>
-
           <!-- Keyboard Shortcuts -->
           <div class="text-center text-xs text-neutral-400 space-y-1">
             <p><kbd class="px-1.5 py-0.5 bg-neutral-100 rounded text-neutral-500">⌘</kbd> + <kbd class="px-1.5 py-0.5 bg-neutral-100 rounded text-neutral-500">Enter</kbd> to submit</p>
@@ -446,12 +509,14 @@
 </template>
 
 <script setup lang="ts">
-import { playerSchema, PLAYER_POSITIONS, AFRICAN_COUNTRIES } from '~/schemas/player'
+import { playerSchema, PLAYER_POSITIONS } from '~/schemas/player'
+import { AFRICAN_COUNTRIES, getStatesForCountry, getCitiesForState, hasLocationData } from '~/data/locations'
 import type { ApiResponse } from '~/types/index'
 
 interface Academy {
   id: string
   name: string
+  country: string
 }
 
 definePageMeta({
@@ -474,14 +539,48 @@ const form = reactive({
   country: '',
   state: '',
   city: '',
-  school_name: '',
   academy_id: '',
   is_verified: false,
 })
 
 const errors = reactive<Record<string, string>>({})
 const submitting = ref(false)
+const loadingAcademies = ref(true)
 const academies = ref<Academy[]>([])
+const allAcademies = ref<Academy[]>([])
+
+// Computed states based on selected country
+const availableStates = computed(() => {
+  if (!form.country) return []
+  return getStatesForCountry(form.country)
+})
+
+// Computed cities based on selected state
+const availableCities = computed(() => {
+  if (!form.country || !form.state) return []
+  return getCitiesForState(form.country, form.state)
+})
+
+// Filter academies by selected country
+const filteredAcademies = computed(() => {
+  if (!form.country) return allAcademies.value
+  return allAcademies.value.filter(a => a.country === form.country)
+})
+
+// Check if country has predefined location data
+const countryHasLocationData = computed(() => hasLocationData(form.country))
+
+// Watch country changes to reset state and city
+watch(() => form.country, () => {
+  form.state = ''
+  form.city = ''
+  form.academy_id = '' // Reset academy when country changes
+})
+
+// Watch state changes to reset city
+watch(() => form.state, () => {
+  form.city = ''
+})
 
 // Computed player age from DOB
 const playerAge = computed(() => {
@@ -505,6 +604,7 @@ function getInitials(firstName: string, lastName: string): string {
 
 // Fetch academies for dropdown
 onMounted(async () => {
+  loadingAcademies.value = true
   try {
     const response = await $fetch<ApiResponse<{ academies: Academy[] }>>('/admin/academies', {
       baseURL: config.public.apiBase,
@@ -513,10 +613,13 @@ onMounted(async () => {
       },
     })
     if (response.success && response.data) {
-      academies.value = response.data.academies || []
+      allAcademies.value = response.data.academies || []
+      academies.value = allAcademies.value
     }
   } catch (error) {
     console.error('Failed to fetch academies:', error)
+  } finally {
+    loadingAcademies.value = false
   }
 
   // Add keyboard shortcuts
@@ -555,7 +658,6 @@ function validateForm(): boolean {
     country: form.country,
     state: form.state || undefined,
     city: form.city || undefined,
-    school_name: form.school_name || undefined,
     academy_id: form.academy_id || undefined,
   }
 
@@ -600,7 +702,6 @@ async function handleSubmit() {
     if (form.weight_kg) payload.weight_kg = form.weight_kg
     if (form.state) payload.state = form.state
     if (form.city) payload.city = form.city
-    if (form.school_name) payload.school_name = form.school_name
     if (form.academy_id) payload.academy_id = form.academy_id
 
     console.log('Submitting payload:', payload)
