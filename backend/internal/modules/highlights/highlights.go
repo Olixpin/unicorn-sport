@@ -648,6 +648,88 @@ func (m *Module) GetPlayerHighlightsPublic(c *gin.Context) {
 	})
 }
 
+// ListFeaturedHighlights returns latest highlights from all players (public, FREE)
+func (m *Module) ListFeaturedHighlights(c *gin.Context) {
+	limit := 12 // Default limit for homepage grid
+
+	var highlights []domain.PlayerHighlight
+	err := m.DB.Where("status = 'approved'").
+		Preload("Player").
+		Preload("Match").
+		Order("created_at DESC").
+		Limit(limit).
+		Find(&highlights).Error
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Failed to fetch highlights"})
+		return
+	}
+
+	// Build response with stream URLs and thumbnail URLs
+	type highlightResponse struct {
+		ID              uuid.UUID `json:"id"`
+		HighlightType   string    `json:"highlight_type"`
+		Title           *string   `json:"title"`
+		ThumbnailURL    *string   `json:"thumbnail_url"`
+		StreamURL       string    `json:"stream_url"`
+		DurationSeconds *int      `json:"duration_seconds"`
+		ViewCount       int       `json:"view_count"`
+		CreatedAt       time.Time `json:"created_at"`
+		Player          *struct {
+			ID        uuid.UUID `json:"id"`
+			FirstName string    `json:"first_name"`
+			LastName  string    `json:"last_name"`
+			Position  string    `json:"position"`
+		} `json:"player,omitempty"`
+		Match *struct {
+			ID    uuid.UUID `json:"id"`
+			Title string    `json:"title"`
+		} `json:"match,omitempty"`
+	}
+
+	response := make([]highlightResponse, 0, len(highlights))
+	for _, h := range highlights {
+		hr := highlightResponse{
+			ID:              h.ID,
+			HighlightType:   h.HighlightType,
+			Title:           h.Title,
+			ThumbnailURL:    m.getThumbnailURL(h.ThumbnailURL),
+			StreamURL:       m.getStreamURL(h.VideoURL),
+			DurationSeconds: h.DurationSeconds,
+			ViewCount:       h.ViewCount,
+			CreatedAt:       h.CreatedAt,
+		}
+		if h.Player.ID != uuid.Nil {
+			hr.Player = &struct {
+				ID        uuid.UUID `json:"id"`
+				FirstName string    `json:"first_name"`
+				LastName  string    `json:"last_name"`
+				Position  string    `json:"position"`
+			}{
+				ID:        h.Player.ID,
+				FirstName: h.Player.FirstName,
+				LastName:  h.Player.LastName,
+				Position:  h.Player.Position,
+			}
+		}
+		if h.Match != nil {
+			hr.Match = &struct {
+				ID    uuid.UUID `json:"id"`
+				Title string    `json:"title"`
+			}{
+				ID:    h.Match.ID,
+				Title: h.Match.Title,
+			}
+		}
+		response = append(response, hr)
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    response,
+	})
+}
+
 // GetPlayerTournamentAppearances returns tournaments/matches a player participated in
 func (m *Module) GetPlayerTournamentAppearances(c *gin.Context) {
 	playerID := c.Param("id")

@@ -420,6 +420,179 @@
       </div>
     </section>
 
+    <!-- Featured Highlights Section -->
+    <section v-if="featuredHighlights.length > 0" class="py-20 lg:py-28 bg-neutral-950 relative overflow-hidden">
+      <!-- Background Elements -->
+      <div class="absolute inset-0">
+        <div class="absolute top-1/4 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-1/4 left-0 w-72 h-72 bg-primary-500/10 rounded-full blur-3xl"></div>
+      </div>
+
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        <!-- Header -->
+        <div class="flex items-end justify-between mb-12">
+          <div>
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 mb-4">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span class="text-sm text-emerald-400 font-medium">Free to Watch</span>
+            </div>
+            <h2 class="font-display text-3xl lg:text-5xl font-bold text-white">
+              Latest <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-primary-400">Highlights</span>
+            </h2>
+            <p class="mt-3 text-neutral-400 max-w-xl">
+              Watch the best moments from our verified players - goals, skills, saves and more
+            </p>
+          </div>
+          <NuxtLink 
+            to="/discover"
+            class="hidden lg:inline-flex items-center gap-2 text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
+          >
+            View All Players
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </NuxtLink>
+        </div>
+
+        <!-- Highlights Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
+          <div
+            v-for="highlight in featuredHighlights.slice(0, 8)"
+            :key="highlight.id"
+            class="group relative rounded-2xl overflow-hidden cursor-pointer bg-neutral-900"
+            @click="openHighlight(highlight)"
+          >
+            <!-- Thumbnail -->
+            <div class="aspect-video relative">
+              <img
+                v-if="highlight.thumbnail_url"
+                :src="highlight.thumbnail_url"
+                :alt="highlight.title || 'Highlight'"
+                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              />
+              <div v-else class="w-full h-full bg-gradient-to-br from-neutral-800 to-neutral-900 flex items-center justify-center">
+                <span class="text-4xl">{{ getHighlightIcon(highlight.highlight_type) }}</span>
+              </div>
+
+              <!-- Play Button Overlay -->
+              <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <div class="w-14 h-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/30">
+                  <svg class="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </div>
+              </div>
+
+              <!-- Duration Badge -->
+              <div v-if="highlight.duration_seconds" class="absolute bottom-2 right-2 px-2 py-1 bg-black/70 rounded text-white text-xs font-mono">
+                {{ formatDuration(highlight.duration_seconds) }}
+              </div>
+
+              <!-- Type Badge -->
+              <div class="absolute top-2 left-2 px-2 py-1 bg-emerald-500/90 rounded-lg text-white text-xs font-medium flex items-center gap-1">
+                <span>{{ getHighlightIcon(highlight.highlight_type) }}</span>
+                <span class="capitalize">{{ highlight.highlight_type }}</span>
+              </div>
+            </div>
+
+            <!-- Info -->
+            <div class="p-3">
+              <div class="flex items-center gap-2 mb-1">
+                <div class="w-6 h-6 rounded-full bg-gradient-to-br from-primary-500 to-emerald-500 flex items-center justify-center text-white text-xs font-bold">
+                  {{ highlight.player?.first_name?.charAt(0) || '?' }}
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-white text-sm font-medium truncate">
+                    {{ highlight.player?.first_name }} {{ highlight.player?.last_name }}
+                  </p>
+                </div>
+              </div>
+              <p class="text-neutral-500 text-xs truncate">
+                {{ highlight.player?.position }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mobile CTA -->
+        <div class="lg:hidden mt-8 text-center">
+          <NuxtLink 
+            to="/discover"
+            class="inline-flex items-center gap-2 text-emerald-400 font-medium"
+          >
+            View All Players
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </NuxtLink>
+        </div>
+      </div>
+    </section>
+
+    <!-- Highlight Video Modal -->
+    <Teleport to="body">
+      <div v-if="showHighlightModal && selectedHighlight" class="fixed inset-0 z-50 overflow-y-auto">
+        <div class="fixed inset-0 bg-black/90" @click="showHighlightModal = false"></div>
+        <div class="relative min-h-screen flex items-center justify-center p-4">
+          <div class="relative bg-black rounded-2xl shadow-xl w-full max-w-4xl overflow-hidden">
+            <!-- Close button -->
+            <button
+              @click="showHighlightModal = false"
+              class="absolute top-4 right-4 z-10 p-2 bg-black/50 hover:bg-black/70 text-white rounded-full transition-colors"
+            >
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            <!-- Video Player -->
+            <div class="aspect-video bg-black">
+              <video
+                v-if="selectedHighlight.stream_url"
+                :src="selectedHighlight.stream_url"
+                controls
+                autoplay
+                class="w-full h-full"
+              >
+                Your browser does not support the video tag.
+              </video>
+            </div>
+
+            <!-- Highlight Info -->
+            <div class="p-4 bg-neutral-900">
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-emerald-500 flex items-center justify-center text-white font-bold text-lg">
+                  {{ selectedHighlight.player?.first_name?.charAt(0) }}{{ selectedHighlight.player?.last_name?.charAt(0) }}
+                </div>
+                <div class="flex-1">
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="text-lg font-semibold text-white">
+                      {{ selectedHighlight.player?.first_name }} {{ selectedHighlight.player?.last_name }}
+                    </span>
+                    <span class="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 rounded text-sm">
+                      {{ getHighlightIcon(selectedHighlight.highlight_type) }} {{ selectedHighlight.highlight_type }}
+                    </span>
+                  </div>
+                  <p class="text-neutral-400 text-sm">
+                    {{ selectedHighlight.player?.position }}
+                    <span v-if="selectedHighlight.match"> • {{ selectedHighlight.match.title }}</span>
+                  </p>
+                </div>
+                <NuxtLink
+                  v-if="selectedHighlight.player?.id"
+                  :to="`/players/${selectedHighlight.player.id}`"
+                  class="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-lg text-sm font-medium transition-colors"
+                  @click="showHighlightModal = false"
+                >
+                  View Profile
+                </NuxtLink>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
     <!-- How It Works - Timeline Style -->
     <section class="py-24 lg:py-32 bg-neutral-950 text-white relative overflow-hidden">
       <!-- Background Elements -->
@@ -840,6 +1013,30 @@ definePageMeta({
 const config = useRuntimeConfig()
 const loading = ref(true)
 const featuredPlayers = ref<Player[]>([])
+const featuredHighlights = ref<FeaturedHighlight[]>([])
+const selectedHighlight = ref<FeaturedHighlight | null>(null)
+const showHighlightModal = ref(false)
+
+// Highlight type interface
+interface FeaturedHighlight {
+  id: string
+  highlight_type: string
+  title?: string
+  thumbnail_url?: string
+  stream_url: string
+  duration_seconds?: number
+  view_count: number
+  player?: {
+    id: string
+    first_name: string
+    last_name: string
+    position: string
+  }
+  match?: {
+    id: string
+    title: string
+  }
+}
 
 // Video modal state using the composable
 const videoModal = useModal()
@@ -967,17 +1164,56 @@ function calculateAge(dateOfBirth?: string): number | string {
   return age
 }
 
-// Fetch featured players
+function formatDuration(seconds?: number): string {
+  if (!seconds) return '0:00'
+  const mins = Math.floor(seconds / 60)
+  const secs = seconds % 60
+  return `${mins}:${secs.toString().padStart(2, '0')}`
+}
+
+function getHighlightIcon(type: string): string {
+  const icons: Record<string, string> = {
+    goal: '⚽',
+    assist: '🎯',
+    skill: '✨',
+    save: '🧤',
+    dribbling: '🦵',
+    speed: '⚡',
+    defending: '🛡️',
+    passing: '➡️',
+    shooting: '🎯',
+    heading: '🗣️',
+  }
+  return icons[type.toLowerCase()] || '🎬'
+}
+
+function openHighlight(highlight: FeaturedHighlight) {
+  selectedHighlight.value = highlight
+  showHighlightModal.value = true
+}
+
+// Fetch featured players and highlights
 onMounted(async () => {
   try {
-    const response = await $fetch<ApiResponse<{ players: Player[] }>>('/players/featured', {
-      baseURL: config.public.apiBase,
-    })
-    if (response.success && response.data?.players) {
-      featuredPlayers.value = response.data.players.slice(0, 5)
+    // Fetch players and highlights in parallel
+    const [playersRes, highlightsRes] = await Promise.all([
+      $fetch<ApiResponse<{ players: Player[] }>>('/players/featured', {
+        baseURL: config.public.apiBase,
+      }),
+      $fetch<ApiResponse<FeaturedHighlight[]>>('/highlights/featured', {
+        baseURL: config.public.apiBase,
+      }),
+    ])
+
+    if (playersRes.success && playersRes.data?.players) {
+      featuredPlayers.value = playersRes.data.players.slice(0, 5)
+    }
+
+    if (highlightsRes.success && highlightsRes.data) {
+      featuredHighlights.value = highlightsRes.data
     }
   } catch (error) {
-    console.error('Failed to fetch featured players:', error)
+    console.error('Failed to fetch homepage data:', error)
   } finally {
     loading.value = false
   }

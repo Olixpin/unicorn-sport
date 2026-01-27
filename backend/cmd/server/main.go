@@ -154,6 +154,7 @@ func setupRouter(
 		v1.GET("/players/:id/highlights", highlightsModule.GetPlayerHighlightsPublic)
 		v1.GET("/players/:id/tournaments", highlightsModule.GetPlayerTournamentAppearances)
 		v1.GET("/highlights/:id", highlightsModule.GetHighlight)
+		v1.GET("/highlights/featured", highlightsModule.ListFeaturedHighlights)
 		v1.GET("/highlight-types", highlightsModule.GetHighlightTypes)
 
 		// Videos - public highlights
