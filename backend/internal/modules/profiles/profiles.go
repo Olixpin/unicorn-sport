@@ -116,6 +116,19 @@ type VideoResponse struct {
 }
 
 // ListPlayers returns public player list with pagination
+// @Summary List players
+// @Description Get a paginated list of verified players with optional filters
+// @Tags Players
+// @Accept json
+// @Produce json
+// @Param page query int false "Page number" default(1)
+// @Param limit query int false "Items per page" default(20) maximum(100)
+// @Param position query string false "Filter by position"
+// @Param country query string false "Filter by country"
+// @Param age_min query int false "Minimum age"
+// @Param age_max query int false "Maximum age"
+// @Success 200 {object} map[string]interface{} "List of players with pagination"
+// @Router /players [get]
 func (m *ProfilesModule) ListPlayers(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
@@ -189,6 +202,16 @@ func (m *ProfilesModule) ListPlayers(c *gin.Context) {
 }
 
 // GetPlayer returns detailed player info
+// @Summary Get player by ID
+// @Description Get detailed information about a specific player including videos
+// @Tags Players
+// @Accept json
+// @Produce json
+// @Param id path string true "Player ID (UUID)"
+// @Success 200 {object} map[string]interface{} "Player details"
+// @Failure 400 {object} map[string]interface{} "Invalid player ID"
+// @Failure 404 {object} map[string]interface{} "Player not found"
+// @Router /players/{id} [get]
 func (m *ProfilesModule) GetPlayer(c *gin.Context) {
 	playerID := c.Param("id")
 	pid, err := uuid.Parse(playerID)

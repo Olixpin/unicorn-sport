@@ -94,6 +94,16 @@ type SubscriptionResponse struct {
 // --- Auth Endpoints ---
 
 // Register handles scout self-registration
+// @Summary Register a new scout
+// @Description Create a new scout account. Only scouts can self-register; players are created by admin.
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param request body RegisterRequest true "Registration details"
+// @Success 201 {object} map[string]interface{} "User registered successfully"
+// @Failure 400 {object} map[string]interface{} "Validation error"
+// @Failure 409 {object} map[string]interface{} "Email already exists"
+// @Router /auth/register [post]
 func (a *AuthModule) Register(c *gin.Context) {
 	var req RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -184,6 +194,16 @@ func (a *AuthModule) Register(c *gin.Context) {
 }
 
 // Login handles user login
+// @Summary Login user
+// @Description Authenticate a user and get access/refresh tokens
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param request body LoginRequest true "Login credentials"
+// @Success 200 {object} map[string]interface{} "Login successful"
+// @Failure 400 {object} map[string]interface{} "Validation error"
+// @Failure 401 {object} map[string]interface{} "Invalid credentials"
+// @Router /auth/login [post]
 func (a *AuthModule) Login(c *gin.Context) {
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

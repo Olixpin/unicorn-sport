@@ -1,0 +1,209 @@
+basePath: /api/v1
+definitions:
+  internal_modules_auth.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  internal_modules_auth.RegisterRequest:
+    properties:
+      country:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      organization_name:
+        type: string
+      organization_type:
+        type: string
+      password:
+        minLength: 8
+        type: string
+    required:
+    - email
+    - first_name
+    - last_name
+    - password
+    type: object
+host: unicorn-sport-production.up.railway.app
+info:
+  contact:
+    email: support@unicornsport.com
+    name: Unicorn Sport Support
+  description: |-
+    API for Unicorn Sport - A platform connecting African football talent with scouts and agencies worldwide.
+
+    ## Authentication
+    Most endpoints require JWT authentication. Include the token in the Authorization header:
+    ```
+    Authorization: Bearer <your_token>
+    ```
+
+    ## User Types
+    - **player**: Football players looking for opportunities
+    - **scout**: Scouts looking for talent
+    - **admin**: Platform administrators
+  license:
+    name: Proprietary
+    url: https://unicornsport.africa/terms
+  title: Unicorn Sport API
+  version: 1.0.0
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate a user and get access/refresh tokens
+      parameters:
+      - description: Login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_modules_auth.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login successful
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Validation error
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Invalid credentials
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Login user
+      tags:
+      - Auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Create a new scout account. Only scouts can self-register; players
+        are created by admin.
+      parameters:
+      - description: Registration details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_modules_auth.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User registered successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Validation error
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Email already exists
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Register a new scout
+      tags:
+      - Auth
+  /players:
+    get:
+      consumes:
+      - application/json
+      description: Get a paginated list of verified players with optional filters
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: Items per page
+        in: query
+        maximum: 100
+        name: limit
+        type: integer
+      - description: Filter by position
+        in: query
+        name: position
+        type: string
+      - description: Filter by country
+        in: query
+        name: country
+        type: string
+      - description: Minimum age
+        in: query
+        name: age_min
+        type: integer
+      - description: Maximum age
+        in: query
+        name: age_max
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of players with pagination
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List players
+      tags:
+      - Players
+  /players/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get detailed information about a specific player including videos
+      parameters:
+      - description: Player ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Player details
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid player ID
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Player not found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get player by ID
+      tags:
+      - Players
+securityDefinitions:
+  BearerAuth:
+    description: 'JWT Bearer token. Format: "Bearer {token}"'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
