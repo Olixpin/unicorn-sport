@@ -95,18 +95,18 @@
               </span>
             </h1>
 
-            <p class="mt-8 text-xl text-neutral-400 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+            <p class="mt-8 text-lg sm:text-xl text-neutral-400 max-w-xl mx-auto lg:mx-0 leading-relaxed">
               Where elite scouts discover tomorrow's superstars. 
-              <span class="text-white">Verified players.</span> 
-              <span class="text-white">HD highlights.</span> 
-              <span class="text-white">Direct connections.</span>
+              <span class="text-white whitespace-nowrap">Verified players.</span> 
+              <span class="text-white whitespace-nowrap">HD highlights.</span> 
+              <span class="text-white whitespace-nowrap">Direct connections.</span>
             </p>
 
             <!-- CTA Buttons -->
-            <div class="mt-10 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <NuxtLink to="/discover">
-                <button class="group relative px-8 py-4 bg-white text-neutral-900 font-semibold rounded-xl overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-[0_0_40px_rgba(34,197,94,0.4)]">
-                  <span class="relative z-10 flex items-center gap-2">
+            <div class="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
+              <NuxtLink to="/discover" class="w-full sm:w-auto">
+                <button class="w-full sm:w-auto group relative px-6 sm:px-8 py-3.5 sm:py-4 bg-white text-neutral-900 font-semibold rounded-xl overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-[0_0_40px_rgba(34,197,94,0.4)]">
+                  <span class="relative z-10 flex items-center justify-center gap-2">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
@@ -117,8 +117,8 @@
                   </span>
                 </button>
               </NuxtLink>
-              <NuxtLink to="/auth/register">
-                <button class="px-8 py-4 bg-white/5 text-white font-semibold rounded-xl border border-white/10 backdrop-blur-sm transition-all duration-300 hover:bg-white/10 hover:border-white/20 flex items-center gap-2">
+              <NuxtLink to="/auth/register" class="w-full sm:w-auto">
+                <button class="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 bg-white/5 text-white font-semibold rounded-xl border border-white/10 backdrop-blur-sm transition-all duration-300 hover:bg-white/10 hover:border-white/20 flex items-center justify-center gap-2">
                   <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
@@ -785,22 +785,22 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
           <!-- Rotating Testimonial Card -->
           <div class="lg:col-span-7 relative">
-            <div class="bg-white rounded-3xl p-8 lg:p-12 shadow-xl shadow-neutral-900/5 border border-neutral-100 relative overflow-hidden min-h-[400px]">
+            <div class="bg-white rounded-3xl p-6 sm:p-8 lg:p-12 shadow-xl shadow-neutral-900/5 border border-neutral-100 relative overflow-hidden min-h-[420px] sm:min-h-[400px]">
               <!-- Quote mark decoration -->
               <div class="absolute -top-4 -left-4 w-24 h-24 bg-gradient-to-br from-primary-500/10 to-transparent rounded-full"></div>
-              <svg class="w-16 h-16 text-primary-200 mb-6" fill="currentColor" viewBox="0 0 24 24">
+              <svg class="w-12 sm:w-16 h-12 sm:h-16 text-primary-200 mb-4 sm:mb-6" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
               </svg>
               
               <!-- Testimonial Content with Transition -->
               <Transition name="testimonial-fade" mode="out-in">
                 <div v-if="currentTestimonial" :key="currentTestimonialIndex">
-                  <blockquote class="text-2xl lg:text-3xl font-medium leading-relaxed text-neutral-800 mb-8">
+                  <blockquote class="text-xl sm:text-2xl lg:text-3xl font-medium leading-relaxed text-neutral-800 mb-6 sm:mb-8">
                     "{{ currentTestimonial.quote }}"
                   </blockquote>
                   
-                  <div class="flex items-center gap-4">
-                    <div class="w-14 h-14 rounded-2xl overflow-hidden" :class="currentTestimonial.avatarBg">
+                  <div class="flex items-center gap-3 sm:gap-4 mb-12 sm:mb-0">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl overflow-hidden flex-shrink-0" :class="currentTestimonial.avatarBg">
                       <img 
                         v-if="currentTestimonial.avatar" 
                         :src="currentTestimonial.avatar" 
@@ -808,32 +808,32 @@
                         class="w-full h-full object-cover"
                       />
                       <div v-else class="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-500 to-emerald-500">
-                        <span class="text-xl font-bold text-white">{{ currentTestimonial.initials }}</span>
+                        <span class="text-lg sm:text-xl font-bold text-white">{{ currentTestimonial.initials }}</span>
                       </div>
                     </div>
-                    <div>
-                      <div class="font-bold text-neutral-900 text-lg">{{ currentTestimonial.name }}</div>
-                      <div class="text-neutral-500">{{ currentTestimonial.role }}</div>
+                    <div class="min-w-0">
+                      <div class="font-bold text-neutral-900 text-base sm:text-lg">{{ currentTestimonial.name }}</div>
+                      <div class="text-neutral-500 text-sm sm:text-base">{{ currentTestimonial.role }}</div>
                     </div>
                   </div>
                 </div>
               </Transition>
               
               <!-- 5 stars -->
-              <div class="absolute top-8 right-8 flex gap-1">
-                <svg v-for="i in 5" :key="i" class="w-5 h-5 text-secondary-500" fill="currentColor" viewBox="0 0 20 20">
+              <div class="absolute top-6 right-6 sm:top-8 sm:right-8 flex gap-1">
+                <svg v-for="i in 5" :key="i" class="w-4 h-4 sm:w-5 sm:h-5 text-secondary-500" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
               </div>
               
               <!-- Testimonial Navigation Dots -->
-              <div class="absolute bottom-8 left-8 flex items-center gap-3">
+              <div class="absolute bottom-6 left-6 sm:bottom-8 sm:left-8 flex items-center gap-2 sm:gap-3">
                 <button 
                   v-for="(_, index) in testimonials" 
                   :key="index"
                   @click="currentTestimonialIndex = index"
-                  class="w-2.5 h-2.5 rounded-full transition-all duration-300"
-                  :class="index === currentTestimonialIndex ? 'bg-primary-500 w-8' : 'bg-neutral-300 hover:bg-neutral-400'"
+                  class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full transition-all duration-300"
+                  :class="index === currentTestimonialIndex ? 'bg-primary-500 w-6 sm:w-8' : 'bg-neutral-300 hover:bg-neutral-400'"
                   :aria-label="`View testimonial ${index + 1}`"
                 />
               </div>
@@ -941,45 +941,45 @@
     </section>
 
     <!-- Across Africa - Interactive Map Style -->
-    <section class="py-24 lg:py-32 bg-white relative overflow-hidden">
+    <section class="py-16 sm:py-24 lg:py-32 bg-white relative overflow-hidden">
       <!-- Subtle background decoration -->
       <div class="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary-200 to-transparent"></div>
       
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 sm:gap-16 items-center">
           <!-- Left: Content -->
           <div>
-            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-50 border border-primary-200 mb-6">
+            <div class="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-primary-50 border border-primary-200 mb-4 sm:mb-6">
               <svg class="w-4 h-4 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span class="text-sm font-semibold text-primary-700">Continental Coverage</span>
+              <span class="text-xs sm:text-sm font-semibold text-primary-700">Continental Coverage</span>
             </div>
             
-            <h2 class="font-display text-4xl lg:text-5xl font-bold text-neutral-900 mb-6">
+            <h2 class="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-900 mb-4 sm:mb-6">
               Talent From<br/>
               <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-emerald-500">
                 Across Africa
               </span>
             </h2>
             
-            <p class="text-lg text-neutral-600 mb-8 leading-relaxed">
+            <p class="text-base sm:text-lg text-neutral-600 mb-6 sm:mb-8 leading-relaxed">
               Our network spans the entire continent, partnering with 50+ academies in 15 countries to bring you verified, professional-grade talent.
             </p>
             
             <!-- Stats Row -->
-            <div class="grid grid-cols-3 gap-6 mb-8">
-              <div class="text-center p-4 rounded-2xl bg-neutral-50">
-                <div class="text-3xl font-bold text-primary-600 mb-1">15+</div>
-                <div class="text-sm text-neutral-500">Countries</div>
+            <div class="grid grid-cols-3 gap-3 sm:gap-6 mb-8">
+              <div class="text-center p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-neutral-50">
+                <div class="text-2xl sm:text-3xl font-bold text-primary-600 mb-0.5 sm:mb-1">15+</div>
+                <div class="text-xs sm:text-sm text-neutral-500">Countries</div>
               </div>
-              <div class="text-center p-4 rounded-2xl bg-neutral-50">
-                <div class="text-3xl font-bold text-primary-600 mb-1">50+</div>
-                <div class="text-sm text-neutral-500">Academies</div>
+              <div class="text-center p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-neutral-50">
+                <div class="text-2xl sm:text-3xl font-bold text-primary-600 mb-0.5 sm:mb-1">50+</div>
+                <div class="text-xs sm:text-sm text-neutral-500">Academies</div>
               </div>
-              <div class="text-center p-4 rounded-2xl bg-neutral-50">
-                <div class="text-3xl font-bold text-primary-600 mb-1">500+</div>
-                <div class="text-sm text-neutral-500">Players</div>
+              <div class="text-center p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-neutral-50">
+                <div class="text-2xl sm:text-3xl font-bold text-primary-600 mb-0.5 sm:mb-1">500+</div>
+                <div class="text-xs sm:text-sm text-neutral-500">Players</div>
               </div>
             </div>
             
@@ -999,24 +999,24 @@
             <!-- Background glow -->
             <div class="absolute inset-0 bg-gradient-to-br from-primary-100/50 to-emerald-100/50 rounded-3xl blur-3xl scale-110"></div>
             
-            <div class="relative bg-white rounded-3xl border border-neutral-200 p-8 shadow-xl shadow-neutral-900/5">
-              <div class="grid grid-cols-3 gap-3">
+            <div class="relative bg-white rounded-3xl border border-neutral-200 p-4 sm:p-8 shadow-xl shadow-neutral-900/5">
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
                 <NuxtLink 
                   v-for="(country, index) in countries" 
                   :key="country.name"
                   :to="`/discover?country=${encodeURIComponent(country.name)}`"
-                  class="group relative overflow-hidden rounded-2xl transition-all duration-300 cursor-pointer"
+                  class="group relative overflow-hidden rounded-xl sm:rounded-2xl transition-all duration-300 cursor-pointer"
                   :class="[
-                    index === 0 ? 'col-span-2 row-span-2 bg-gradient-to-br from-primary-500 to-emerald-500 p-6 hover:from-primary-600 hover:to-emerald-600' : 'bg-neutral-50 hover:bg-primary-50 p-4 border border-neutral-100 hover:border-primary-300 hover:shadow-md'
+                    index === 0 ? 'col-span-2 row-span-2 bg-gradient-to-br from-primary-500 to-emerald-500 p-4 sm:p-6 hover:from-primary-600 hover:to-emerald-600' : 'bg-neutral-50 hover:bg-primary-50 p-3 sm:p-4 border border-neutral-100 hover:border-primary-300 hover:shadow-md'
                   ]"
                 >
                   <!-- Country with flag -->
-                  <div class="flex items-center gap-2">
-                    <span class="text-xl">{{ country.flag }}</span>
+                  <div class="flex items-center gap-1.5 sm:gap-2">
+                    <span class="text-lg sm:text-xl flex-shrink-0">{{ country.flag }}</span>
                     <span 
                       :class="[
-                        'font-bold transition-colors',
-                        index === 0 ? 'text-white text-2xl' : 'text-neutral-700 group-hover:text-primary-700 text-sm'
+                        'font-bold transition-colors leading-tight',
+                        index === 0 ? 'text-white text-lg sm:text-2xl' : 'text-neutral-700 group-hover:text-primary-700 text-xs sm:text-sm'
                       ]"
                     >
                       {{ country.name }}
@@ -1027,16 +1027,16 @@
                   <div 
                     v-if="country.playerCount"
                     :class="[
-                      'mt-2 text-xs font-medium',
+                      'mt-1 sm:mt-2 text-[10px] sm:text-xs font-medium',
                       index === 0 ? 'text-white/80' : 'text-neutral-500 group-hover:text-primary-600'
                     ]"
                   >
                     {{ country.playerCount }} players
                   </div>
                   
-                  <!-- Arrow on hover -->
+                  <!-- Arrow on hover - hidden on mobile -->
                   <div 
-                    class="absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0"
+                    class="hidden sm:flex absolute top-2 right-2 w-6 h-6 rounded-full items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0"
                     :class="index === 0 ? 'bg-white/20' : 'bg-primary-100'"
                   >
                     <svg :class="index === 0 ? 'text-white' : 'text-primary-600'" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1046,10 +1046,10 @@
                   
                   <div 
                     v-if="index === 0"
-                    class="absolute bottom-4 right-4 flex items-center gap-2 text-white/80 text-sm"
+                    class="absolute bottom-2 right-2 sm:bottom-4 sm:right-4 flex items-center gap-1 sm:gap-2 text-white/80 text-[10px] sm:text-sm"
                   >
                     <span>Most players</span>
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
                     </svg>
                   </div>
@@ -1057,10 +1057,10 @@
               </div>
               
               <!-- More countries indicator -->
-              <div class="mt-4 pt-4 border-t border-neutral-100 flex items-center justify-between">
-                <span class="text-neutral-500 text-sm">And more countries coming soon...</span>
+              <div class="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-neutral-100 flex items-center justify-between">
+                <span class="text-neutral-500 text-xs sm:text-sm">And more countries coming soon...</span>
                 <div class="flex -space-x-2">
-                  <div class="w-8 h-8 rounded-full bg-neutral-200 border-2 border-white flex items-center justify-center text-xs font-bold text-neutral-500">+5</div>
+                  <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-neutral-200 border-2 border-white flex items-center justify-center text-[10px] sm:text-xs font-bold text-neutral-500">+5</div>
                 </div>
               </div>
             </div>

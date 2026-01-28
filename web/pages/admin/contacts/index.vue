@@ -22,16 +22,16 @@
     </div>
 
     <!-- Stats Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
       <!-- Total Requests -->
-      <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-5 text-white shadow-lg shadow-blue-500/25">
+      <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl sm:rounded-2xl p-4 sm:p-5 text-white shadow-lg shadow-blue-500/25">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-blue-100 text-sm font-medium">Total Requests</p>
-            <p class="text-3xl font-bold mt-1">{{ total }}</p>
+            <p class="text-blue-100 text-xs sm:text-sm font-medium">Total Requests</p>
+            <p class="text-2xl sm:text-3xl font-bold mt-1">{{ total }}</p>
           </div>
-          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-lg sm:rounded-xl flex items-center justify-center">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-2m-4-1v8m0 0l3-3m-3 3L9 8m-5 5h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293h3.172a1 1 0 00.707-.293l2.414-2.414a1 1 0 01.707-.293H20" />
             </svg>
           </div>
@@ -39,14 +39,14 @@
       </div>
 
       <!-- Pending -->
-      <div class="bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl p-5 text-white shadow-lg shadow-amber-500/25">
+      <div class="bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl sm:rounded-2xl p-4 sm:p-5 text-white shadow-lg shadow-amber-500/25">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-amber-100 text-sm font-medium">Pending Review</p>
-            <p class="text-3xl font-bold mt-1">{{ pendingCount }}</p>
+            <p class="text-amber-100 text-xs sm:text-sm font-medium">Pending Review</p>
+            <p class="text-2xl sm:text-3xl font-bold mt-1">{{ pendingCount }}</p>
           </div>
-          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-lg sm:rounded-xl flex items-center justify-center">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
@@ -54,14 +54,14 @@
       </div>
 
       <!-- Approved -->
-      <div class="bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl p-5 text-white shadow-lg shadow-emerald-500/25">
+      <div class="bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl sm:rounded-2xl p-4 sm:p-5 text-white shadow-lg shadow-emerald-500/25">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-emerald-100 text-sm font-medium">Approved</p>
-            <p class="text-3xl font-bold mt-1">{{ approvedCount }}</p>
+            <p class="text-emerald-100 text-xs sm:text-sm font-medium">Approved</p>
+            <p class="text-2xl sm:text-3xl font-bold mt-1">{{ approvedCount }}</p>
           </div>
-          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-lg sm:rounded-xl flex items-center justify-center">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
@@ -69,14 +69,14 @@
       </div>
 
       <!-- Rejected -->
-      <div class="bg-gradient-to-br from-rose-500 to-red-600 rounded-2xl p-5 text-white shadow-lg shadow-rose-500/25">
+      <div class="bg-gradient-to-br from-rose-500 to-red-600 rounded-xl sm:rounded-2xl p-4 sm:p-5 text-white shadow-lg shadow-rose-500/25">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-rose-100 text-sm font-medium">Rejected</p>
-            <p class="text-3xl font-bold mt-1">{{ rejectedCount }}</p>
+            <p class="text-rose-100 text-xs sm:text-sm font-medium">Rejected</p>
+            <p class="text-2xl sm:text-3xl font-bold mt-1">{{ rejectedCount }}</p>
           </div>
-          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-lg sm:rounded-xl flex items-center justify-center">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
@@ -160,22 +160,22 @@
         <table class="min-w-full divide-y divide-neutral-200">
           <thead>
             <tr class="bg-neutral-50">
-              <th class="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+              <th class="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">
                 Scout
               </th>
-              <th class="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+              <th class="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider hidden sm:table-cell">
                 Player
               </th>
-              <th class="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+              <th class="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider hidden lg:table-cell">
                 Message
               </th>
-              <th class="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+              <th class="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">
                 Status
               </th>
-              <th class="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+              <th class="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider hidden md:table-cell">
                 Date
               </th>
-              <th class="px-6 py-4 text-right text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+              <th class="px-4 sm:px-6 py-3 sm:py-4 text-right text-xs font-semibold text-neutral-500 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
@@ -187,30 +187,30 @@
               class="hover:bg-neutral-50/50 transition-colors group"
             >
               <!-- Scout Info -->
-              <td class="px-6 py-4">
-                <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center text-white font-semibold text-sm shadow-lg shadow-purple-500/25">
+              <td class="px-4 sm:px-6 py-3 sm:py-4">
+                <div class="flex items-center gap-2 sm:gap-3">
+                  <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg sm:rounded-xl flex items-center justify-center text-white font-semibold text-xs sm:text-sm shadow-lg shadow-purple-500/25 flex-shrink-0">
                     {{ getInitials(contact.scout_name) }}
                   </div>
-                  <div>
-                    <div class="font-medium text-neutral-900">{{ contact.scout_name || 'Unknown Scout' }}</div>
-                    <div class="text-sm text-neutral-500">{{ contact.scout_email }}</div>
+                  <div class="min-w-0">
+                    <div class="font-medium text-neutral-900 text-sm truncate">{{ contact.scout_name || 'Unknown' }}</div>
+                    <div class="text-xs text-neutral-500 truncate max-w-[120px] sm:max-w-none hidden sm:block">{{ contact.scout_email }}</div>
                   </div>
                 </div>
               </td>
 
               <!-- Player Info -->
-              <td class="px-6 py-4">
-                <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-emerald-600 rounded-xl flex items-center justify-center text-white font-semibold text-sm shadow-lg shadow-primary-500/25">
+              <td class="px-4 sm:px-6 py-3 sm:py-4 hidden sm:table-cell">
+                <div class="flex items-center gap-2 sm:gap-3">
+                  <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-primary-500 to-emerald-600 rounded-lg sm:rounded-xl flex items-center justify-center text-white font-semibold text-xs sm:text-sm shadow-lg shadow-primary-500/25 flex-shrink-0">
                     {{ getInitials(contact.player_name) }}
                   </div>
-                  <div class="font-medium text-neutral-900">{{ contact.player_name || 'Unknown Player' }}</div>
+                  <div class="font-medium text-neutral-900 text-sm truncate">{{ contact.player_name || 'Unknown' }}</div>
                 </div>
               </td>
 
               <!-- Message -->
-              <td class="px-6 py-4">
+              <td class="px-4 sm:px-6 py-3 sm:py-4 hidden lg:table-cell">
                 <div class="max-w-xs">
                   <p 
                     v-if="contact.message" 
@@ -220,20 +220,20 @@
                   >
                     {{ contact.message }}
                   </p>
-                  <span v-else class="text-sm text-neutral-400 italic">No message provided</span>
+                  <span v-else class="text-sm text-neutral-400 italic">No message</span>
                 </div>
               </td>
 
               <!-- Status -->
-              <td class="px-6 py-4">
-                <span :class="getStatusBadgeClass(contact.status)">
+              <td class="px-4 sm:px-6 py-3 sm:py-4">
+                <span :class="getStatusBadgeClass(contact.status)" class="text-xs">
                   <span class="w-1.5 h-1.5 rounded-full" :class="getStatusDotClass(contact.status)"></span>
                   {{ capitalizeFirst(contact.status) }}
                 </span>
               </td>
 
               <!-- Date -->
-              <td class="px-6 py-4">
+              <td class="px-4 sm:px-6 py-3 sm:py-4 hidden md:table-cell">
                 <div>
                   <div class="text-sm font-medium text-neutral-900">{{ formatDate(contact.created_at) }}</div>
                   <div class="text-xs text-neutral-500">{{ formatTime(contact.created_at) }}</div>

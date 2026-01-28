@@ -75,23 +75,23 @@
           </div>
         </div>
 
-        <div class="p-6 space-y-4">
+        <div class="p-4 sm:p-6 space-y-3 sm:space-y-4">
           <!-- AWS S3 -->
-          <div class="flex items-center justify-between p-4 bg-neutral-50 rounded-xl">
-            <div class="flex items-center gap-4">
-              <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                <svg class="w-5 h-5 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 sm:p-4 bg-neutral-50 rounded-xl">
+            <div class="flex items-center gap-3 sm:gap-4">
+              <div class="w-9 h-9 sm:w-10 sm:h-10 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                 </svg>
               </div>
-              <div>
-                <p class="font-medium text-neutral-900">AWS S3 Storage</p>
-                <p class="text-sm text-neutral-500">Video and image storage</p>
+              <div class="min-w-0">
+                <p class="font-medium text-neutral-900 text-sm sm:text-base">AWS S3 Storage</p>
+                <p class="text-xs sm:text-sm text-neutral-500">Video and image storage</p>
               </div>
             </div>
             <span 
               :class="[
-                'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium',
+                'inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-medium whitespace-nowrap',
                 settings.s3_configured 
                   ? 'bg-emerald-100 text-emerald-700' 
                   : 'bg-amber-100 text-amber-700'
@@ -103,21 +103,21 @@
           </div>
 
           <!-- Stripe -->
-          <div class="flex items-center justify-between p-4 bg-neutral-50 rounded-xl">
-            <div class="flex items-center gap-4">
-              <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                <svg class="w-5 h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 sm:p-4 bg-neutral-50 rounded-xl">
+            <div class="flex items-center gap-3 sm:gap-4">
+              <div class="w-9 h-9 sm:w-10 sm:h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                 </svg>
               </div>
-              <div>
-                <p class="font-medium text-neutral-900">Stripe Payments</p>
-                <p class="text-sm text-neutral-500">Subscription billing</p>
+              <div class="min-w-0">
+                <p class="font-medium text-neutral-900 text-sm sm:text-base">Stripe Payments</p>
+                <p class="text-xs sm:text-sm text-neutral-500">Subscription billing</p>
               </div>
             </div>
             <span 
               :class="[
-                'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium',
+                'inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-medium whitespace-nowrap',
                 settings.stripe_configured 
                   ? 'bg-emerald-100 text-emerald-700' 
                   : 'bg-amber-100 text-amber-700'
@@ -129,21 +129,21 @@
           </div>
 
           <!-- Email Service -->
-          <div class="flex items-center justify-between p-4 bg-neutral-50 rounded-xl">
-            <div class="flex items-center gap-4">
-              <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 sm:p-4 bg-neutral-50 rounded-xl">
+            <div class="flex items-center gap-3 sm:gap-4">
+              <div class="w-9 h-9 sm:w-10 sm:h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
               </div>
-              <div>
-                <p class="font-medium text-neutral-900">Email Service</p>
-                <p class="text-sm text-neutral-500">Transactional emails</p>
+              <div class="min-w-0">
+                <p class="font-medium text-neutral-900 text-sm sm:text-base">Email Service</p>
+                <p class="text-xs sm:text-sm text-neutral-500">Transactional emails</p>
               </div>
             </div>
             <span 
               :class="[
-                'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium',
+                'inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-medium whitespace-nowrap',
                 settings.email_configured 
                   ? 'bg-emerald-100 text-emerald-700' 
                   : 'bg-amber-100 text-amber-700'

@@ -96,15 +96,15 @@
     </Transition>
 
     <!-- Stats Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+    <div class="grid grid-cols-3 gap-2 sm:gap-4 mb-6">
       <!-- Total Players -->
-      <div class="bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl p-5 text-white shadow-lg shadow-violet-500/25">
-        <div class="flex items-center justify-between">
+      <div class="bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl sm:rounded-2xl p-3 sm:p-5 text-white shadow-lg shadow-violet-500/25">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p class="text-violet-100 text-sm font-medium">Total Players</p>
-            <p class="text-3xl font-bold mt-1">{{ stats.totalPlayers }}</p>
+            <p class="text-violet-100 text-[10px] sm:text-sm font-medium">Total Players</p>
+            <p class="text-lg sm:text-3xl font-bold mt-0.5 sm:mt-1">{{ stats.totalPlayers }}</p>
           </div>
-          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+          <div class="hidden sm:flex w-12 h-12 bg-white/20 rounded-xl items-center justify-center">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
@@ -115,15 +115,15 @@
       <!-- Verified -->
       <button 
         @click="setStatusFilter('verified')"
-        class="bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl p-5 text-white shadow-lg shadow-emerald-500/25 text-left transition-all hover:scale-[1.02] hover:shadow-xl"
+        class="bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl sm:rounded-2xl p-3 sm:p-5 text-white shadow-lg shadow-emerald-500/25 text-left transition-all hover:scale-[1.02] hover:shadow-xl"
         :class="{ 'ring-4 ring-white/50': statusFilter === 'verified' }"
       >
-        <div class="flex items-center justify-between">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p class="text-emerald-100 text-sm font-medium">Verified</p>
-            <p class="text-3xl font-bold mt-1">{{ stats.verifiedCount }}</p>
+            <p class="text-emerald-100 text-[10px] sm:text-sm font-medium">Verified</p>
+            <p class="text-lg sm:text-3xl font-bold mt-0.5 sm:mt-1">{{ stats.verifiedCount }}</p>
           </div>
-          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+          <div class="hidden sm:flex w-12 h-12 bg-white/20 rounded-xl items-center justify-center">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
             </svg>
@@ -134,15 +134,15 @@
       <!-- Pending -->
       <button 
         @click="setStatusFilter('pending')"
-        class="bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl p-5 text-white shadow-lg shadow-amber-500/25 text-left transition-all hover:scale-[1.02] hover:shadow-xl"
+        class="bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl sm:rounded-2xl p-3 sm:p-5 text-white shadow-lg shadow-amber-500/25 text-left transition-all hover:scale-[1.02] hover:shadow-xl"
         :class="{ 'ring-4 ring-white/50': statusFilter === 'pending' }"
       >
-        <div class="flex items-center justify-between">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p class="text-amber-100 text-sm font-medium">Pending Review</p>
-            <p class="text-3xl font-bold mt-1">{{ stats.pendingCount }}</p>
+            <p class="text-amber-100 text-[10px] sm:text-sm font-medium">Pending</p>
+            <p class="text-lg sm:text-3xl font-bold mt-0.5 sm:mt-1">{{ stats.pendingCount }}</p>
           </div>
-          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+          <div class="hidden sm:flex w-12 h-12 bg-white/20 rounded-xl items-center justify-center">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>

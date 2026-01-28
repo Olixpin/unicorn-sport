@@ -20,16 +20,16 @@
     </div>
 
     <!-- Stats Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
       <!-- Total Tournaments -->
-      <div class="bg-gradient-to-br from-primary-500 to-emerald-600 rounded-2xl p-5 text-white shadow-lg shadow-primary-500/25">
+      <div class="bg-gradient-to-br from-primary-500 to-emerald-600 rounded-xl sm:rounded-2xl p-3 sm:p-5 text-white shadow-lg shadow-primary-500/25">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-primary-100 text-sm font-medium">Tournaments</p>
-            <p class="text-3xl font-bold mt-1">{{ tournaments.length }}</p>
+            <p class="text-primary-100 text-xs sm:text-sm font-medium">Tournaments</p>
+            <p class="text-xl sm:text-3xl font-bold mt-1">{{ tournaments.length }}</p>
           </div>
-          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="w-9 h-9 sm:w-12 sm:h-12 bg-white/20 rounded-lg sm:rounded-xl flex items-center justify-center">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
             </svg>
           </div>
@@ -37,14 +37,14 @@
       </div>
 
       <!-- Total Matches -->
-      <div class="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl p-5 text-white shadow-lg shadow-blue-500/25">
+      <div class="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl sm:rounded-2xl p-3 sm:p-5 text-white shadow-lg shadow-blue-500/25">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-blue-100 text-sm font-medium">Total Matches</p>
-            <p class="text-3xl font-bold mt-1">{{ stats.total_matches }}</p>
+            <p class="text-blue-100 text-xs sm:text-sm font-medium">Total Matches</p>
+            <p class="text-xl sm:text-3xl font-bold mt-1">{{ stats.total_matches }}</p>
           </div>
-          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="w-9 h-9 sm:w-12 sm:h-12 bg-white/20 rounded-lg sm:rounded-xl flex items-center justify-center">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
           </div>
@@ -52,15 +52,15 @@
       </div>
 
       <!-- Full Match Videos (PAID) -->
-      <div class="bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl p-5 text-white shadow-lg shadow-amber-500/25">
+      <div class="bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl sm:rounded-2xl p-3 sm:p-5 text-white shadow-lg shadow-amber-500/25">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-amber-100 text-sm font-medium">Match Videos</p>
-            <p class="text-3xl font-bold mt-1">{{ stats.total_match_videos }}</p>
-            <p class="text-xs text-amber-200 mt-0.5">💰 Paid content</p>
+            <p class="text-amber-100 text-xs sm:text-sm font-medium">Match Videos</p>
+            <p class="text-xl sm:text-3xl font-bold mt-1">{{ stats.total_match_videos }}</p>
+            <p class="text-[10px] sm:text-xs text-amber-200 mt-0.5 hidden sm:block">💰 Paid content</p>
           </div>
-          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="w-9 h-9 sm:w-12 sm:h-12 bg-white/20 rounded-lg sm:rounded-xl flex items-center justify-center">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
             </svg>
           </div>
@@ -68,15 +68,15 @@
       </div>
 
       <!-- Player Highlights (FREE) -->
-      <div class="bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl p-5 text-white shadow-lg shadow-emerald-500/25">
+      <div class="bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl sm:rounded-2xl p-3 sm:p-5 text-white shadow-lg shadow-emerald-500/25">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-emerald-100 text-sm font-medium">Highlights</p>
-            <p class="text-3xl font-bold mt-1">{{ stats.total_highlights }}</p>
-            <p class="text-xs text-emerald-200 mt-0.5">🆓 Free content</p>
+            <p class="text-emerald-100 text-xs sm:text-sm font-medium">Highlights</p>
+            <p class="text-xl sm:text-3xl font-bold mt-1">{{ stats.total_highlights }}</p>
+            <p class="text-[10px] sm:text-xs text-emerald-200 mt-0.5 hidden sm:block">🆓 Free content</p>
           </div>
-          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="w-9 h-9 sm:w-12 sm:h-12 bg-white/20 rounded-lg sm:rounded-xl flex items-center justify-center">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
           </div>
@@ -141,15 +141,15 @@
     </div>
 
     <!-- Tournaments Grid -->
-    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
       <NuxtLink
         v-for="tournament in tournaments"
         :key="tournament.id"
         :to="`/admin/tournaments/${tournament.id}`"
-        class="group bg-white rounded-2xl border border-neutral-200 overflow-hidden hover:shadow-lg hover:border-primary-200 transition-all"
+        class="group bg-white rounded-xl sm:rounded-2xl border border-neutral-200 overflow-hidden hover:shadow-lg hover:border-primary-200 transition-all"
       >
-        <!-- Thumbnail -->
-        <div class="aspect-video bg-gradient-to-br from-primary-500 to-emerald-600 relative">
+        <!-- Thumbnail - smaller aspect ratio on mobile -->
+        <div class="aspect-[4/3] sm:aspect-video bg-gradient-to-br from-primary-500 to-emerald-600 relative">
           <img
             v-if="tournament.thumbnail_url"
             :src="tournament.thumbnail_url"
@@ -157,33 +157,33 @@
             class="w-full h-full object-cover"
           />
           <div v-else class="w-full h-full flex items-center justify-center">
-            <svg class="w-16 h-16 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-12 h-12 sm:w-16 sm:h-16 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
             </svg>
           </div>
           <!-- Status Badge -->
           <span
             :class="getStatusClass(tournament.status)"
-            class="absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-medium capitalize"
+            class="absolute top-2 right-2 sm:top-3 sm:right-3 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-medium capitalize"
           >
             {{ tournament.status }}
           </span>
         </div>
 
         <!-- Content -->
-        <div class="p-5">
-          <h3 class="font-semibold text-neutral-900 group-hover:text-primary-600 transition-colors mb-2">
+        <div class="p-3 sm:p-5">
+          <h3 class="font-semibold text-sm sm:text-base text-neutral-900 group-hover:text-primary-600 transition-colors mb-2">
             {{ tournament.name }}
           </h3>
-          <div class="flex items-center gap-4 text-sm text-neutral-500">
+          <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs sm:text-sm text-neutral-500">
             <span v-if="tournament.location" class="flex items-center gap-1">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
               </svg>
-              {{ tournament.location }}
+              <span class="truncate">{{ tournament.location }}</span>
             </span>
             <span class="flex items-center gap-1">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
               {{ formatDateRange(tournament.start_date, tournament.end_date) }}
@@ -191,22 +191,22 @@
           </div>
           
           <!-- Video Stats -->
-          <div class="flex items-center gap-4 mt-3 pt-3 border-t border-neutral-100">
-            <span class="flex items-center gap-1 text-sm">
-              <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="flex items-center justify-between sm:justify-start gap-2 sm:gap-4 mt-3 pt-3 border-t border-neutral-100">
+            <span class="flex items-center gap-1 text-xs sm:text-sm">
+              <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
               <span class="text-neutral-700 font-medium">{{ tournament.match_count || 0 }}</span>
-              <span class="text-neutral-500">matches</span>
+              <span class="text-neutral-500 hidden sm:inline">matches</span>
             </span>
-            <span class="flex items-center gap-1 text-sm">
-              <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <span class="flex items-center gap-1 text-xs sm:text-sm">
+              <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
               </svg>
               <span class="text-neutral-700 font-medium">{{ tournament.video_count || 0 }}</span>
             </span>
-            <span class="flex items-center gap-1 text-sm">
-              <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <span class="flex items-center gap-1 text-xs sm:text-sm">
+              <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
               <span class="text-neutral-700 font-medium">{{ tournament.highlight_count || 0 }}</span>

@@ -25,36 +25,36 @@
           </div>
           
           <!-- Quick Stats Pills -->
-          <div class="flex flex-wrap items-center gap-3">
-            <div class="flex items-center gap-2 px-4 py-2.5 bg-white rounded-xl shadow-sm border border-neutral-200">
-              <div class="w-8 h-8 rounded-lg bg-primary-100 flex items-center justify-center">
-                <svg class="w-4 h-4 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <div class="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-3 w-full lg:w-auto">
+            <div class="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-white rounded-xl shadow-sm border border-neutral-200">
+              <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-primary-100 flex items-center justify-center flex-shrink-0">
+                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
               </div>
-              <div>
-                <p class="text-xs text-neutral-500">Players</p>
-                <p class="font-bold text-neutral-900">{{ animatedTotal }}</p>
+              <div class="min-w-0">
+                <p class="text-[10px] sm:text-xs text-neutral-500">Players</p>
+                <p class="font-bold text-sm sm:text-base text-neutral-900">{{ animatedTotal }}</p>
               </div>
             </div>
-            <div class="flex items-center gap-2 px-4 py-2.5 bg-white rounded-xl shadow-sm border border-neutral-200">
-              <div class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
-                <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <div class="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-white rounded-xl shadow-sm border border-neutral-200">
+              <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
               </div>
-              <div>
-                <p class="text-xs text-neutral-500">Verified</p>
-                <p class="font-bold text-neutral-900">100%</p>
+              <div class="min-w-0">
+                <p class="text-[10px] sm:text-xs text-neutral-500">Verified</p>
+                <p class="font-bold text-sm sm:text-base text-neutral-900">100%</p>
               </div>
             </div>
-            <div class="flex items-center gap-2 px-4 py-2.5 bg-white rounded-xl shadow-sm border border-neutral-200">
-              <div class="w-8 h-8 rounded-lg bg-secondary-100 flex items-center justify-center">
-                <span class="text-sm">🌍</span>
+            <div class="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-white rounded-xl shadow-sm border border-neutral-200">
+              <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-secondary-100 flex items-center justify-center flex-shrink-0">
+                <span class="text-xs sm:text-sm">🌍</span>
               </div>
-              <div>
-                <p class="text-xs text-neutral-500">Countries</p>
-                <p class="font-bold text-neutral-900">{{ uniqueCountriesCount }}</p>
+              <div class="min-w-0">
+                <p class="text-[10px] sm:text-xs text-neutral-500">Countries</p>
+                <p class="font-bold text-sm sm:text-base text-neutral-900">{{ uniqueCountriesCount }}</p>
               </div>
             </div>
           </div>

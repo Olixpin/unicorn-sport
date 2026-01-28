@@ -2,9 +2,11 @@
   <header 
     :class="[
       'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
-      isScrolled || !isHomePage 
-        ? 'bg-white/95 backdrop-blur-md border-b border-neutral-200 shadow-sm' 
-        : 'bg-transparent'
+      mobileMenuOpen 
+        ? 'bg-neutral-900 border-b border-neutral-800'
+        : isScrolled || !isHomePage 
+          ? 'bg-white/95 backdrop-blur-md border-b border-neutral-200 shadow-sm' 
+          : 'bg-transparent'
     ]"
   >
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -15,7 +17,7 @@
           <span 
             :class="[
               'font-display font-bold text-xl transition-colors',
-              isScrolled || !isHomePage ? 'text-primary-600' : 'text-white'
+              mobileMenuOpen ? 'text-white' : isScrolled || !isHomePage ? 'text-primary-600' : 'text-white'
             ]"
           >
             Unicorn Sport
@@ -118,7 +120,7 @@
         <!-- Mobile menu button -->
         <button 
           class="md:hidden p-2 rounded-lg transition-colors"
-          :class="isScrolled || !isHomePage ? 'text-neutral-600 hover:bg-neutral-100' : 'text-white hover:bg-white/10'"
+          :class="mobileMenuOpen ? 'text-white hover:bg-white/10' : isScrolled || !isHomePage ? 'text-neutral-600 hover:bg-neutral-100' : 'text-white hover:bg-white/10'"
           @click="mobileMenuOpen = !mobileMenuOpen"
         >
           <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -151,28 +153,31 @@
       >
         <div 
           v-if="mobileMenuOpen" 
-          :class="[
-            'md:hidden py-4 border-t',
-            isScrolled || !isHomePage ? 'border-neutral-200' : 'border-white/10'
-          ]"
+          class="md:hidden fixed inset-0 top-16 z-50 bg-neutral-900"
         >
-          <nav class="flex flex-col space-y-4">
+          <nav class="flex flex-col space-y-2 p-6">
             <NuxtLink 
               to="/discover" 
-              :class="[
-                'font-medium transition-colors py-2',
-                isScrolled || !isHomePage ? 'text-neutral-600 hover:text-primary-600' : 'text-neutral-300 hover:text-white'
-              ]"
+              class="font-medium text-lg text-white hover:text-primary-400 transition-colors py-3"
               @click="mobileMenuOpen = false"
             >
               Discover
             </NuxtLink>
+            
+            <!-- Live status badge -->
+            <div class="py-2">
+              <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-800 border border-neutral-700">
+                <span class="relative flex h-2.5 w-2.5">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary-500"></span>
+                </span>
+                <span class="text-sm text-neutral-300">Now scouting in 15+ African countries</span>
+              </div>
+            </div>
+            
             <NuxtLink 
               to="/pricing" 
-              :class="[
-                'font-medium transition-colors py-2',
-                isScrolled || !isHomePage ? 'text-neutral-600 hover:text-primary-600' : 'text-neutral-300 hover:text-white'
-              ]"
+              class="font-medium text-lg text-white hover:text-primary-400 transition-colors py-3"
               @click="mobileMenuOpen = false"
             >
               Pricing
@@ -181,30 +186,21 @@
               <NuxtLink 
                 v-if="authStore.isAdmin"
                 to="/admin" 
-                :class="[
-                  'font-medium transition-colors py-2',
-                  isScrolled || !isHomePage ? 'text-neutral-600 hover:text-primary-600' : 'text-neutral-300 hover:text-white'
-                ]"
+                class="font-medium text-lg text-white hover:text-primary-400 transition-colors py-3"
                 @click="mobileMenuOpen = false"
               >
                 Admin
               </NuxtLink>
               <NuxtLink 
                 to="/dashboard" 
-                :class="[
-                  'font-medium transition-colors py-2',
-                  isScrolled || !isHomePage ? 'text-neutral-600 hover:text-primary-600' : 'text-neutral-300 hover:text-white'
-                ]"
+                class="font-medium text-lg text-white hover:text-primary-400 transition-colors py-3"
                 @click="mobileMenuOpen = false"
               >
                 Dashboard
               </NuxtLink>
               <button 
                 @click="handleLogout; mobileMenuOpen = false" 
-                :class="[
-                  'font-medium transition-colors text-left py-2',
-                  isScrolled || !isHomePage ? 'text-neutral-600 hover:text-red-600' : 'text-neutral-300 hover:text-red-400'
-                ]"
+                class="font-medium text-lg text-white hover:text-red-400 transition-colors text-left py-3"
               >
                 Logout
               </button>
@@ -212,10 +208,7 @@
             <template v-else>
               <NuxtLink 
                 to="/auth/login" 
-                :class="[
-                  'font-medium transition-colors py-2',
-                  isScrolled || !isHomePage ? 'text-neutral-600 hover:text-primary-600' : 'text-neutral-300 hover:text-white'
-                ]"
+                class="font-medium text-lg text-white hover:text-primary-400 transition-colors py-3"
                 @click="mobileMenuOpen = false"
               >
                 Login

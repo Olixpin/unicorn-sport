@@ -26,52 +26,52 @@
     </div>
 
     <!-- Stats Summary -->
-    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
-      <div class="bg-white rounded-xl border border-neutral-200 p-4 flex items-center gap-4">
-        <div class="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
-          <svg class="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
+      <div class="bg-white rounded-xl border border-neutral-200 p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
+        <div class="w-9 h-9 sm:w-10 sm:h-10 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197" />
           </svg>
         </div>
-        <div>
-          <p class="text-2xl font-bold text-neutral-900">{{ total }}</p>
-          <p class="text-sm text-neutral-500">Total Users</p>
+        <div class="min-w-0">
+          <p class="text-xl sm:text-2xl font-bold text-neutral-900">{{ total }}</p>
+          <p class="text-xs sm:text-sm text-neutral-500">Total Users</p>
         </div>
       </div>
 
-      <div class="bg-white rounded-xl border border-neutral-200 p-4 flex items-center gap-4">
-        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-          <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div class="bg-white rounded-xl border border-neutral-200 p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
+        <div class="w-9 h-9 sm:w-10 sm:h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
         </div>
-        <div>
-          <p class="text-2xl font-bold text-neutral-900">{{ scoutCount }}</p>
-          <p class="text-sm text-neutral-500">Scouts</p>
+        <div class="min-w-0">
+          <p class="text-xl sm:text-2xl font-bold text-neutral-900">{{ scoutCount }}</p>
+          <p class="text-xs sm:text-sm text-neutral-500">Scouts</p>
         </div>
       </div>
 
-      <div class="bg-white rounded-xl border border-neutral-200 p-4 flex items-center gap-4">
-        <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
-          <svg class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div class="bg-white rounded-xl border border-neutral-200 p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
+        <div class="w-9 h-9 sm:w-10 sm:h-10 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
           </svg>
         </div>
-        <div>
-          <p class="text-2xl font-bold text-neutral-900">{{ adminCount }}</p>
-          <p class="text-sm text-neutral-500">Admins</p>
+        <div class="min-w-0">
+          <p class="text-xl sm:text-2xl font-bold text-neutral-900">{{ adminCount }}</p>
+          <p class="text-xs sm:text-sm text-neutral-500">Admins</p>
         </div>
       </div>
 
-      <div class="bg-white rounded-xl border border-neutral-200 p-4 flex items-center gap-4">
-        <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
-          <svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div class="bg-white rounded-xl border border-neutral-200 p-3 sm:p-4 flex items-center gap-3 sm:gap-4">
+        <div class="w-9 h-9 sm:w-10 sm:h-10 bg-emerald-100 rounded-lg flex items-center justify-center flex-shrink-0">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
-        <div>
-          <p class="text-2xl font-bold text-neutral-900">{{ activeCount }}</p>
-          <p class="text-sm text-neutral-500">Active</p>
+        <div class="min-w-0">
+          <p class="text-xl sm:text-2xl font-bold text-neutral-900">{{ activeCount }}</p>
+          <p class="text-xs sm:text-sm text-neutral-500">Active</p>
         </div>
       </div>
     </div>
@@ -163,19 +163,19 @@
               :key="user.id" 
               class="group hover:bg-neutral-50 transition-colors"
             >
-              <td class="px-6 py-4">
-                <div class="flex items-center gap-4">
+              <td class="px-4 sm:px-6 py-4">
+                <div class="flex items-center gap-3 sm:gap-4">
                   <div 
                     :class="[
-                      'w-11 h-11 rounded-xl flex items-center justify-center font-semibold text-sm',
+                      'w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center font-semibold text-xs sm:text-sm flex-shrink-0',
                       getRoleColorClass(user.role)
                     ]"
                   >
                     {{ getInitials(user) }}
                   </div>
-                  <div>
-                    <p class="font-medium text-neutral-900">{{ user.first_name || '' }} {{ user.last_name || '' }}</p>
-                    <p class="text-sm text-neutral-500">{{ user.email }}</p>
+                  <div class="min-w-0">
+                    <p class="font-medium text-neutral-900 truncate">{{ user.first_name || '' }} {{ user.last_name || '' }}</p>
+                    <p class="text-xs sm:text-sm text-neutral-500 truncate max-w-[150px] sm:max-w-none">{{ user.email }}</p>
                   </div>
                 </div>
               </td>
