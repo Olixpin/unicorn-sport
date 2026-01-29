@@ -32,3 +32,4 @@ vendor/
 
 # Backend build output
 backend/bin/
+backend/server
