@@ -63,7 +63,7 @@ func (m *MediaModule) GetS3Client() *s3.Client {
 
 // InitUploadRequest initiates a new upload session
 type InitUploadRequest struct {
-	UploadType  string `json:"upload_type" binding:"required,oneof=highlight full_match thumbnail profile_photo"`
+	UploadType  string `json:"upload_type" binding:"required,oneof=highlight full_match thumbnail profile_photo cover_image"`
 	FileName    string `json:"file_name" binding:"required"`
 	ContentType string `json:"content_type" binding:"required"`
 	FileSize    int64  `json:"file_size" binding:"required"`
@@ -105,7 +105,7 @@ func (m *MediaModule) InitUpload(c *gin.Context) {
 		} else {
 			maxSize = 25 * 1024 * 1024 * 1024 // 25GB for full matches
 		}
-	case "thumbnail", "profile_photo":
+	case "thumbnail", "profile_photo", "cover_image":
 		allowedTypes = map[string]bool{
 			"image/jpeg": true,
 			"image/png":  true,
@@ -113,6 +113,8 @@ func (m *MediaModule) InitUpload(c *gin.Context) {
 		}
 		if req.UploadType == "profile_photo" {
 			maxSize = 5 * 1024 * 1024 // 5MB for profile photos
+		} else if req.UploadType == "cover_image" {
+			maxSize = 10 * 1024 * 1024 // 10MB for cover images
 		} else {
 			maxSize = 10 * 1024 * 1024 // 10MB for thumbnails
 		}
@@ -147,6 +149,8 @@ func (m *MediaModule) InitUpload(c *gin.Context) {
 		s3Key = fmt.Sprintf("thumbnails/%s/%s", sessionID.String(), sanitizeFileName(req.FileName))
 	case "profile_photo":
 		s3Key = fmt.Sprintf("players/photos/%s/%s", sessionID.String(), sanitizeFileName(req.FileName))
+	case "cover_image":
+		s3Key = fmt.Sprintf("covers/%s/%s", sessionID.String(), sanitizeFileName(req.FileName))
 	}
 
 	expiresIn := 3600 // 1 hour

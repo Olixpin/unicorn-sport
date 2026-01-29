@@ -598,6 +598,123 @@
               </select>
             </div>
 
+            <!-- Cover Image Upload -->
+            <div>
+              <label class="block text-sm font-medium text-neutral-700 mb-1">Cover Image</label>
+              <div class="space-y-3">
+                <!-- Preview -->
+                <div v-if="coverImagePreview || editForm.cover_image_url" class="relative">
+                  <img
+                    :src="coverImagePreview || editForm.cover_image_url"
+                    alt="Cover preview"
+                    class="w-full h-40 object-cover rounded-xl border border-neutral-200"
+                  />
+                  <button
+                    v-if="editForm.cover_image_url || coverImagePreview"
+                    type="button"
+                    @click="removeCoverImage"
+                    class="absolute top-2 right-2 w-8 h-8 bg-white/90 hover:bg-white rounded-lg flex items-center justify-center text-neutral-600 hover:text-red-600 shadow transition-colors"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                
+                <!-- Upload button -->
+                <div v-if="!coverImagePreview && !editForm.cover_image_url" class="relative">
+                  <input
+                    ref="coverImageInput"
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    class="hidden"
+                    @change="handleCoverImageUpload"
+                  />
+                  <button
+                    type="button"
+                    @click="$refs.coverImageInput.click()"
+                    :disabled="uploadingCoverImage"
+                    class="w-full h-32 border-2 border-dashed border-neutral-300 rounded-xl flex flex-col items-center justify-center gap-2 hover:border-primary-400 hover:bg-primary-50/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <svg v-if="!uploadingCoverImage" class="w-8 h-8 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <div v-else class="w-6 h-6 border-2 border-primary-500/30 border-t-primary-500 rounded-full animate-spin"></div>
+                    <span class="text-sm text-neutral-500">
+                      {{ uploadingCoverImage ? 'Uploading...' : 'Click to upload cover image' }}
+                    </span>
+                    <span class="text-xs text-neutral-400">JPEG, PNG or WebP • Max 10MB</span>
+                  </button>
+                </div>
+                
+                <!-- Replace button when image exists -->
+                <div v-else class="flex gap-2">
+                  <input
+                    ref="coverImageInput"
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    class="hidden"
+                    @change="handleCoverImageUpload"
+                  />
+                  <button
+                    type="button"
+                    @click="$refs.coverImageInput.click()"
+                    :disabled="uploadingCoverImage"
+                    class="flex-1 px-3 py-2 text-sm border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors disabled:opacity-50"
+                  >
+                    {{ uploadingCoverImage ? 'Uploading...' : 'Replace image' }}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Visibility Toggles -->
+            <div class="space-y-4 pt-2">
+              <div class="flex items-center justify-between">
+                <div>
+                  <label class="block text-sm font-medium text-neutral-700">Make Public</label>
+                  <p class="text-xs text-neutral-500">Show this tournament on the public Tournaments page</p>
+                </div>
+                <button
+                  type="button"
+                  @click="editForm.is_public = !editForm.is_public"
+                  :class="[
+                    'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2',
+                    editForm.is_public ? 'bg-primary-600' : 'bg-neutral-200'
+                  ]"
+                >
+                  <span
+                    :class="[
+                      'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
+                      editForm.is_public ? 'translate-x-5' : 'translate-x-0'
+                    ]"
+                  />
+                </button>
+              </div>
+
+              <div class="flex items-center justify-between">
+                <div>
+                  <label class="block text-sm font-medium text-neutral-700">Featured Tournament</label>
+                  <p class="text-xs text-neutral-500">Highlight this tournament at the top of listings</p>
+                </div>
+                <button
+                  type="button"
+                  @click="editForm.featured = !editForm.featured"
+                  :class="[
+                    'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2',
+                    editForm.featured ? 'bg-primary-600' : 'bg-neutral-200'
+                  ]"
+                >
+                  <span
+                    :class="[
+                      'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
+                      editForm.featured ? 'translate-x-5' : 'translate-x-0'
+                    ]"
+                  />
+                </button>
+              </div>
+            </div>
+
             <div class="flex justify-end gap-3 pt-4">
               <button
                 type="button"
@@ -634,6 +751,9 @@ interface Tournament {
   location?: string
   status: string
   thumbnail_url?: string
+  is_public?: boolean
+  featured?: boolean
+  cover_image_url?: string
 }
 
 interface Match {
@@ -810,6 +930,11 @@ const showCreateMatchModal = ref(false)
 const creatingMatch = ref(false)
 const updatingTournament = ref(false)
 
+// Cover image upload state
+const uploadingCoverImage = ref(false)
+const coverImagePreview = ref<string | null>(null)
+const coverImageInput = ref<HTMLInputElement | null>(null)
+
 const matchForm = reactive({
   title: '',
   home_team: '',
@@ -828,6 +953,9 @@ const editForm = reactive({
   end_date: '',
   location: '',
   status: 'draft',
+  is_public: false,
+  featured: false,
+  cover_image_url: '',
 })
 
 // Initialize edit form when modal opens
@@ -839,6 +967,11 @@ watch(showEditModal, (isOpen) => {
     editForm.end_date = tournament.value.end_date?.split('T')[0] || ''
     editForm.location = tournament.value.location || ''
     editForm.status = tournament.value.status || 'draft'
+    editForm.is_public = tournament.value.is_public || false
+    editForm.featured = tournament.value.featured || false
+    editForm.cover_image_url = tournament.value.cover_image_url || ''
+    // Reset preview when opening modal
+    coverImagePreview.value = null
   }
 })
 
@@ -964,6 +1097,9 @@ async function updateTournament() {
         end_date: editForm.end_date,
         location: editForm.location || undefined,
         status: editForm.status,
+        is_public: editForm.is_public,
+        featured: editForm.featured,
+        cover_image_url: editForm.cover_image_url || undefined,
       },
     })
     if (response.success) {
@@ -976,6 +1112,86 @@ async function updateTournament() {
   } finally {
     updatingTournament.value = false
   }
+}
+
+// Cover image upload handlers
+async function handleCoverImageUpload(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+
+  // Validate file type
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
+  if (!allowedTypes.includes(file.type)) {
+    toast.error('Invalid File', 'Please upload a JPEG, PNG, or WebP image')
+    return
+  }
+
+  // Validate file size (10MB max)
+  if (file.size > 10 * 1024 * 1024) {
+    toast.error('File Too Large', 'Maximum file size is 10MB')
+    return
+  }
+
+  uploadingCoverImage.value = true
+
+  try {
+    // Step 1: Get presigned URL from backend
+    const initResponse = await $fetch<ApiResponse<{
+      upload_url: string
+      s3_key: string
+      session_id: string
+    }>>('/admin/upload/init', {
+      baseURL: config.public.apiBase,
+      method: 'POST',
+      headers: { Authorization: `Bearer ${authStore.accessToken}` },
+      body: {
+        upload_type: 'cover_image',
+        content_type: file.type,
+        file_name: file.name,
+        file_size: file.size,
+      },
+    })
+
+    if (!initResponse.success || !initResponse.data) {
+      throw new Error('Failed to initialize upload')
+    }
+
+    const { upload_url, s3_key } = initResponse.data
+
+    // Step 2: Upload directly to S3
+    const uploadResponse = await fetch(upload_url, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': file.type,
+      },
+      body: file,
+    })
+
+    if (!uploadResponse.ok) {
+      throw new Error('Failed to upload to S3')
+    }
+
+    // Step 3: Update the form with the S3 URL
+    editForm.cover_image_url = `s3://unicorn-sport-media/${s3_key}`
+
+    // Create preview URL for display
+    coverImagePreview.value = URL.createObjectURL(file)
+
+    toast.success('Image Uploaded', 'Cover image uploaded successfully')
+  } catch (error: any) {
+    console.error('Upload failed:', error)
+    toast.error('Upload Failed', error.message || 'Failed to upload cover image')
+  } finally {
+    uploadingCoverImage.value = false
+    // Reset input
+    if (input) input.value = ''
+  }
+}
+
+function removeCoverImage() {
+  editForm.cover_image_url = ''
+  coverImagePreview.value = null
 }
 
 function formatDateRange(start: string, end: string): string {
