@@ -859,9 +859,24 @@ func (m *AdminModule) UpdatePlayer(c *gin.Context) {
 	}
 	updates["updated_at"] = time.Now()
 
+	// Track if position is being changed for syncing to match rosters
+	oldPosition := player.Position
+	newPosition := ""
+	if req.Position != nil {
+		newPosition = *req.Position
+	}
+
 	if err := m.db.Model(&player).Updates(updates).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": gin.H{"code": "UPDATE_FAILED", "message": "Failed to update player"}})
 		return
+	}
+
+	// If position was changed, sync to all match rosters
+	// This ensures academy corrections propagate everywhere
+	if newPosition != "" && newPosition != oldPosition {
+		m.db.Model(&domain.MatchPlayer{}).
+			Where("player_id = ?", pid).
+			Update("position_played", newPosition)
 	}
 
 	// Reload the player to get updated values
