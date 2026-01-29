@@ -118,6 +118,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref, computed } from 'vue'
 import type { Player, ApiResponse } from '~/types'
 
 interface Props {

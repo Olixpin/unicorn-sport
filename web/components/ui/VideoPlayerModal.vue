@@ -283,6 +283,8 @@
 </template>
 
 <script setup lang="ts">
+import { ref, computed, watch, onUnmounted } from 'vue'
+
 // =============================================================================
 // TYPES
 // =============================================================================
@@ -359,7 +361,7 @@ const emit = defineEmits<VideoPlayerModalEmits>()
 
 const isOpen = computed({
   get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value),
+  set: (value: boolean) => emit('update:modelValue', value),
 })
 
 const videoRef = ref<HTMLVideoElement | null>(null)
@@ -475,7 +477,7 @@ function retry() {
 // WATCHERS
 // =============================================================================
 
-watch(() => props.modelValue, (open) => {
+watch(() => props.modelValue, (open: boolean) => {
   if (open) {
     loading.value = true
     error.value = null

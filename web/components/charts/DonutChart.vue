@@ -72,6 +72,8 @@ const segmentColors = [
   '#EC4899',
 ]
 
+import { computed } from 'vue'
+
 const total = computed(() => props.data.reduce((sum, item) => sum + item.value, 0))
 
 const segments = computed(() => {

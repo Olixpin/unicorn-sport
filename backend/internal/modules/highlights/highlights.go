@@ -655,6 +655,7 @@ func (m *Module) ListFeaturedHighlights(c *gin.Context) {
 	var highlights []domain.PlayerHighlight
 	err := m.DB.Where("status = 'approved'").
 		Preload("Player").
+		Preload("Player.Academy").
 		Preload("Match").
 		Order("created_at DESC").
 		Limit(limit).
@@ -665,21 +666,32 @@ func (m *Module) ListFeaturedHighlights(c *gin.Context) {
 		return
 	}
 
-	// Build response with stream URLs and thumbnail URLs
+	// Build response with stream URLs and thumbnail URLs - includes scout-critical fields
 	type highlightResponse struct {
 		ID              uuid.UUID `json:"id"`
 		HighlightType   string    `json:"highlight_type"`
 		Title           *string   `json:"title"`
+		Description     *string   `json:"description"`
 		ThumbnailURL    *string   `json:"thumbnail_url"`
 		StreamURL       string    `json:"stream_url"`
 		DurationSeconds *int      `json:"duration_seconds"`
 		ViewCount       int       `json:"view_count"`
 		CreatedAt       time.Time `json:"created_at"`
 		Player          *struct {
-			ID        uuid.UUID `json:"id"`
-			FirstName string    `json:"first_name"`
-			LastName  string    `json:"last_name"`
-			Position  string    `json:"position"`
+			ID                 uuid.UUID `json:"id"`
+			FirstName          string    `json:"first_name"`
+			LastName           string    `json:"last_name"`
+			Position           string    `json:"position"`
+			Country            string    `json:"country"`
+			DateOfBirth        time.Time `json:"date_of_birth"`
+			HeightCm           *int      `json:"height_cm,omitempty"`
+			PreferredFoot      *string   `json:"preferred_foot,omitempty"`
+			VerificationStatus string    `json:"verification_status"`
+			Academy            *struct {
+				ID         uuid.UUID `json:"id"`
+				Name       string    `json:"name"`
+				IsVerified bool      `json:"is_verified"`
+			} `json:"academy,omitempty"`
 		} `json:"player,omitempty"`
 		Match *struct {
 			ID    uuid.UUID `json:"id"`
@@ -693,6 +705,7 @@ func (m *Module) ListFeaturedHighlights(c *gin.Context) {
 			ID:              h.ID,
 			HighlightType:   h.HighlightType,
 			Title:           h.Title,
+			Description:     h.Description,
 			ThumbnailURL:    m.getThumbnailURL(h.ThumbnailURL),
 			StreamURL:       m.getStreamURL(h.VideoURL),
 			DurationSeconds: h.DurationSeconds,
@@ -700,17 +713,45 @@ func (m *Module) ListFeaturedHighlights(c *gin.Context) {
 			CreatedAt:       h.CreatedAt,
 		}
 		if h.Player.ID != uuid.Nil {
-			hr.Player = &struct {
-				ID        uuid.UUID `json:"id"`
-				FirstName string    `json:"first_name"`
-				LastName  string    `json:"last_name"`
-				Position  string    `json:"position"`
+			playerInfo := &struct {
+				ID                 uuid.UUID `json:"id"`
+				FirstName          string    `json:"first_name"`
+				LastName           string    `json:"last_name"`
+				Position           string    `json:"position"`
+				Country            string    `json:"country"`
+				DateOfBirth        time.Time `json:"date_of_birth"`
+				HeightCm           *int      `json:"height_cm,omitempty"`
+				PreferredFoot      *string   `json:"preferred_foot,omitempty"`
+				VerificationStatus string    `json:"verification_status"`
+				Academy            *struct {
+					ID         uuid.UUID `json:"id"`
+					Name       string    `json:"name"`
+					IsVerified bool      `json:"is_verified"`
+				} `json:"academy,omitempty"`
 			}{
-				ID:        h.Player.ID,
-				FirstName: h.Player.FirstName,
-				LastName:  h.Player.LastName,
-				Position:  h.Player.Position,
+				ID:                 h.Player.ID,
+				FirstName:          h.Player.FirstName,
+				LastName:           h.Player.LastName,
+				Position:           h.Player.Position,
+				Country:            h.Player.Country,
+				DateOfBirth:        h.Player.DateOfBirth,
+				HeightCm:           h.Player.HeightCm,
+				PreferredFoot:      h.Player.PreferredFoot,
+				VerificationStatus: h.Player.VerificationStatus,
 			}
+			// Add academy if present
+			if h.Player.Academy != nil {
+				playerInfo.Academy = &struct {
+					ID         uuid.UUID `json:"id"`
+					Name       string    `json:"name"`
+					IsVerified bool      `json:"is_verified"`
+				}{
+					ID:         h.Player.Academy.ID,
+					Name:       h.Player.Academy.Name,
+					IsVerified: h.Player.Academy.IsVerified,
+				}
+			}
+			hr.Player = playerInfo
 		}
 		if h.Match != nil {
 			hr.Match = &struct {

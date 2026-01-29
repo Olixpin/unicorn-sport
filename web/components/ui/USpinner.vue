@@ -23,6 +23,8 @@
 </template>
 
 <script setup lang="ts">
+import { computed, type ComputedRef } from 'vue'
+
 interface Props {
   size?: 'sm' | 'md' | 'lg' | 'xl'
   color?: 'primary' | 'white' | 'neutral'
@@ -33,7 +35,7 @@ const props = withDefaults(defineProps<Props>(), {
   color: 'primary',
 })
 
-const sizeClasses = computed(() => {
+const sizeClasses: ComputedRef<string> = computed(() => {
   const sizes = {
     sm: 'h-4 w-4',
     md: 'h-6 w-6',

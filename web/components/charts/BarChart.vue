@@ -65,6 +65,8 @@ const height = 150
 const padding = 20
 const barGap = 4
 
+import { computed } from 'vue'
+
 const maxValue = computed(() => Math.max(...props.data.values, 1))
 
 const barWidth = computed(() => {

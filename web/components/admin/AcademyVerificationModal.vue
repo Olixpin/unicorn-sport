@@ -122,6 +122,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref, reactive, computed, watch } from 'vue'
 import type { Academy } from '~/schemas/academy'
 
 interface Props {
@@ -145,7 +146,7 @@ const emit = defineEmits<Emits>()
 
 const isOpen = computed({
   get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value),
+  set: (value: boolean) => emit('update:modelValue', value),
 })
 
 const isVerifyMode = computed(() => props.mode === 'verify')
@@ -210,7 +211,7 @@ function handleConfirm() {
 }
 
 // Reset state when modal opens with new academy
-watch(() => props.modelValue, (newVal) => {
+watch(() => props.modelValue, (newVal: boolean) => {
   if (newVal) {
     resetState()
   }

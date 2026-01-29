@@ -35,6 +35,8 @@
 </template>
 
 <script setup lang="ts">
+import { computed, type ComputedRef } from 'vue'
+
 interface Props {
   type?: 'button' | 'submit' | 'reset'
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger'
@@ -55,7 +57,7 @@ defineEmits<{
   click: [event: MouseEvent]
 }>()
 
-const variantClasses = computed(() => {
+const variantClasses: ComputedRef<string> = computed(() => {
   const variants = {
     primary: 'bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500',
     secondary: 'bg-secondary-500 text-white hover:bg-secondary-600 focus:ring-secondary-400',

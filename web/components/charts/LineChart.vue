@@ -87,6 +87,8 @@ const width = 400
 const height = 200
 const padding = 20
 
+import { computed } from 'vue'
+
 const maxValue = computed(() => {
   const allValues = props.data.datasets.flat()
   return Math.max(...allValues, 1)

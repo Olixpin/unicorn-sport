@@ -91,7 +91,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, watch, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 
 // =============================================================================
 // TYPES
