@@ -73,6 +73,8 @@ type PlayerSearchResult struct {
 	ProfilePhotoURL *string `json:"profile_photo_url,omitempty"`
 	IsVerified      bool    `json:"is_verified"`
 	TournamentName  *string `json:"tournament_name,omitempty"`
+	AcademyName     *string `json:"academy_name,omitempty"`
+	VideoCount      int     `json:"video_count"`
 }
 
 // SearchPlayers performs full-text search on players
@@ -90,6 +92,8 @@ func (m *SearchModule) SearchPlayers(c *gin.Context) {
 
 	dbQuery := m.db.Model(&domain.Player{}).
 		Preload("Tournament").
+		Preload("Academy").
+		Preload("Videos").
 		Where("deleted_at IS NULL").
 		Where("verification_status = ?", "verified")
 
@@ -196,9 +200,13 @@ func (m *SearchModule) SearchPlayers(c *gin.Context) {
 			ThumbnailURL:    thumbnailURL,
 			ProfilePhotoURL: profilePhotoURL,
 			IsVerified:      p.IsVerified(),
+			VideoCount:      len(p.Videos),
 		}
 		if p.Tournament != nil {
 			results[i].TournamentName = &p.Tournament.Name
+		}
+		if p.Academy != nil {
+			results[i].AcademyName = &p.Academy.Name
 		}
 	}
 

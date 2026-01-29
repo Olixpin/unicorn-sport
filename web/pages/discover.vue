@@ -22,6 +22,17 @@
             <p class="mt-3 text-neutral-600 text-lg">
               Explore verified African football talent. Filter by position, age, and country to find your next signing.
             </p>
+            <!-- Watch Feed CTA -->
+            <NuxtLink 
+              to="/dashboard" 
+              class="inline-flex items-center gap-2 mt-4 px-5 py-2.5 bg-gradient-to-r from-primary-500 to-emerald-500 text-white rounded-xl font-semibold text-sm shadow-lg shadow-primary-500/25 hover:shadow-xl hover:shadow-primary-500/30 hover:-translate-y-0.5 transition-all duration-200"
+            >
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/>
+              </svg>
+              Watch Talent Feed
+              <span class="ml-1 px-1.5 py-0.5 bg-white/20 rounded text-xs">TikTok-style</span>
+            </NuxtLink>
           </div>
           
           <!-- Quick Stats Pills -->

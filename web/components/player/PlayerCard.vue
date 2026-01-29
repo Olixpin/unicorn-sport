@@ -1,6 +1,6 @@
 <template>
   <div class="group relative bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:shadow-primary-500/10 border border-neutral-100 hover:border-primary-200 transition-all duration-300 hover:-translate-y-1">
-    <!-- Save Button (overlaid) -->
+    <!-- Quick Actions (overlaid) - Save Button -->
     <button
       v-if="authStore.isAuthenticated && subscriptionStore.canSavePlayers"
       @click.prevent="toggleSave"
@@ -23,7 +23,7 @@
     </button>
 
     <NuxtLink :to="`/players/${player.id}`">
-      <!-- Player Image -->
+      <!-- Player Visual - Video Thumbnail Priority -->
       <div class="aspect-[4/5] relative overflow-hidden">
         <img
           v-if="playerImageUrl && !imageError"
@@ -54,15 +54,26 @@
           </div>
         </div>
 
+        <!-- Video Count Badge (if has videos) -->
+        <div 
+          v-if="player.video_count && player.video_count > 0"
+          class="absolute bottom-3 left-3 z-10 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-black/70 backdrop-blur-sm text-white text-xs font-semibold shadow-lg"
+        >
+          <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/>
+          </svg>
+          {{ player.video_count }} {{ player.video_count === 1 ? 'video' : 'videos' }}
+        </div>
+
         <!-- Verified Badge -->
         <div 
-          v-if="player.verification_status === 'verified'"
-          class="absolute bottom-3 right-3 bg-emerald-500 text-white px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 shadow-lg"
+          v-if="player.is_verified || player.verification_status === 'verified'"
+          class="absolute bottom-3 right-3 bg-emerald-500 text-white p-1.5 rounded-lg shadow-lg"
+          title="Verified Player"
         >
           <svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
           </svg>
-          Verified
         </div>
 
         <!-- Gradient overlay for text readability -->
@@ -82,6 +93,16 @@
               <span>{{ player.country }}</span>
             </p>
           </div>
+        </div>
+
+        <!-- Academy Badge (if available) -->
+        <div v-if="player.academy_name" class="mt-2">
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary-50 text-primary-700 text-xs font-medium">
+            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0z"/>
+            </svg>
+            {{ player.academy_name }}
+          </span>
         </div>
 
         <!-- Stats Row -->
