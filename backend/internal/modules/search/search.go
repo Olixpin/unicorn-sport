@@ -94,7 +94,7 @@ func (m *SearchModule) SearchPlayers(c *gin.Context) {
 	dbQuery := m.db.Model(&domain.Player{}).
 		Preload("Tournament").
 		Preload("Academy").
-		Preload("Videos").
+		Preload("Highlights").
 		Where("deleted_at IS NULL").
 		Where("verification_status = ?", "verified")
 
@@ -188,10 +188,10 @@ func (m *SearchModule) SearchPlayers(c *gin.Context) {
 			profilePhotoURL = &url
 		}
 
-		// Get video thumbnail from first video if available (action shot > static photo)
+		// Get video thumbnail from first highlight if available (action shot > static photo)
 		var videoThumbnailURL *string
-		if len(p.Videos) > 0 && p.Videos[0].ThumbnailURL != nil && *p.Videos[0].ThumbnailURL != "" {
-			url := m.getPresignedURL(*p.Videos[0].ThumbnailURL)
+		if len(p.Highlights) > 0 && p.Highlights[0].ThumbnailURL != nil && *p.Highlights[0].ThumbnailURL != "" {
+			url := m.getPresignedURL(*p.Highlights[0].ThumbnailURL)
 			videoThumbnailURL = &url
 		}
 
@@ -209,7 +209,7 @@ func (m *SearchModule) SearchPlayers(c *gin.Context) {
 			ProfilePhotoURL:   profilePhotoURL,
 			VideoThumbnailURL: videoThumbnailURL,
 			IsVerified:        p.IsVerified(),
-			VideoCount:        len(p.Videos),
+			VideoCount:        len(p.Highlights),
 		}
 		if p.Tournament != nil {
 			results[i].TournamentName = &p.Tournament.Name

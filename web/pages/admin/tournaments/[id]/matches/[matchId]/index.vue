@@ -617,11 +617,13 @@
                   <p class="text-sm text-neutral-500">Click to upload video (max 1GB)</p>
                 </div>
                 <div v-else class="flex items-center justify-center gap-2">
-                  <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-5 h-5 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                   </svg>
-                  <span class="text-sm font-medium">{{ highlightFile.name }}</span>
-                  <span class="text-xs text-neutral-500">({{ formatFileSize(highlightFile.size) }})</span>
+                  <span class="text-sm font-medium truncate max-w-[200px]" :title="highlightFile.name">
+                    {{ truncateFilename(highlightFile.name, 25) }}
+                  </span>
+                  <span class="text-xs text-neutral-500 flex-shrink-0">({{ formatFileSize(highlightFile.size) }})</span>
                 </div>
               </div>
             </div>
@@ -2331,6 +2333,15 @@ function formatFileSize(bytes?: number): string {
   const sizes = ['B', 'KB', 'MB', 'GB']
   const i = Math.floor(Math.log(bytes) / Math.log(1024))
   return `${(bytes / Math.pow(1024, i)).toFixed(1)} ${sizes[i]}`
+}
+
+// Truncate long filenames while preserving extension
+function truncateFilename(filename: string, maxLength: number): string {
+  if (filename.length <= maxLength) return filename
+  const ext = filename.slice(filename.lastIndexOf('.'))
+  const name = filename.slice(0, filename.lastIndexOf('.'))
+  const truncatedName = name.slice(0, maxLength - ext.length - 3) + '...'
+  return truncatedName + ext
 }
 
 function getStatusClass(status?: string): string {

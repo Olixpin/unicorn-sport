@@ -126,10 +126,11 @@ type Player struct {
 	UpdatedAt           time.Time  `json:"updated_at"`
 	DeletedAt           *time.Time `json:"-" gorm:"index"`
 
-	Tournament     *Tournament     `json:"tournament,omitempty" gorm:"foreignKey:TournamentID"`
-	Academy        *Academy        `json:"academy,omitempty" gorm:"foreignKey:AcademyID"`
-	Videos         []Video         `json:"videos,omitempty" gorm:"many2many:player_videos;"`
-	AcademyPlayers []AcademyPlayer `json:"academy_memberships,omitempty" gorm:"foreignKey:PlayerID"`
+	Tournament     *Tournament       `json:"tournament,omitempty" gorm:"foreignKey:TournamentID"`
+	Academy        *Academy          `json:"academy,omitempty" gorm:"foreignKey:AcademyID"`
+	Videos         []Video           `json:"videos,omitempty" gorm:"many2many:player_videos;"`
+	Highlights     []PlayerHighlight `json:"highlights,omitempty" gorm:"foreignKey:PlayerID"`
+	AcademyPlayers []AcademyPlayer   `json:"academy_memberships,omitempty" gorm:"foreignKey:PlayerID"`
 }
 
 // AcademyPlayer represents a player's membership in an academy with their squad role
