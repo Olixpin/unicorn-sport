@@ -54,15 +54,16 @@
           </div>
         </div>
 
-        <!-- Video Count Badge (if has videos) -->
+        <!-- Video Count Badge -->
         <div 
-          v-if="player.video_count && player.video_count > 0"
-          class="absolute bottom-3 left-3 z-10 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-black/70 backdrop-blur-sm text-white text-xs font-semibold shadow-lg"
+          class="absolute bottom-3 left-3 z-10 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg backdrop-blur-sm text-xs font-semibold shadow-lg"
+          :class="hasVideos ? 'bg-black/70 text-white' : 'bg-white/80 text-neutral-500'"
         >
           <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/>
           </svg>
-          {{ player.video_count }} {{ player.video_count === 1 ? 'video' : 'videos' }}
+          <span v-if="hasVideos">{{ player.video_count }} {{ player.video_count === 1 ? 'video' : 'videos' }}</span>
+          <span v-else>No videos yet</span>
         </div>
 
         <!-- Verified Badge -->
@@ -177,9 +178,15 @@ const playerLastInitial = computed(() => {
   return initial.replace(/\.$/, '')
 })
 
-// Image URL - try thumbnail first (from list API), then profile photo
+// Image URL priority: video thumbnail (action shot) > thumbnail > profile photo
+// Video thumbnails show players in action which is more valuable for scouts
 const playerImageUrl = computed(() => {
-  return props.player?.thumbnail_url || props.player?.profile_photo_url || null
+  return props.player?.video_thumbnail_url || props.player?.thumbnail_url || props.player?.profile_photo_url || null
+})
+
+// Check if player has videos
+const hasVideos = computed(() => {
+  return props.player?.video_count && props.player.video_count > 0
 })
 
 // Player initials for fallback avatar

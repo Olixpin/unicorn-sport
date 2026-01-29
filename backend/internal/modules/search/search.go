@@ -60,21 +60,22 @@ func (m *SearchModule) getPresignedURL(s3URL string) string {
 
 // PlayerSearchResult represents a search result
 type PlayerSearchResult struct {
-	ID              string  `json:"id"`
-	FirstName       string  `json:"first_name"`
-	LastNameInit    string  `json:"last_name_init"`
-	Age             int     `json:"age"`
-	Position        string  `json:"position"`
-	Country         string  `json:"country"`
-	State           *string `json:"state,omitempty"`
-	HeightCm        *int    `json:"height_cm,omitempty"`
-	PreferredFoot   *string `json:"preferred_foot,omitempty"`
-	ThumbnailURL    *string `json:"thumbnail_url,omitempty"`
-	ProfilePhotoURL *string `json:"profile_photo_url,omitempty"`
-	IsVerified      bool    `json:"is_verified"`
-	TournamentName  *string `json:"tournament_name,omitempty"`
-	AcademyName     *string `json:"academy_name,omitempty"`
-	VideoCount      int     `json:"video_count"`
+	ID                string  `json:"id"`
+	FirstName         string  `json:"first_name"`
+	LastNameInit      string  `json:"last_name_init"`
+	Age               int     `json:"age"`
+	Position          string  `json:"position"`
+	Country           string  `json:"country"`
+	State             *string `json:"state,omitempty"`
+	HeightCm          *int    `json:"height_cm,omitempty"`
+	PreferredFoot     *string `json:"preferred_foot,omitempty"`
+	ThumbnailURL      *string `json:"thumbnail_url,omitempty"`
+	ProfilePhotoURL   *string `json:"profile_photo_url,omitempty"`
+	VideoThumbnailURL *string `json:"video_thumbnail_url,omitempty"`
+	IsVerified        bool    `json:"is_verified"`
+	TournamentName    *string `json:"tournament_name,omitempty"`
+	AcademyName       *string `json:"academy_name,omitempty"`
+	VideoCount        int     `json:"video_count"`
 }
 
 // SearchPlayers performs full-text search on players
@@ -187,20 +188,28 @@ func (m *SearchModule) SearchPlayers(c *gin.Context) {
 			profilePhotoURL = &url
 		}
 
+		// Get video thumbnail from first video if available (action shot > static photo)
+		var videoThumbnailURL *string
+		if len(p.Videos) > 0 && p.Videos[0].ThumbnailURL != nil && *p.Videos[0].ThumbnailURL != "" {
+			url := m.getPresignedURL(*p.Videos[0].ThumbnailURL)
+			videoThumbnailURL = &url
+		}
+
 		results[i] = PlayerSearchResult{
-			ID:              p.ID.String(),
-			FirstName:       p.FirstName,
-			LastNameInit:    p.GetLastNameInit(),
-			Age:             p.GetAge(),
-			Position:        p.Position,
-			Country:         p.Country,
-			State:           p.State,
-			HeightCm:        p.HeightCm,
-			PreferredFoot:   p.PreferredFoot,
-			ThumbnailURL:    thumbnailURL,
-			ProfilePhotoURL: profilePhotoURL,
-			IsVerified:      p.IsVerified(),
-			VideoCount:      len(p.Videos),
+			ID:                p.ID.String(),
+			FirstName:         p.FirstName,
+			LastNameInit:      p.GetLastNameInit(),
+			Age:               p.GetAge(),
+			Position:          p.Position,
+			Country:           p.Country,
+			State:             p.State,
+			HeightCm:          p.HeightCm,
+			PreferredFoot:     p.PreferredFoot,
+			ThumbnailURL:      thumbnailURL,
+			ProfilePhotoURL:   profilePhotoURL,
+			VideoThumbnailURL: videoThumbnailURL,
+			IsVerified:        p.IsVerified(),
+			VideoCount:        len(p.Videos),
 		}
 		if p.Tournament != nil {
 			results[i].TournamentName = &p.Tournament.Name

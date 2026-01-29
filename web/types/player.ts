@@ -18,6 +18,7 @@ export interface Player {
   is_verified?: boolean
   profile_photo_url?: string
   thumbnail_url?: string
+  video_thumbnail_url?: string
   tournament_id?: string
   tournament_year?: number
   tournament_name?: string
