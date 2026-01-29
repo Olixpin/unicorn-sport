@@ -63,6 +63,7 @@ func (m *ProfilesModule) getPresignedURL(s3URL string) string {
 type PlayerListResponse struct {
 	ID                uuid.UUID `json:"id"`
 	FirstName         string    `json:"first_name"`
+	LastName          string    `json:"last_name"`
 	LastNameInit      string    `json:"last_name_init"`
 	Age               int       `json:"age"`
 	Position          string    `json:"position"`
@@ -212,6 +213,7 @@ func (m *ProfilesModule) ListPlayers(c *gin.Context) {
 		response[i] = PlayerListResponse{
 			ID:                p.ID,
 			FirstName:         p.FirstName,
+			LastName:          p.LastName,
 			LastNameInit:      p.GetLastNameInit(),
 			Age:               p.GetAge(),
 			Position:          p.Position,

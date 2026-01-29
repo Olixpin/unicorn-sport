@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-black lg:bg-neutral-100">
+  <div class="min-h-screen" :class="isFeedPage ? 'bg-black' : 'bg-neutral-50'">
     <div class="flex">
       <!-- Sidebar -->
       <aside class="hidden lg:flex lg:flex-col w-72 bg-white border-r border-neutral-200 min-h-screen fixed left-0 top-0 bottom-0">
@@ -253,14 +253,14 @@
       </main>
     </div>
 
-    <!-- Bottom Navigation (Mobile Only) - TikTok Style -->
-    <nav class="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-lg border-t border-white/10 safe-area-pb">
+    <!-- Bottom Navigation (Mobile Only) -->
+    <nav class="lg:hidden fixed bottom-0 left-0 right-0 z-50 backdrop-blur-lg safe-area-pb" :class="isFeedPage ? 'bg-black/95 border-t border-white/10' : 'bg-white border-t border-neutral-200'">
       <div class="flex items-center justify-around h-14">
         <!-- Home -->
         <NuxtLink 
           to="/dashboard" 
           class="flex flex-col items-center justify-center flex-1 h-full"
-          :class="route.path === '/dashboard' ? 'text-white' : 'text-white/50'"
+          :class="route.path === '/dashboard' ? (isFeedPage ? 'text-white' : 'text-primary-600') : (isFeedPage ? 'text-white/50' : 'text-neutral-400')"
         >
           <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
             <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
@@ -272,7 +272,7 @@
         <NuxtLink 
           to="/discover" 
           class="flex flex-col items-center justify-center flex-1 h-full"
-          :class="route.path === '/discover' ? 'text-white' : 'text-white/50'"
+          :class="route.path === '/discover' ? (isFeedPage ? 'text-white' : 'text-primary-600') : (isFeedPage ? 'text-white/50' : 'text-neutral-400')"
         >
           <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -284,7 +284,7 @@
         <NuxtLink 
           to="/dashboard/saved" 
           class="flex flex-col items-center justify-center flex-1 h-full"
-          :class="route.path === '/dashboard/saved' ? 'text-white' : 'text-white/50'"
+          :class="route.path === '/dashboard/saved' ? (isFeedPage ? 'text-white' : 'text-primary-600') : (isFeedPage ? 'text-white/50' : 'text-neutral-400')"
         >
           <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
             <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
@@ -295,7 +295,8 @@
         <!-- Menu / More -->
         <button 
           @click="mobileMenuOpen = !mobileMenuOpen"
-          class="flex flex-col items-center justify-center flex-1 h-full text-white/50"
+          class="flex flex-col items-center justify-center flex-1 h-full"
+          :class="isFeedPage ? 'text-white/50' : 'text-neutral-400'"
         >
           <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />

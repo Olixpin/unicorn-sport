@@ -62,6 +62,7 @@ func (m *SearchModule) getPresignedURL(s3URL string) string {
 type PlayerSearchResult struct {
 	ID                string  `json:"id"`
 	FirstName         string  `json:"first_name"`
+	LastName          string  `json:"last_name"`
 	LastNameInit      string  `json:"last_name_init"`
 	Age               int     `json:"age"`
 	Position          string  `json:"position"`
@@ -198,6 +199,7 @@ func (m *SearchModule) SearchPlayers(c *gin.Context) {
 		results[i] = PlayerSearchResult{
 			ID:                p.ID.String(),
 			FirstName:         p.FirstName,
+			LastName:          p.LastName,
 			LastNameInit:      p.GetLastNameInit(),
 			Age:               p.GetAge(),
 			Position:          p.Position,

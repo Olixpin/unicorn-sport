@@ -1,36 +1,36 @@
 <template>
   <NuxtLink 
     :to="`/players/${player.id}`"
-    class="group block bg-white rounded-xl overflow-hidden border border-neutral-200 hover:border-primary-400 hover:shadow-md transition-all duration-200"
+    class="group block bg-white rounded-lg overflow-hidden border border-neutral-200 hover:border-primary-400 hover:shadow-md transition-all duration-200"
   >
-    <!-- Player Image -->
-    <div class="aspect-[4/3] relative overflow-hidden bg-neutral-100">
+    <!-- Player Image - Square aspect ratio for more cards visible -->
+    <div class="aspect-square relative overflow-hidden bg-neutral-100">
       <img
         v-if="playerImageUrl && !imageError"
         :src="playerImageUrl"
-        :alt="`${player.first_name} ${playerLastInitial}.`"
-        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+        :alt="fullName"
+        class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
         @error="handleImageError"
       />
       <!-- Fallback Avatar -->
-      <div v-else class="w-full h-full flex items-center justify-center">
-        <span class="text-3xl font-bold text-neutral-300">{{ playerInitials }}</span>
+      <div v-else class="w-full h-full flex items-center justify-center bg-gradient-to-br from-neutral-100 to-neutral-200">
+        <span class="text-2xl font-bold text-neutral-400">{{ playerInitials }}</span>
       </div>
 
       <!-- Position Badge - Top Right -->
       <div 
-        class="absolute top-2 right-2 px-2 py-0.5 rounded-md text-xs font-bold"
+        class="absolute top-2 right-2 px-1.5 py-0.5 rounded text-[10px] font-bold"
         :class="positionBadgeClass"
       >
         {{ positionAbbrev }}
       </div>
 
-      <!-- Video Count - Bottom Left -->
+      <!-- Video Count - Bottom Left (only if has videos) -->
       <div 
         v-if="hasVideos"
-        class="absolute bottom-2 left-2 flex items-center gap-1 px-2 py-1 rounded-md bg-black/80 text-white text-xs font-semibold"
+        class="absolute bottom-2 left-2 flex items-center gap-1 px-1.5 py-0.5 rounded bg-black/80 text-white text-[10px] font-semibold"
       >
-        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+        <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/>
         </svg>
         {{ player.video_count }}
@@ -41,30 +41,30 @@
         v-if="authStore.isAuthenticated && subscriptionStore.canSavePlayers"
         @click.prevent="toggleSave"
         :disabled="saving"
-        class="absolute top-2 left-2 p-1.5 rounded-lg bg-white/90 hover:bg-white transition-all"
+        class="absolute top-2 left-2 p-1 rounded bg-white/90 hover:bg-white transition-all"
         :class="isSaved ? 'text-rose-500' : 'text-neutral-400 hover:text-rose-500'"
       >
-        <svg class="w-4 h-4" :fill="isSaved ? 'currentColor' : 'none'" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <svg class="w-3.5 h-3.5" :fill="isSaved ? 'currentColor' : 'none'" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
         </svg>
       </button>
     </div>
 
-    <!-- Player Info -->
-    <div class="p-3">
-      <!-- Name Row -->
-      <h3 class="font-semibold text-neutral-900 truncate group-hover:text-primary-600 transition-colors">
-        {{ player.first_name }} {{ playerLastInitial }}.
+    <!-- Player Info - Compact -->
+    <div class="p-2">
+      <!-- Full Name with truncation -->
+      <h3 class="font-semibold text-sm text-neutral-900 truncate group-hover:text-primary-600 transition-colors" :title="fullName">
+        {{ fullName }}
       </h3>
       
-      <!-- Stats Row -->
-      <div class="flex items-center gap-1.5 mt-1 text-xs text-neutral-500">
+      <!-- Stats Row - Only show available data -->
+      <div class="flex items-center gap-1 mt-0.5 text-[11px] text-neutral-500">
         <span>{{ countryFlag }}</span>
-        <span class="font-medium text-neutral-700">{{ displayAge }}</span>
-        <span class="text-neutral-300">·</span>
-        <span class="font-medium text-neutral-700">{{ displayHeight }}</span>
-        <span v-if="player.academy_name" class="text-neutral-300">·</span>
-        <span v-if="player.academy_name" class="truncate text-primary-600">{{ player.academy_name }}</span>
+        <span v-if="playerAge" class="font-medium text-neutral-700">{{ playerAge }}y</span>
+        <template v-if="player.height_cm">
+          <span class="text-neutral-300">·</span>
+          <span class="font-medium text-neutral-700">{{ player.height_cm }}cm</span>
+        </template>
       </div>
     </div>
   </NuxtLink>
@@ -107,6 +107,13 @@ const playerLastInitial = computed(() => {
   }
   // Remove trailing period if the API already added one
   return initial.replace(/\.$/, '')
+})
+
+// Full name for display - uses last_name, truncates with CSS if too long
+const fullName = computed(() => {
+  const firstName = props.player?.first_name || ''
+  const lastName = props.player?.last_name || ''
+  return `${firstName} ${lastName}`.trim()
 })
 
 // Image URL priority: video thumbnail (action shot) > thumbnail > profile photo
