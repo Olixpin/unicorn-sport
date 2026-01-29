@@ -37,16 +37,16 @@
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           <!-- Mobile & Desktop: Horizontal compact layout -->
           <div class="flex gap-4 sm:gap-6">
-            <!-- Photo - proper aspect ratio -->
+            <!-- Photo - sized to image content -->
             <div class="flex-shrink-0">
-              <div class="w-24 h-32 sm:w-32 sm:h-44 lg:w-40 lg:h-52 rounded-2xl overflow-hidden bg-neutral-800 ring-2 ring-white/10 shadow-xl">
+              <div class="w-24 sm:w-32 lg:w-40 rounded-2xl overflow-hidden ring-2 ring-white/10 shadow-xl">
                 <img
                   v-if="player.profile_photo_url"
                   :src="player.profile_photo_url"
                   :alt="playerFullName"
-                  class="w-full h-full object-cover object-top"
+                  class="w-full h-auto max-h-44 sm:max-h-52 lg:max-h-60 object-cover object-top"
                 />
-                <div v-else class="w-full h-full flex items-center justify-center bg-gradient-to-br from-neutral-700 to-neutral-800">
+                <div v-else class="aspect-[3/4] flex items-center justify-center bg-gradient-to-br from-neutral-700 to-neutral-800">
                   <svg class="h-12 w-12 sm:h-16 sm:w-16 text-neutral-500" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                   </svg>

@@ -96,6 +96,7 @@ type FeaturedPlayerResponse struct {
 type PlayerDetailResponse struct {
 	ID              uuid.UUID       `json:"id"`
 	FirstName       string          `json:"first_name"`
+	LastName        string          `json:"last_name"`
 	LastNameInit    string          `json:"last_name_init"`
 	Age             int             `json:"age"`
 	Position        string          `json:"position"`
@@ -103,9 +104,11 @@ type PlayerDetailResponse struct {
 	HeightCm        *int            `json:"height_cm,omitempty"`
 	WeightKg        *int            `json:"weight_kg,omitempty"`
 	Country         string          `json:"country"`
+	City            *string         `json:"city,omitempty"`
 	State           *string         `json:"state,omitempty"`
 	SchoolName      *string         `json:"school_name,omitempty"`
 	TournamentName  *string         `json:"tournament_name,omitempty"`
+	AcademyName     *string         `json:"academy_name,omitempty"`
 	ProfilePhotoURL *string         `json:"profile_photo_url,omitempty"`
 	IsVerified      bool            `json:"is_verified"`
 	HighlightVideos []VideoResponse `json:"highlight_videos"`
@@ -263,7 +266,7 @@ func (m *ProfilesModule) GetPlayer(c *gin.Context) {
 	}
 
 	var player domain.Player
-	if err := m.db.Preload("Tournament").First(&player, "id = ? AND deleted_at IS NULL", pid).Error; err != nil {
+	if err := m.db.Preload("Tournament").Preload("Academy").First(&player, "id = ? AND deleted_at IS NULL", pid).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"success": false, "error": gin.H{"code": "NOT_FOUND", "message": "Player not found"}})
 		return
 	}
@@ -299,6 +302,7 @@ func (m *ProfilesModule) GetPlayer(c *gin.Context) {
 	response := PlayerDetailResponse{
 		ID:              player.ID,
 		FirstName:       player.FirstName,
+		LastName:        player.LastName,
 		LastNameInit:    player.GetLastNameInit(),
 		Age:             player.GetAge(),
 		Position:        player.Position,
@@ -306,6 +310,7 @@ func (m *ProfilesModule) GetPlayer(c *gin.Context) {
 		HeightCm:        player.HeightCm,
 		WeightKg:        player.WeightKg,
 		Country:         player.Country,
+		City:            player.City,
 		State:           player.State,
 		SchoolName:      player.SchoolName,
 		ProfilePhotoURL: profilePhotoURL,
@@ -316,6 +321,10 @@ func (m *ProfilesModule) GetPlayer(c *gin.Context) {
 
 	if player.Tournament != nil {
 		response.TournamentName = &player.Tournament.Name
+	}
+
+	if player.Academy != nil && player.Academy.Name != "" {
+		response.AcademyName = &player.Academy.Name
 	}
 
 	for i, v := range highlightVideos {
