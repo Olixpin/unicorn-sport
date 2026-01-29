@@ -1,25 +1,25 @@
 <template>
-  <div class="space-y-4">
-    <!-- Header -->
-    <div class="flex items-center justify-between">
+  <div>
+    <!-- Header - Has its own padding -->
+    <div class="flex items-center justify-between px-4 sm:px-0 py-3 sm:py-0 sm:mb-4">
       <div>
-        <h1 class="text-xl sm:text-2xl font-bold text-neutral-900">Talent Feed</h1>
-        <p class="text-neutral-500 text-sm">Watch player highlights</p>
+        <h1 class="text-lg sm:text-xl md:text-2xl font-bold text-neutral-900">Talent Feed</h1>
+        <p class="text-neutral-500 text-xs sm:text-sm">Watch player highlights</p>
       </div>
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-1.5 sm:gap-2">
         <NuxtLink to="/dashboard/saved" class="relative">
-          <button class="w-10 h-10 rounded-xl bg-white border border-neutral-200 flex items-center justify-center hover:bg-neutral-50 transition-colors">
-            <svg class="w-5 h-5 text-neutral-600" fill="currentColor" viewBox="0 0 24 24">
+          <button class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white border border-neutral-200 flex items-center justify-center hover:bg-neutral-50 transition-colors">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 text-neutral-600" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
             </svg>
-            <span v-if="savedCount > 0" class="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 rounded-full text-[10px] text-white font-bold flex items-center justify-center">
+            <span v-if="savedCount > 0" class="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-rose-500 rounded-full text-[9px] sm:text-[10px] text-white font-bold flex items-center justify-center">
               {{ savedCount > 9 ? '9+' : savedCount }}
             </span>
           </button>
         </NuxtLink>
         <NuxtLink to="/discover">
-          <button class="w-10 h-10 rounded-xl bg-primary-500 flex items-center justify-center hover:bg-primary-600 transition-colors">
-            <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <button class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-primary-500 flex items-center justify-center hover:bg-primary-600 transition-colors">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </button>
@@ -36,7 +36,7 @@
     </div>
 
     <!-- Empty State -->
-    <div v-else-if="allHighlights.length === 0" class="flex items-center justify-center py-20">
+    <div v-else-if="allHighlights.length === 0" class="flex items-center justify-center py-20 px-4">
       <div class="text-center">
         <div class="w-20 h-20 mx-auto bg-neutral-100 rounded-full flex items-center justify-center mb-6">
           <svg class="w-10 h-10 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -53,15 +53,15 @@
       </div>
     </div>
 
-    <!-- Video Feed - Vertical Cards -->
-    <div v-else class="space-y-4">
+    <!-- Video Feed - Full width on mobile, cards on desktop -->
+    <div v-else class="space-y-0 sm:space-y-4">
       <div 
         v-for="(highlight, index) in allHighlights" 
         :key="highlight.id"
-        class="rounded-2xl overflow-hidden shadow-xl"
+        class="sm:rounded-2xl overflow-hidden sm:shadow-xl"
       >
-        <!-- Video Container - Full bleed like Instagram Reels -->
-        <div class="relative aspect-[9/16] max-h-[75vh]">
+        <!-- Video Container - Full width, full height on mobile -->
+        <div class="relative aspect-[9/16] sm:max-h-[75vh]">
           <video
             :id="`video-${index}`"
             class="w-full h-full object-cover"
@@ -91,8 +91,8 @@
           <!-- Gradient overlays -->
           <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60 pointer-events-none" />
 
-          <!-- Right Side Actions -->
-          <div class="absolute right-3 bottom-24 flex flex-col items-center gap-4">
+          <!-- Right Side Actions - Responsive -->
+          <div class="absolute right-2 sm:right-3 bottom-20 sm:bottom-24 flex flex-col items-center gap-3 sm:gap-4">
             <!-- Save/Shortlist (Heart) - Only for paid users -->
             <button 
               v-if="highlight.player && subscriptionStore.canSavePlayers"
@@ -100,7 +100,7 @@
               @click.stop="toggleSaveHighlight(highlight)"
             >
               <svg 
-                class="w-8 h-8 transition-all duration-200 drop-shadow-lg" 
+                class="w-7 h-7 sm:w-8 sm:h-8 transition-all duration-200 drop-shadow-lg" 
                 :class="isHighlightSaved(highlight) ? 'text-rose-500 scale-110' : 'text-white group-hover:scale-110 group-active:scale-95'"
                 :fill="isHighlightSaved(highlight) ? 'currentColor' : 'none'" 
                 viewBox="0 0 24 24" 
@@ -109,7 +109,7 @@
               >
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
-              <span class="text-white text-[10px] font-medium drop-shadow">
+              <span class="text-white text-[9px] sm:text-[10px] font-medium drop-shadow">
                 {{ isHighlightSaved(highlight) ? 'Saved' : 'Save' }}
               </span>
             </button>
@@ -117,26 +117,26 @@
             <!-- Upgrade prompt for free users - Shows heart with lock -->
             <NuxtLink v-if="!subscriptionStore.canSavePlayers && highlight.player" to="/pricing">
               <button class="flex flex-col items-center gap-0.5 group relative">
-                <svg class="w-8 h-8 text-white/70 drop-shadow-lg group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <svg class="w-7 h-7 sm:w-8 sm:h-8 text-white/70 drop-shadow-lg group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                 </svg>
                 <!-- Lock badge -->
-                <div class="absolute top-4 right-0 w-4 h-4 bg-amber-500 rounded-full flex items-center justify-center">
-                  <svg class="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <div class="absolute top-3.5 sm:top-4 right-0 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-amber-500 rounded-full flex items-center justify-center">
+                  <svg class="w-1.5 h-1.5 sm:w-2 sm:h-2 text-white" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
                   </svg>
                 </div>
-                <span class="text-amber-400 text-[10px] font-medium drop-shadow">Pro</span>
+                <span class="text-amber-400 text-[9px] sm:text-[10px] font-medium drop-shadow">Pro</span>
               </button>
             </NuxtLink>
 
             <!-- View Profile -->
             <NuxtLink v-if="highlight.player" :to="`/players/${highlight.player.id}`">
               <button class="flex flex-col items-center gap-0.5 group">
-                <svg class="w-8 h-8 text-white drop-shadow-lg group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <svg class="w-7 h-7 sm:w-8 sm:h-8 text-white drop-shadow-lg group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
-                <span class="text-white text-[10px] font-medium drop-shadow">Profile</span>
+                <span class="text-white text-[9px] sm:text-[10px] font-medium drop-shadow">Profile</span>
               </button>
             </NuxtLink>
 
@@ -145,27 +145,27 @@
               class="flex flex-col items-center gap-0.5 group"
               @click.stop="toggleMute(index)"
             >
-              <svg v-if="isMuted" class="w-8 h-8 text-white drop-shadow-lg group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <svg v-if="isMuted" class="w-7 h-7 sm:w-8 sm:h-8 text-white drop-shadow-lg group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
                 <path stroke-linecap="round" stroke-linejoin="round" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
               </svg>
-              <svg v-else class="w-8 h-8 text-white drop-shadow-lg group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <svg v-else class="w-7 h-7 sm:w-8 sm:h-8 text-white drop-shadow-lg group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
               </svg>
-              <span class="text-white text-[10px] font-medium drop-shadow">{{ isMuted ? 'Sound' : 'Mute' }}</span>
+              <span class="text-white text-[9px] sm:text-[10px] font-medium drop-shadow">{{ isMuted ? 'Sound' : 'Mute' }}</span>
             </button>
           </div>
 
-          <!-- Bottom Player Info -->
-          <div class="absolute bottom-4 left-4 right-16">
+          <!-- Bottom Player Info - Responsive for small screens -->
+          <div class="absolute bottom-3 left-3 right-14 sm:bottom-4 sm:left-4 sm:right-16">
             <!-- Player Info Row -->
-            <div v-if="highlight.player" class="flex items-center gap-3 mb-2">
+            <div v-if="highlight.player" class="flex items-center gap-2 sm:gap-3 mb-1.5 sm:mb-2">
               <NuxtLink :to="`/players/${highlight.player.id}`">
-                <div class="relative w-11 h-11 rounded-full bg-gradient-to-br from-primary-500 to-emerald-500 flex items-center justify-center ring-2 ring-white/30 shadow-lg">
-                  <span class="text-white font-bold text-lg">{{ highlight.player.first_name?.charAt(0) }}</span>
+                <div class="relative w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-gradient-to-br from-primary-500 to-emerald-500 flex items-center justify-center ring-2 ring-white/30 shadow-lg">
+                  <span class="text-white font-bold text-base sm:text-lg">{{ highlight.player.first_name?.charAt(0) }}</span>
                   <!-- Verified badge -->
-                  <div v-if="highlight.player.verification_status === 'verified'" class="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-primary-500 rounded-full flex items-center justify-center ring-2 ring-neutral-900">
-                    <svg class="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <div v-if="highlight.player.verification_status === 'verified'" class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-primary-500 rounded-full flex items-center justify-center ring-2 ring-neutral-900">
+                    <svg class="w-2 h-2 sm:w-2.5 sm:h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                     </svg>
                   </div>
@@ -173,45 +173,45 @@
               </NuxtLink>
               <div class="flex-1 min-w-0">
                 <NuxtLink :to="`/players/${highlight.player.id}`">
-                  <h3 class="text-white font-bold text-sm truncate hover:underline inline-flex items-center gap-1">
+                  <h3 class="text-white font-bold text-xs sm:text-sm truncate hover:underline">
                     {{ highlight.player.first_name }} {{ highlight.player.last_name || '' }}
                   </h3>
                 </NuxtLink>
-                <!-- Scout-critical stats line -->
-                <p class="text-white/70 text-xs flex items-center gap-1.5 flex-wrap">
+                <!-- Scout-critical stats line - compact on mobile -->
+                <p class="text-white/70 text-[10px] sm:text-xs flex items-center gap-1 sm:gap-1.5">
                   <span>{{ getCountryFlag(highlight.player.country) }}</span>
                   <span v-if="highlight.player.date_of_birth">{{ getPlayerAge(highlight.player.date_of_birth) }}y</span>
                   <span class="text-white/40">•</span>
-                  <span>{{ highlight.player.position }}</span>
+                  <span class="truncate">{{ highlight.player.position }}</span>
                   <template v-if="highlight.player.height_cm">
-                    <span class="text-white/40">•</span>
-                    <span>{{ highlight.player.height_cm }}cm</span>
+                    <span class="text-white/40 hidden xs:inline">•</span>
+                    <span class="hidden xs:inline">{{ highlight.player.height_cm }}cm</span>
                   </template>
                   <template v-if="highlight.player.preferred_foot">
-                    <span class="text-white/40">•</span>
-                    <span>{{ formatFoot(highlight.player.preferred_foot) }}</span>
+                    <span class="text-white/40 hidden sm:inline">•</span>
+                    <span class="hidden sm:inline">{{ formatFoot(highlight.player.preferred_foot) }}</span>
                   </template>
                 </p>
-                <!-- Academy info -->
-                <p v-if="highlight.player.academy" class="text-white/50 text-xs flex items-center gap-1 mt-0.5">
-                  <span>{{ highlight.player.academy.name }}</span>
-                  <svg v-if="highlight.player.academy.is_verified" class="w-3 h-3 text-primary-400" fill="currentColor" viewBox="0 0 20 20">
+                <!-- Academy info - hide on very small screens -->
+                <p v-if="highlight.player.academy" class="text-white/50 text-[10px] sm:text-xs flex items-center gap-1 mt-0.5 truncate">
+                  <span class="truncate">{{ highlight.player.academy.name }}</span>
+                  <svg v-if="highlight.player.academy.is_verified" class="w-3 h-3 text-primary-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                   </svg>
                 </p>
               </div>
             </div>
 
-            <!-- Description / Caption (Instagram style) -->
-            <p class="text-white text-sm leading-relaxed mb-2">
+            <!-- Description / Caption - shorter on mobile -->
+            <p class="text-white text-xs sm:text-sm leading-snug sm:leading-relaxed mb-1.5 sm:mb-2 line-clamp-2">
               {{ getHighlightCaption(highlight) }}
             </p>
 
             <!-- Hashtags + Match context -->
-            <div class="flex flex-wrap items-center gap-1.5">
-              <span class="text-primary-400 text-xs font-medium">#{{ formatHighlightType(highlight.highlight_type) }}</span>
-              <span v-if="highlight.player" class="text-primary-400 text-xs font-medium">#{{ highlight.player.position?.replace(' ', '') }}</span>
-              <span v-if="highlight.match" class="text-white/50 text-xs">• {{ highlight.match.title }}</span>
+            <div class="flex flex-wrap items-center gap-1 sm:gap-1.5">
+              <span class="text-primary-400 text-[10px] sm:text-xs font-medium">#{{ formatHighlightType(highlight.highlight_type) }}</span>
+              <span v-if="highlight.player" class="text-primary-400 text-[10px] sm:text-xs font-medium">#{{ highlight.player.position?.replace(' ', '') }}</span>
+              <span v-if="highlight.match" class="text-white/50 text-[10px] sm:text-xs truncate">• {{ highlight.match.title }}</span>
             </div>
           </div>
 

@@ -247,7 +247,7 @@
         </Transition>
 
         <!-- Page Content -->
-        <div class="p-4 lg:p-8">
+        <div class="p-0 sm:p-4 lg:p-8">
           <slot />
         </div>
       </main>
