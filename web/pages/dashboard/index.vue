@@ -194,11 +194,11 @@
           </div>
 
           <!-- Bottom Player Info -->
-          <div class="absolute bottom-24 left-4 right-16">
-            <div v-if="highlight.player" class="mb-3">
+          <div class="absolute bottom-28 left-4 right-16">
+            <div v-if="highlight.player" class="mb-2">
               <NuxtLink :to="`/players/${highlight.player.id}`">
                 <h3 class="text-white font-bold text-base drop-shadow-lg">
-                  @{{ highlight.player.first_name?.toLowerCase() }}{{ highlight.player.last_name?.toLowerCase() || '' }}
+                  {{ highlight.player.first_name }} {{ highlight.player.last_name || '' }}
                 </h3>
               </NuxtLink>
             </div>
@@ -237,7 +237,7 @@
           </div>
 
           <!-- Progress bar at bottom - just above nav -->
-          <div class="absolute bottom-[72px] left-0 right-0 h-1 bg-white/20">
+          <div class="absolute bottom-[60px] left-0 right-0 h-0.5 bg-white/20">
             <div 
               class="h-full bg-white transition-all duration-100"
               :style="{ width: `${videoProgress[index] || 0}%` }"
