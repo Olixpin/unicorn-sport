@@ -681,6 +681,7 @@ func (m *Module) ListFeaturedHighlights(c *gin.Context) {
 			ID                 uuid.UUID `json:"id"`
 			FirstName          string    `json:"first_name"`
 			LastName           string    `json:"last_name"`
+			ProfilePhotoURL    *string   `json:"profile_photo_url,omitempty"`
 			Position           string    `json:"position"`
 			Country            string    `json:"country"`
 			DateOfBirth        time.Time `json:"date_of_birth"`
@@ -717,6 +718,7 @@ func (m *Module) ListFeaturedHighlights(c *gin.Context) {
 				ID                 uuid.UUID `json:"id"`
 				FirstName          string    `json:"first_name"`
 				LastName           string    `json:"last_name"`
+				ProfilePhotoURL    *string   `json:"profile_photo_url,omitempty"`
 				Position           string    `json:"position"`
 				Country            string    `json:"country"`
 				DateOfBirth        time.Time `json:"date_of_birth"`
@@ -732,6 +734,7 @@ func (m *Module) ListFeaturedHighlights(c *gin.Context) {
 				ID:                 h.Player.ID,
 				FirstName:          h.Player.FirstName,
 				LastName:           h.Player.LastName,
+				ProfilePhotoURL:    h.Player.ProfilePhotoURL,
 				Position:           h.Player.Position,
 				Country:            h.Player.Country,
 				DateOfBirth:        h.Player.DateOfBirth,
