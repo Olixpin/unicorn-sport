@@ -275,8 +275,6 @@ watch(() => route.fullPath, async (newPath, oldPath) => {
     ageRange.value = ''
     filters.position = ''
     filters.country = ''
-    filters.academy_id = ''
-    filters.verified_only = false
     searchStore.resetFilters()
     await searchStore.search()
   }

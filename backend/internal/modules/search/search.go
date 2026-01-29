@@ -304,3 +304,181 @@ func (m *SearchModule) GetStats(c *gin.Context) {
 		},
 	})
 }
+
+// --- Public Tournament Browsing ---
+
+// GetPublicTournaments returns public/featured tournaments for scouts
+func (m *SearchModule) GetPublicTournaments(c *gin.Context) {
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
+	offset := (page - 1) * limit
+	featured := c.Query("featured") == "true"
+	year := c.Query("year")
+
+	var tournaments []domain.Tournament
+	var total int64
+
+	query := m.db.Model(&domain.Tournament{}).Where("is_public = ?", true)
+	if featured {
+		query = query.Where("featured = ?", true)
+	}
+	if year != "" {
+		query = query.Where("year = ?", year)
+	}
+	query.Count(&total)
+
+	m.db.Where("is_public = ?", true).
+		Order("featured DESC, year DESC, name ASC").
+		Offset(offset).Limit(limit).Find(&tournaments)
+
+	response := make([]gin.H, len(tournaments))
+	for i, t := range tournaments {
+		// Get player count for this tournament
+		var playerCount int64
+		m.db.Model(&domain.Player{}).Where("tournament_id = ? AND deleted_at IS NULL AND verification_status = ?", t.ID, "verified").Count(&playerCount)
+
+		// Get cover image URL if exists
+		var coverImageURL *string
+		if t.CoverImageURL != nil && *t.CoverImageURL != "" {
+			url := m.getPresignedURL(*t.CoverImageURL)
+			coverImageURL = &url
+		}
+
+		response[i] = gin.H{
+			"id":              t.ID,
+			"name":            t.Name,
+			"year":            t.Year,
+			"location":        t.Location,
+			"start_date":      t.StartDate,
+			"end_date":        t.EndDate,
+			"featured":        t.Featured,
+			"cover_image_url": coverImageURL,
+			"player_count":    playerCount,
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data": gin.H{
+			"tournaments": response,
+			"pagination": gin.H{
+				"page":        page,
+				"limit":       limit,
+				"total":       total,
+				"total_pages": (total + int64(limit) - 1) / int64(limit),
+			},
+		},
+	})
+}
+
+// GetTournamentDetail returns detailed tournament info with players
+func (m *SearchModule) GetTournamentDetail(c *gin.Context) {
+	tournamentID := c.Param("id")
+	tid, err := strconv.Atoi(tournamentID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": gin.H{"code": "INVALID_ID", "message": "Invalid tournament ID"}})
+		return
+	}
+
+	var tournament domain.Tournament
+	if err := m.db.First(&tournament, "id = ? AND is_public = ?", tid, true).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"success": false, "error": gin.H{"code": "NOT_FOUND", "message": "Tournament not found"}})
+		return
+	}
+
+	// Get players in this tournament
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
+	offset := (page - 1) * limit
+	position := c.Query("position")
+
+	var players []domain.Player
+	var total int64
+
+	query := m.db.Model(&domain.Player{}).
+		Where("tournament_id = ? AND deleted_at IS NULL AND verification_status = ?", tid, "verified")
+	if position != "" {
+		query = query.Where("position = ?", position)
+	}
+	query.Count(&total)
+
+	m.db.Preload("Academy").Preload("Highlights").
+		Where("tournament_id = ? AND deleted_at IS NULL AND verification_status = ?", tid, "verified").
+		Order("last_name ASC").
+		Offset(offset).Limit(limit).Find(&players)
+
+	playerResults := make([]PlayerSearchResult, len(players))
+	for i, p := range players {
+		var thumbnailURL, profilePhotoURL, videoThumbnailURL *string
+		if p.ThumbnailURL != nil && *p.ThumbnailURL != "" {
+			url := m.getPresignedURL(*p.ThumbnailURL)
+			thumbnailURL = &url
+		}
+		if p.ProfilePhotoURL != nil && *p.ProfilePhotoURL != "" {
+			url := m.getPresignedURL(*p.ProfilePhotoURL)
+			profilePhotoURL = &url
+		}
+
+		for _, h := range p.Highlights {
+			if h.ThumbnailURL != nil && *h.ThumbnailURL != "" {
+				url := m.getPresignedURL(*h.ThumbnailURL)
+				videoThumbnailURL = &url
+				break
+			}
+		}
+
+		var academyName *string
+		if p.Academy != nil {
+			academyName = &p.Academy.Name
+		}
+
+		playerResults[i] = PlayerSearchResult{
+			ID:                p.ID.String(),
+			FirstName:         p.FirstName,
+			LastName:          p.LastName,
+			LastNameInit:      p.GetLastNameInit(),
+			Age:               p.GetAge(),
+			Position:          p.Position,
+			Country:           p.Country,
+			State:             p.State,
+			HeightCm:          p.HeightCm,
+			PreferredFoot:     p.PreferredFoot,
+			ThumbnailURL:      thumbnailURL,
+			ProfilePhotoURL:   profilePhotoURL,
+			VideoThumbnailURL: videoThumbnailURL,
+			IsVerified:        p.VerificationStatus == "verified",
+			AcademyName:       academyName,
+			VideoCount:        len(p.Highlights),
+		}
+	}
+
+	// Get cover image URL if exists
+	var coverImageURL *string
+	if tournament.CoverImageURL != nil && *tournament.CoverImageURL != "" {
+		url := m.getPresignedURL(*tournament.CoverImageURL)
+		coverImageURL = &url
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data": gin.H{
+			"tournament": gin.H{
+				"id":              tournament.ID,
+				"name":            tournament.Name,
+				"year":            tournament.Year,
+				"location":        tournament.Location,
+				"start_date":      tournament.StartDate,
+				"end_date":        tournament.EndDate,
+				"featured":        tournament.Featured,
+				"cover_image_url": coverImageURL,
+			},
+			"players": playerResults,
+			"pagination": gin.H{
+				"page":        page,
+				"limit":       limit,
+				"total":       total,
+				"total_pages": (total + int64(limit) - 1) / int64(limit),
+			},
+		},
+	})
+}

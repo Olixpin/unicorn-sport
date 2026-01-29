@@ -82,17 +82,20 @@ type Scout struct {
 
 // Tournament represents events/tournaments
 type Tournament struct {
-	ID          uuid.UUID  `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
-	Name        string     `json:"name" gorm:"not null"`
-	Year        int        `json:"year" gorm:"not null;index"`
-	Location    *string    `json:"location,omitempty"`
-	Country     *string    `json:"country,omitempty"`
-	StartDate   *time.Time `json:"start_date,omitempty"`
-	EndDate     *time.Time `json:"end_date,omitempty"`
-	Description *string    `json:"description,omitempty"`
-	Status      string     `json:"status" gorm:"default:'upcoming'"`
-	CreatedBy   *uuid.UUID `json:"created_by,omitempty" gorm:"type:uuid"`
-	CreatedAt   time.Time  `json:"created_at"`
+	ID            uuid.UUID  `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	Name          string     `json:"name" gorm:"not null"`
+	Year          int        `json:"year" gorm:"not null;index"`
+	Location      *string    `json:"location,omitempty"`
+	Country       *string    `json:"country,omitempty"`
+	StartDate     *time.Time `json:"start_date,omitempty"`
+	EndDate       *time.Time `json:"end_date,omitempty"`
+	Description   *string    `json:"description,omitempty"`
+	Status        string     `json:"status" gorm:"default:'upcoming'"`
+	IsPublic      bool       `json:"is_public" gorm:"default:false"`
+	Featured      bool       `json:"featured" gorm:"default:false"`
+	CoverImageURL *string    `json:"cover_image_url,omitempty"`
+	CreatedBy     *uuid.UUID `json:"created_by,omitempty" gorm:"type:uuid"`
+	CreatedAt     time.Time  `json:"created_at"`
 }
 
 // Player represents player profiles created by admin
@@ -439,17 +442,23 @@ type PlayerVideo struct {
 
 // ContactRequest represents scout inquiries about players (Pro+ tier)
 type ContactRequest struct {
-	ID         uuid.UUID  `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
-	UserID     uuid.UUID  `json:"user_id" gorm:"type:uuid;not null;index"`
-	PlayerID   uuid.UUID  `json:"player_id" gorm:"type:uuid;not null;index"`
-	Message    string     `json:"message" gorm:"not null"`
-	Status     string     `json:"status" gorm:"default:'pending';index"`
-	HandledBy  *uuid.UUID `json:"-" gorm:"type:uuid"`
-	HandledAt  *time.Time `json:"-"`
-	AdminNotes *string    `json:"-"`
-	CreatedAt  time.Time  `json:"created_at"`
+	ID                 uuid.UUID  `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	UserID             uuid.UUID  `json:"user_id" gorm:"type:uuid;not null;index"`
+	PlayerID           uuid.UUID  `json:"player_id" gorm:"type:uuid;not null;index"`
+	Message            string     `json:"message" gorm:"not null"`
+	Status             string     `json:"status" gorm:"default:'pending';index"` // pending, sent_to_academy, academy_responded, contact_shared, expired, cancelled
+	AcademyResponse    *string    `json:"academy_response,omitempty"`
+	AcademyRespondedAt *time.Time `json:"academy_responded_at,omitempty"`
+	ScoutReadAt        *time.Time `json:"scout_read_at,omitempty"`
+	FollowUpReminderAt *time.Time `json:"follow_up_reminder_at,omitempty"`
+	HandledBy          *uuid.UUID `json:"-" gorm:"type:uuid"`
+	HandledAt          *time.Time `json:"-"`
+	AdminNotes         *string    `json:"-"`
+	CreatedAt          time.Time  `json:"created_at"`
+	UpdatedAt          time.Time  `json:"updated_at"`
 
 	Player *Player `json:"player,omitempty" gorm:"foreignKey:PlayerID"`
+	User   *User   `json:"user,omitempty" gorm:"foreignKey:UserID"`
 }
 
 // SavedPlayer represents scout's saved/favorited players (Scout+ tier)
@@ -458,9 +467,43 @@ type SavedPlayer struct {
 	UserID    uuid.UUID `json:"user_id" gorm:"type:uuid;not null;index;uniqueIndex:idx_saved_unique"`
 	PlayerID  uuid.UUID `json:"player_id" gorm:"type:uuid;not null;index;uniqueIndex:idx_saved_unique"`
 	Notes     *string   `json:"notes,omitempty"`
+	Tags      []string  `json:"tags,omitempty" gorm:"type:text[];serializer:json"`
+	Priority  string    `json:"priority" gorm:"default:'medium'"` // high, medium, low
 	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 
 	Player *Player `json:"player,omitempty" gorm:"foreignKey:PlayerID"`
+}
+
+// ScoutTag represents a custom tag created by a scout
+type ScoutTag struct {
+	ID        uuid.UUID `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	UserID    uuid.UUID `json:"user_id" gorm:"type:uuid;not null;index;uniqueIndex:idx_scout_tag_unique,priority:1"`
+	Name      string    `json:"name" gorm:"not null;uniqueIndex:idx_scout_tag_unique,priority:2"`
+	Color     string    `json:"color" gorm:"default:'#6366f1'"` // Hex color
+	CreatedAt time.Time `json:"created_at"`
+}
+
+// PlayerStats represents aggregated performance statistics
+type PlayerStats struct {
+	ID               uuid.UUID  `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	PlayerID         uuid.UUID  `json:"player_id" gorm:"type:uuid;not null;index"`
+	Season           string     `json:"season" gorm:"not null"` // e.g., "2025-26"
+	MatchesPlayed    int        `json:"matches_played" gorm:"default:0"`
+	MatchesStarted   int        `json:"matches_started" gorm:"default:0"`
+	MinutesPlayed    int        `json:"minutes_played" gorm:"default:0"`
+	Goals            int        `json:"goals" gorm:"default:0"`
+	Assists          int        `json:"assists" gorm:"default:0"`
+	YellowCards      int        `json:"yellow_cards" gorm:"default:0"`
+	RedCards         int        `json:"red_cards" gorm:"default:0"`
+	TournamentID     *uuid.UUID `json:"tournament_id,omitempty" gorm:"type:uuid;index"`
+	CompetitionName  *string    `json:"competition_name,omitempty"`
+	LastCalculatedAt time.Time  `json:"last_calculated_at"`
+	CreatedAt        time.Time  `json:"created_at"`
+	UpdatedAt        time.Time  `json:"updated_at"`
+
+	Player     *Player     `json:"player,omitempty" gorm:"foreignKey:PlayerID"`
+	Tournament *Tournament `json:"tournament,omitempty" gorm:"foreignKey:TournamentID"`
 }
 
 // VideoView tracks video analytics
@@ -515,6 +558,14 @@ func (HighlightView) TableName() string {
 
 func (MatchVideoView) TableName() string {
 	return "match_video_views"
+}
+
+func (ScoutTag) TableName() string {
+	return "scout_tags"
+}
+
+func (PlayerStats) TableName() string {
+	return "player_stats"
 }
 
 // Helper methods

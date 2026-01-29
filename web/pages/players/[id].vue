@@ -103,6 +103,32 @@
         </div>
       </div>
 
+      <!-- Stats Section -->
+      <div v-if="playerStats" class="bg-white border-y border-neutral-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <h2 class="text-lg font-semibold text-neutral-900 mb-4">Season Statistics</h2>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div class="text-center p-4 bg-neutral-50 rounded-xl">
+              <div class="text-3xl font-bold text-primary-600">{{ playerStats.matches_played }}</div>
+              <div class="text-sm text-neutral-500 mt-1">Matches</div>
+            </div>
+            <div class="text-center p-4 bg-neutral-50 rounded-xl">
+              <div class="text-3xl font-bold text-primary-600">{{ playerStats.goals }}</div>
+              <div class="text-sm text-neutral-500 mt-1">Goals</div>
+            </div>
+            <div class="text-center p-4 bg-neutral-50 rounded-xl">
+              <div class="text-3xl font-bold text-primary-600">{{ playerStats.assists }}</div>
+              <div class="text-sm text-neutral-500 mt-1">Assists</div>
+            </div>
+            <div class="text-center p-4 bg-neutral-50 rounded-xl">
+              <div class="text-3xl font-bold text-primary-600">{{ Math.round(playerStats.minutes_played / 60) }}</div>
+              <div class="text-sm text-neutral-500 mt-1">Minutes</div>
+            </div>
+          </div>
+          <p class="text-xs text-neutral-400 mt-3 text-center">{{ playerStats.season }} Season</p>
+        </div>
+      </div>
+
       <!-- Videos Section -->
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <!-- Highlights (Free) -->
@@ -244,6 +270,41 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
             </svg>
             <p class="mt-4 text-neutral-600">No full match recordings available yet</p>
+          </div>
+        </div>
+
+        <!-- Similar Players Section -->
+        <div v-if="similarPlayers.length > 0" class="mt-12">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="font-display text-xl sm:text-2xl font-bold text-neutral-900">Similar Players</h2>
+            <NuxtLink to="/discover" class="text-sm text-primary-600 hover:text-primary-700 font-medium">View all →</NuxtLink>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            <NuxtLink 
+              v-for="sp in similarPlayers" 
+              :key="sp.id" 
+              :to="`/players/${sp.id}`"
+              class="group bg-white rounded-xl border border-neutral-200 overflow-hidden hover:shadow-lg hover:border-neutral-300 transition-all"
+            >
+              <div class="aspect-[3/4] bg-neutral-100 overflow-hidden">
+                <img 
+                  v-if="sp.profile_photo_url" 
+                  :src="sp.profile_photo_url" 
+                  :alt="sp.first_name"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+                <div v-else class="w-full h-full flex items-center justify-center">
+                  <svg class="w-10 h-10 text-neutral-300" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="p-3">
+                <h4 class="font-medium text-sm text-neutral-900 truncate group-hover:text-primary-600">{{ sp.first_name }} {{ sp.last_name_init }}.</h4>
+                <p class="text-xs text-neutral-500">{{ sp.position }} · {{ sp.age }}y</p>
+                <p class="text-xs text-primary-600 mt-1">{{ sp.match_reason }}</p>
+              </div>
+            </NuxtLink>
           </div>
         </div>
       </div>
@@ -635,6 +696,28 @@
 <script setup lang="ts">
 import type { Player, Video, ApiResponse } from '~/types'
 
+// Stats from the backend
+interface PlayerStats {
+  season: string
+  matches_played: number
+  minutes_played: number
+  goals: number
+  assists: number
+}
+
+// Similar player suggestion
+interface SimilarPlayer {
+  id: string
+  first_name: string
+  last_name_init: string
+  age: number
+  position: string
+  country: string
+  profile_photo_url?: string
+  academy_name?: string
+  match_reason: string
+}
+
 // Response type matching backend PlayerDetailResponse
 interface PlayerDetailResponse {
   id: string
@@ -654,6 +737,7 @@ interface PlayerDetailResponse {
   academy_name?: string
   profile_photo_url?: string
   is_verified: boolean
+  stats?: PlayerStats
   highlight_videos: Video[]
   full_match_videos: Video[]
 }
@@ -686,6 +770,8 @@ const subStore = useSubscriptionStore()
 const loading = ref(true)
 const error = ref(false)
 const player = ref<Player | null>(null)
+const playerStats = ref<PlayerStats | null>(null)
+const similarPlayers = ref<SimilarPlayer[]>([])
 const highlights = ref<Video[]>([])
 const fullMatches = ref<Video[]>([])
 const isSaved = ref(false)
@@ -917,6 +1003,24 @@ onMounted(async () => {
     } catch (highlightErr) {
       console.error('Failed to fetch highlights:', highlightErr)
       // Don't fail the whole page if highlights fail
+    }
+
+    // Fetch similar players
+    try {
+      const similarResponse = await $fetch<ApiResponse<{ similar_players: SimilarPlayer[] }>>(`/players/${playerId}/similar`, {
+        baseURL: config.public.apiBase,
+      })
+      
+      if (similarResponse.success && similarResponse.data?.similar_players) {
+        similarPlayers.value = similarResponse.data.similar_players
+      }
+    } catch (similarErr) {
+      console.error('Failed to fetch similar players:', similarErr)
+    }
+
+    // Extract stats from player response
+    if (response.data?.stats) {
+      playerStats.value = response.data.stats
     }
   } catch (e) {
     console.error('Failed to fetch player:', e)

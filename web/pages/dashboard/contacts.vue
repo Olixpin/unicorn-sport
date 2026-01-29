@@ -98,6 +98,9 @@
           </div>
           
           <div class="flex items-center gap-3">
+            <!-- Unread indicator -->
+            <span v-if="request.responded_at && !request.scout_read_at" class="w-3 h-3 rounded-full bg-primary-500 animate-pulse" title="New response"></span>
+            
             <span 
               :class="[
                 'px-3 py-1 text-xs font-bold rounded-full',
@@ -108,6 +111,16 @@
             >
               {{ request.status.toUpperCase() }}
             </span>
+            
+            <!-- Cancel button for pending -->
+            <button 
+              v-if="request.status === 'pending'" 
+              @click="cancelRequest(request.id)"
+              class="px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            >
+              Cancel
+            </button>
+            
             <NuxtLink :to="`/players/${request.player_id}`">
               <button class="px-4 py-2 text-sm font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-lg transition-colors">
                 View Profile
@@ -118,7 +131,20 @@
 
         <!-- Contact Info (if approved) -->
         <div v-if="request.status === 'approved' && request.contact_info" class="mt-5 pt-5 border-t border-neutral-100">
-          <p class="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-3">Contact Information</p>
+          <div class="flex items-center justify-between mb-3">
+            <p class="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Contact Information</p>
+            <div class="flex items-center gap-3 text-xs text-neutral-500">
+              <span v-if="request.responded_at">Responded {{ formatDate(request.responded_at) }}</span>
+              <button 
+                v-if="!request.scout_read_at" 
+                @click="markAsRead(request.id)"
+                class="px-3 py-1 bg-primary-100 text-primary-700 font-medium rounded-lg hover:bg-primary-200 transition-colors"
+              >
+                Mark as Read
+              </button>
+              <span v-else class="text-green-600">✓ Read</span>
+            </div>
+          </div>
           <div class="bg-green-50 rounded-xl p-4 border border-green-100">
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div v-if="request.contact_info.email">
@@ -136,6 +162,12 @@
                 <p class="font-medium text-sm text-neutral-900">{{ request.contact_info.academy_contact }}</p>
               </div>
             </div>
+            
+            <!-- Academy notes -->
+            <div v-if="request.academy_response_notes" class="mt-4 pt-4 border-t border-green-200">
+              <p class="text-xs text-neutral-500 mb-1">Academy Notes</p>
+              <p class="text-sm text-neutral-700">{{ request.academy_response_notes }}</p>
+            </div>
           </div>
         </div>
 
@@ -145,6 +177,20 @@
             <p class="text-sm text-red-700">
               <span class="font-semibold">Reason:</span> {{ request.rejection_reason }}
             </p>
+          </div>
+        </div>
+        
+        <!-- Follow-up reminder for pending -->
+        <div v-if="request.status === 'pending' && request.follow_up_reminder_at" class="mt-5 pt-5 border-t border-neutral-100">
+          <div :class="['rounded-xl p-4 border', isOverdue(request.follow_up_reminder_at) ? 'bg-amber-50 border-amber-200' : 'bg-neutral-50 border-neutral-200']">
+            <div class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span :class="['text-sm font-medium', isOverdue(request.follow_up_reminder_at) ? 'text-amber-700' : 'text-neutral-600']">
+                {{ isOverdue(request.follow_up_reminder_at) ? 'Follow-up overdue since' : 'Follow up by' }} {{ formatDate(request.follow_up_reminder_at) }}
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -161,6 +207,10 @@ interface ContactRequest {
   player?: Player
   status: 'pending' | 'approved' | 'rejected'
   created_at: string
+  responded_at?: string
+  scout_read_at?: string
+  follow_up_reminder_at?: string
+  academy_response_notes?: string
   contact_info?: {
     email?: string
     phone?: string
@@ -187,6 +237,37 @@ function formatDate(dateString: string): string {
     day: 'numeric',
     year: 'numeric',
   })
+}
+
+function isOverdue(dateString: string): boolean {
+  return new Date(dateString) < new Date()
+}
+
+async function markAsRead(requestId: string) {
+  try {
+    const response = await api.post<ApiResponse<ContactRequest>>(`/contact-requests/${requestId}/read`, {}, true)
+    if (response.success && response.data) {
+      const index = contactRequests.value.findIndex(r => r.id === requestId)
+      if (index !== -1) {
+        contactRequests.value[index] = response.data
+      }
+    }
+  } catch (error) {
+    console.error('Failed to mark as read:', error)
+  }
+}
+
+async function cancelRequest(requestId: string) {
+  if (!confirm('Are you sure you want to cancel this contact request?')) return
+  
+  try {
+    const response = await api.delete<ApiResponse<null>>(`/contact-requests/${requestId}`, true)
+    if (response.success) {
+      contactRequests.value = contactRequests.value.filter(r => r.id !== requestId)
+    }
+  } catch (error) {
+    console.error('Failed to cancel request:', error)
+  }
 }
 
 async function fetchContactRequests() {

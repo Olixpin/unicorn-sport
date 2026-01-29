@@ -343,7 +343,7 @@ const handleRegister = async () => {
       organization_type: form.user_type === 'agency' ? 'agency' : 'independent',
     })
     if (success) {
-      router.push('/dashboard')
+      router.push('/discover')
     } else {
       errors.general = 'This email may already be in use. Try signing in instead.'
     }

@@ -206,6 +206,13 @@ func setupRouter(
 		v1.GET("/search/filters", searchModule.GetFilterOptions)
 		v1.GET("/stats", searchModule.GetStats)
 
+		// Public tournament browsing
+		v1.GET("/tournaments", searchModule.GetPublicTournaments)
+		v1.GET("/tournaments/:id", searchModule.GetTournamentDetail)
+
+		// Similar players (public)
+		v1.GET("/players/:id/similar", profilesModule.GetSimilarPlayers)
+
 		// Public contact form (landing page inquiries)
 		v1.POST("/contact", contactModule.SubmitContact)
 
@@ -233,13 +240,19 @@ func setupRouter(
 			protected.POST("/subscriptions/cancel", subscriptionsModule.CancelSubscription)
 
 			// ==================
-			// SCOUT FEATURES (Scout+ tier) - Saved players
+			// SCOUT FEATURES (Scout+ tier) - Saved players, tags
 			// ==================
 			scout := protected.Group("")
 			{
 				scout.GET("/saved-players", profilesModule.GetSavedPlayers)
 				scout.POST("/players/:id/save", profilesModule.SavePlayer)
+				scout.PATCH("/saved-players/:id", profilesModule.UpdateSavedPlayer)
 				scout.DELETE("/players/:id/save", profilesModule.UnsavePlayer)
+
+				// Tag management
+				scout.GET("/tags", profilesModule.GetMyTags)
+				scout.POST("/tags", profilesModule.CreateTag)
+				scout.DELETE("/tags/:id", profilesModule.DeleteTag)
 			}
 
 			// ==================
@@ -249,6 +262,8 @@ func setupRouter(
 			{
 				pro.POST("/players/:id/contact", profilesModule.CreateContactRequest)
 				pro.GET("/contact-requests", profilesModule.GetMyContactRequests)
+				pro.POST("/contact-requests/:id/read", profilesModule.MarkContactRequestRead)
+				pro.DELETE("/contact-requests/:id", profilesModule.CancelContactRequest)
 			}
 
 			// ==================
