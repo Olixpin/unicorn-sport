@@ -22,6 +22,27 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/academies": {
+            "get": {
+                "description": "Get a list of academies for filtering players",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Players"
+                ],
+                "summary": "List academies",
+                "responses": {
+                    "200": {
+                        "description": "List of academies",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/auth/login": {
             "post": {
                 "description": "Authenticate a user and get access/refresh tokens",

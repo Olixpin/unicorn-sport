@@ -57,6 +57,20 @@ info:
   title: Unicorn Sport API
   version: 1.0.0
 paths:
+  /academies:
+    get:
+      description: Get a list of academies for filtering players
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of academies
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List academies
+      tags:
+      - Players
   /auth/login:
     post:
       consumes:
