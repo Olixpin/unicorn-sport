@@ -1039,13 +1039,16 @@ func (m *AdminModule) ListPlayers(c *gin.Context) {
 
 // CreateTournamentRequest represents the request to create a tournament
 type CreateTournamentRequest struct {
-	Name        string  `json:"name" binding:"required"`
-	Year        int     `json:"year" binding:"required"`
-	Location    *string `json:"location,omitempty"`
-	Country     *string `json:"country,omitempty"`
-	StartDate   *string `json:"start_date,omitempty"`
-	EndDate     *string `json:"end_date,omitempty"`
-	Description *string `json:"description,omitempty"`
+	Name          string  `json:"name" binding:"required"`
+	Year          int     `json:"year" binding:"required"`
+	Location      *string `json:"location,omitempty"`
+	Country       *string `json:"country,omitempty"`
+	StartDate     *string `json:"start_date,omitempty"`
+	EndDate       *string `json:"end_date,omitempty"`
+	Description   *string `json:"description,omitempty"`
+	IsPublic      bool    `json:"is_public"`
+	Featured      bool    `json:"featured"`
+	CoverImageURL *string `json:"cover_image_url,omitempty"`
 }
 
 // CreateTournament creates a new tournament
@@ -1059,14 +1062,17 @@ func (m *AdminModule) CreateTournament(c *gin.Context) {
 	adminID, _ := c.Get("user_id")
 
 	tournament := domain.Tournament{
-		Name:        req.Name,
-		Year:        req.Year,
-		Location:    req.Location,
-		Country:     req.Country,
-		Description: req.Description,
-		Status:      "upcoming",
-		CreatedBy:   ptrUUID(adminID.(uuid.UUID)),
-		CreatedAt:   time.Now(),
+		Name:          req.Name,
+		Year:          req.Year,
+		Location:      req.Location,
+		Country:       req.Country,
+		Description:   req.Description,
+		Status:        "upcoming",
+		IsPublic:      req.IsPublic,
+		Featured:      req.Featured,
+		CoverImageURL: req.CoverImageURL,
+		CreatedBy:     ptrUUID(adminID.(uuid.UUID)),
+		CreatedAt:     time.Now(),
 	}
 
 	// Parse dates if provided
