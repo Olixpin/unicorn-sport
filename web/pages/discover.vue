@@ -129,7 +129,7 @@
             </button>
           </div>
           
-          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+          <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 lg:gap-4">
             <!-- Position -->
             <div class="space-y-1.5">
               <label class="block text-xs font-medium text-neutral-500 uppercase tracking-wider">Position</label>
@@ -163,6 +163,23 @@
                 <option value="Senegal">🇸🇳 Senegal</option>
                 <option value="Egypt">🇪🇬 Egypt</option>
                 <option value="Morocco">🇲🇦 Morocco</option>
+              </select>
+            </div>
+
+            <!-- Academy -->
+            <div class="space-y-1.5">
+              <label class="block text-xs font-medium text-neutral-500 uppercase tracking-wider">Academy</label>
+              <select 
+                v-model="filters.academy_id" 
+                class="w-full px-3 py-2.5 rounded-lg border border-neutral-200 bg-white text-neutral-700 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 appearance-none cursor-pointer"
+                @change="handleSearch"
+                :disabled="loadingAcademies"
+              >
+                <option value="">All Academies</option>
+                <option v-for="academy in academies" :key="academy.id" :value="academy.id">
+                  {{ academy.name }}
+                  <template v-if="academy.is_verified"> ✓</template>
+                </option>
               </select>
             </div>
 
@@ -339,8 +356,35 @@ const sortOrder = ref('newest')
 const filters = reactive({
   position: '',
   country: '',
+  academy_id: '',
   verified_only: false,
 })
+
+// Academy list for filter dropdown
+interface Academy {
+  id: string
+  name: string
+  country?: string
+  is_verified: boolean
+}
+const academies = ref<Academy[]>([])
+const loadingAcademies = ref(false)
+
+// Fetch academies on mount
+const fetchAcademies = async () => {
+  loadingAcademies.value = true
+  try {
+    const api = useApi()
+    const response = await api.get<{ success: boolean; data: { academies: Academy[] } }>('/academies')
+    if (response.success && response.data) {
+      academies.value = response.data.academies || []
+    }
+  } catch (error) {
+    console.error('Failed to fetch academies:', error)
+  } finally {
+    loadingAcademies.value = false
+  }
+}
 
 // Animated total count for visual engagement
 const animatedTotal = ref(0)
@@ -377,6 +421,7 @@ const activeFiltersCount = computed(() => {
   let count = 0
   if (filters.position) count++
   if (filters.country) count++
+  if (filters.academy_id) count++
   if (ageRange.value) count++
   if (filters.verified_only) count++
   if (searchQuery.value) count++
@@ -396,6 +441,7 @@ const debouncedSearch = () => {
 const handleSearch = async () => {
   searchStore.setFilter('position', filters.position || undefined)
   searchStore.setFilter('country', filters.country || undefined)
+  searchStore.setFilter('academy_id', filters.academy_id || undefined)
   searchStore.setFilter('verified_only', filters.verified_only)
   await searchStore.search()
 }
@@ -417,6 +463,7 @@ const resetFilters = () => {
   ageRange.value = ''
   filters.position = ''
   filters.country = ''
+  filters.academy_id = ''
   filters.verified_only = false
   searchStore.resetFilters()
   searchStore.search()
@@ -428,11 +475,15 @@ const loadMore = () => {
 
 // Initial search on mount - non-blocking
 onMounted(async () => {
+  // Fetch academies for filter dropdown
+  fetchAcademies()
+  
   // Reset local state
   searchQuery.value = ''
   ageRange.value = ''
   filters.position = ''
   filters.country = ''
+  filters.academy_id = ''
   filters.verified_only = false
   // Reset store and search
   searchStore.resetFilters()
@@ -447,6 +498,7 @@ watch(() => route.fullPath, async (newPath, oldPath) => {
     ageRange.value = ''
     filters.position = ''
     filters.country = ''
+    filters.academy_id = ''
     filters.verified_only = false
     searchStore.resetFilters()
     await searchStore.search()

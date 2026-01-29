@@ -46,6 +46,7 @@ export interface PlayerFilters {
   age_max?: number
   verified_only?: boolean
   tournament_id?: string
+  academy_id?: string
   page?: number
   limit?: number
 }

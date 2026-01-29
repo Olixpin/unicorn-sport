@@ -71,7 +71,7 @@ func main() {
 	// Initialize S3 client for matches/highlights/admin/profiles modules
 	s3Client := mediaModule.GetS3Client()
 	profilesModule := profiles.NewProfilesModule(db, s3Client, cfg.AWS.S3Bucket)
-	searchModule := search.NewSearchModule(db)
+	searchModule := search.NewSearchModule(db, s3Client, cfg.AWS.S3Bucket)
 	contactModule := contact.NewContactModule(db)
 
 	adminModule := admin.NewAdminModule(db, s3Client, cfg.AWS.S3Bucket)
@@ -186,6 +186,9 @@ func setupRouter(
 		v1.GET("/players", profilesModule.ListPlayers)
 		v1.GET("/players/featured", profilesModule.GetFeaturedPlayers)
 		v1.GET("/players/:id", optionalAuth(cfg.JWT.Secret, profilesModule.GetPlayer))
+
+		// Academies - public listing for filters
+		v1.GET("/academies", profilesModule.ListAcademies)
 
 		// Player highlights (FREE - public)
 		v1.GET("/players/:id/highlights", highlightsModule.GetPlayerHighlightsPublic)

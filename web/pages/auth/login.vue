@@ -186,8 +186,8 @@ const handleLogin = async () => {
       const subStore = useSubscriptionStore()
       await subStore.fetchSubscription()
       
-      // Redirect to intended page or dashboard
-      const redirect = route.query.redirect as string || '/dashboard'
+      // Redirect to intended page or discover (main hub for scouts)
+      const redirect = route.query.redirect as string || '/discover'
       router.push(redirect)
     } else {
       errors.general = 'Invalid email or password. Please try again.'

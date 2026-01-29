@@ -166,6 +166,9 @@ func (m *ProfilesModule) ListPlayers(c *gin.Context) {
 	if tournamentID := c.Query("tournament_id"); tournamentID != "" {
 		query = query.Where("tournament_id = ?", tournamentID)
 	}
+	if academyID := c.Query("academy_id"); academyID != "" {
+		query = query.Where("academy_id = ?", academyID)
+	}
 
 	query.Count(&total)
 	query.Offset(offset).Limit(limit).Order("created_at DESC").Find(&players)
@@ -173,6 +176,13 @@ func (m *ProfilesModule) ListPlayers(c *gin.Context) {
 	// Convert to public response
 	response := make([]PlayerListResponse, len(players))
 	for i, p := range players {
+		// Convert thumbnail URL to presigned URL if it's an S3 URL
+		var thumbnailURL *string
+		if p.ThumbnailURL != nil && *p.ThumbnailURL != "" {
+			url := m.getPresignedURL(*p.ThumbnailURL)
+			thumbnailURL = &url
+		}
+
 		response[i] = PlayerListResponse{
 			ID:            p.ID,
 			FirstName:     p.FirstName,
@@ -182,7 +192,7 @@ func (m *ProfilesModule) ListPlayers(c *gin.Context) {
 			Country:       p.Country,
 			HeightCm:      p.HeightCm,
 			PreferredFoot: p.PreferredFoot,
-			ThumbnailURL:  p.ThumbnailURL,
+			ThumbnailURL:  thumbnailURL,
 			IsVerified:    p.IsVerified(),
 		}
 	}
@@ -535,4 +545,48 @@ func (m *ProfilesModule) GetFeaturedPlayers(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"success": true, "data": gin.H{"players": response}})
+}
+
+// AcademyListResponse is the public academy list response
+type AcademyListResponse struct {
+	ID         uuid.UUID `json:"id"`
+	Name       string    `json:"name"`
+	Country    string    `json:"country"`
+	IsVerified bool      `json:"is_verified"`
+}
+
+// ListAcademies returns public list of academies for filtering
+// @Summary List academies
+// @Description Get a list of academies for filtering players
+// @Tags Players
+// @Produce json
+// @Success 200 {object} map[string]interface{} "List of academies"
+// @Router /academies [get]
+func (m *ProfilesModule) ListAcademies(c *gin.Context) {
+	var academies []domain.Academy
+
+	// Get academies that have verified players
+	m.db.Raw(`
+		SELECT DISTINCT a.* FROM academies a
+		INNER JOIN players p ON p.academy_id = a.id
+		WHERE p.deleted_at IS NULL AND p.verification_status = 'verified'
+		ORDER BY a.name ASC
+	`).Scan(&academies)
+
+	response := make([]AcademyListResponse, len(academies))
+	for i, a := range academies {
+		response[i] = AcademyListResponse{
+			ID:         a.ID,
+			Name:       a.Name,
+			Country:    a.Country,
+			IsVerified: a.IsVerified,
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data": gin.H{
+			"academies": response,
+		},
+	})
 }

@@ -657,6 +657,89 @@
         </div>
       </div>
     </Teleport>
+
+    <!-- Save Player Notes Modal -->
+    <Teleport to="body">
+      <Transition
+        enter-active-class="transition-opacity duration-200 ease-out"
+        enter-from-class="opacity-0"
+        enter-to-class="opacity-100"
+        leave-active-class="transition-opacity duration-150 ease-in"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
+      >
+        <div 
+          v-if="showSaveNotesModal" 
+          class="fixed inset-0 z-50 flex items-center justify-center p-4"
+        >
+          <!-- Backdrop -->
+          <div 
+            class="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            @click="closeSaveNotesModal"
+          ></div>
+          
+          <!-- Modal -->
+          <div class="relative bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden animate-[fadeInUp_0.3s_ease-out]">
+            <!-- Header -->
+            <div class="px-6 py-4 border-b border-neutral-200">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center">
+                  <svg class="w-5 h-5 text-primary-600" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-lg font-semibold text-neutral-900">Save Player</h3>
+                  <p class="text-sm text-neutral-500">Add notes to remember why you saved this player</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Body -->
+            <div class="px-6 py-4">
+              <label class="block text-sm font-medium text-neutral-700 mb-2">
+                Notes <span class="text-neutral-400">(optional)</span>
+              </label>
+              <textarea
+                v-model="saveNotes"
+                rows="4"
+                placeholder="e.g., Great ball control, fast on the wing, reminds me of..."
+                class="w-full px-4 py-3 rounded-xl border border-neutral-200 bg-white text-neutral-900 placeholder-neutral-400 resize-none transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
+              ></textarea>
+              <p class="mt-2 text-xs text-neutral-500">
+                You can edit these notes later from your saved players list.
+              </p>
+            </div>
+
+            <!-- Footer -->
+            <div class="px-6 py-4 border-t border-neutral-100 bg-neutral-50 flex gap-3">
+              <button
+                type="button"
+                @click="closeSaveNotesModal"
+                class="flex-1 px-4 py-2.5 rounded-xl border border-neutral-200 text-neutral-700 font-medium hover:bg-neutral-100 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                @click="savePlayerWithNotes"
+                :disabled="savingPlayer"
+                class="flex-1 px-4 py-2.5 rounded-xl bg-primary-600 text-white font-medium hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                <svg v-if="savingPlayer" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
+                <svg v-else class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+                {{ savingPlayer ? 'Saving...' : 'Save Player' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
@@ -720,6 +803,10 @@ const contactMessage = ref('')
 const submittingContact = ref(false)
 const showSuccessToast = ref(false)
 
+// Save notes modal state
+const showSaveNotesModal = ref(false)
+const saveNotes = ref('')
+
 // Video player state
 const showVideoPlayer = ref(false)
 const currentVideo = ref<Video | null>(null)
@@ -737,11 +824,16 @@ const countryFlags: Record<string, string> = {
 const countryFlag = computed(() => player.value ? (countryFlags[player.value.country] || '🌍') : '')
 
 // Safe last name initial - handles both last_name and last_name_init
+// Remove trailing period if present since we add it in the template
 const playerLastInitial = computed(() => {
   if (!player.value) return ''
-  if (player.value.last_name_init) return player.value.last_name_init
-  if (player.value.last_name) return player.value.last_name.charAt(0)
-  return ''
+  let initial = ''
+  if (player.value.last_name_init) {
+    initial = player.value.last_name_init
+  } else if (player.value.last_name) {
+    initial = player.value.last_name.charAt(0)
+  }
+  return initial.replace(/\.$/, '')
 })
 
 const playerAge = computed(() => {
@@ -772,22 +864,49 @@ const formatDuration = (seconds?: number) => {
 
 const toggleSavePlayer = async () => {
   if (!player.value) return
+  
+  if (isSaved.value) {
+    // Unsave - do it directly
+    savingPlayer.value = true
+    try {
+      const api = useApi()
+      await api.delete(`/players/${player.value.id}/save`, true)
+      isSaved.value = false
+    } catch (error) {
+      console.error('Failed to unsave:', error)
+    } finally {
+      savingPlayer.value = false
+    }
+  } else {
+    // Save - open modal to add notes
+    saveNotes.value = ''
+    showSaveNotesModal.value = true
+  }
+}
+
+// Save player with notes (called from modal)
+const savePlayerWithNotes = async () => {
+  if (!player.value) return
   savingPlayer.value = true
   
   try {
     const api = useApi()
-    if (isSaved.value) {
-      await api.delete(`/players/${player.value.id}/save`, true)
-      isSaved.value = false
-    } else {
-      await api.post(`/players/${player.value.id}/save`, {}, true)
-      isSaved.value = true
-    }
+    await api.post(`/players/${player.value.id}/save`, {
+      notes: saveNotes.value || null
+    }, true)
+    isSaved.value = true
+    showSaveNotesModal.value = false
+    saveNotes.value = ''
   } catch (error) {
-    console.error('Failed to toggle save:', error)
+    console.error('Failed to save player:', error)
   } finally {
     savingPlayer.value = false
   }
+}
+
+const closeSaveNotesModal = () => {
+  showSaveNotesModal.value = false
+  saveNotes.value = ''
 }
 
 const playVideo = (video: Video) => {

@@ -1121,6 +1121,7 @@ interface FeaturedVideoPlayer {
 
 definePageMeta({
   layout: 'default',
+  middleware: 'redirect-authenticated',
 })
 
 const config = useRuntimeConfig()
@@ -1170,10 +1171,15 @@ const featuredVideoPlayer = computed<FeaturedVideoPlayer | undefined>(() => {
 })
 
 // Helper to get player's last name initial safely
+// Remove trailing period if present since we add it in the template
 function getPlayerLastInitial(player: any): string {
-  if (player?.last_name_init) return player.last_name_init
-  if (player?.last_name) return player.last_name.charAt(0)
-  return ''
+  let initial = ''
+  if (player?.last_name_init) {
+    initial = player.last_name_init
+  } else if (player?.last_name) {
+    initial = player.last_name.charAt(0)
+  }
+  return initial.replace(/\.$/, '')
 }
 
 // Hero section highlight - use first featured highlight

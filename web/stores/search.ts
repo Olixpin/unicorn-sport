@@ -48,6 +48,7 @@ export const useSearchStore = defineStore('search', {
         if (this.filters.age_max) params.max_age = this.filters.age_max
         if (this.filters.verified_only) params.verified = true
         if (this.filters.tournament_id) params.tournament_id = this.filters.tournament_id
+        if (this.filters.academy_id) params.academy_id = this.filters.academy_id
 
         const response = await $fetch<ApiResponse<{ players: Player[]; pagination: Pagination }>>('/players', {
           baseURL: config.public.apiBase,

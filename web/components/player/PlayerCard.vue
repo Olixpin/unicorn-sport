@@ -144,10 +144,16 @@ const saving = ref(false)
 const imageError = ref(false)
 
 // Safe last name initial - handles both last_name and last_name_init
+// Remove trailing period if present since we add it in the template
 const playerLastInitial = computed(() => {
-  if (props.player?.last_name_init) return props.player.last_name_init
-  if (props.player?.last_name) return props.player.last_name.charAt(0)
-  return ''
+  let initial = ''
+  if (props.player?.last_name_init) {
+    initial = props.player.last_name_init
+  } else if (props.player?.last_name) {
+    initial = props.player.last_name.charAt(0)
+  }
+  // Remove trailing period if the API already added one
+  return initial.replace(/\.$/, '')
 })
 
 // Image URL - try thumbnail first (from list API), then profile photo

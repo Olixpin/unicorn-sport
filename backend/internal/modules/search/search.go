@@ -1,10 +1,14 @@
 package search
 
 import (
+	"context"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
@@ -13,12 +17,45 @@ import (
 
 // SearchModule handles search operations
 type SearchModule struct {
-	db *gorm.DB
+	db       *gorm.DB
+	s3Client *s3.Client
+	s3Bucket string
 }
 
 // NewSearchModule creates a new search module
-func NewSearchModule(db *gorm.DB) *SearchModule {
-	return &SearchModule{db: db}
+func NewSearchModule(db *gorm.DB, s3Client *s3.Client, s3Bucket string) *SearchModule {
+	return &SearchModule{
+		db:       db,
+		s3Client: s3Client,
+		s3Bucket: s3Bucket,
+	}
+}
+
+// getPresignedURL converts an s3:// URL to a presigned URL
+func (m *SearchModule) getPresignedURL(s3URL string) string {
+	if s3URL == "" || !strings.HasPrefix(s3URL, "s3://") {
+		return s3URL
+	}
+
+	// Parse s3://bucket/key format
+	withoutPrefix := strings.TrimPrefix(s3URL, "s3://")
+	parts := strings.SplitN(withoutPrefix, "/", 2)
+	if len(parts) != 2 {
+		return s3URL
+	}
+
+	key := parts[1]
+
+	presignClient := s3.NewPresignClient(m.s3Client)
+	presignedReq, err := presignClient.PresignGetObject(context.Background(), &s3.GetObjectInput{
+		Bucket: aws.String(m.s3Bucket),
+		Key:    aws.String(key),
+	}, s3.WithPresignExpires(time.Hour))
+	if err != nil {
+		return s3URL
+	}
+
+	return presignedReq.URL
 }
 
 // PlayerSearchResult represents a search result
@@ -131,6 +168,13 @@ func (m *SearchModule) SearchPlayers(c *gin.Context) {
 	// Convert to search results
 	results := make([]PlayerSearchResult, len(players))
 	for i, p := range players {
+		// Convert thumbnail URL to presigned URL if it's an S3 URL
+		var thumbnailURL *string
+		if p.ThumbnailURL != nil && *p.ThumbnailURL != "" {
+			url := m.getPresignedURL(*p.ThumbnailURL)
+			thumbnailURL = &url
+		}
+
 		results[i] = PlayerSearchResult{
 			ID:            p.ID.String(),
 			FirstName:     p.FirstName,
@@ -141,7 +185,7 @@ func (m *SearchModule) SearchPlayers(c *gin.Context) {
 			State:         p.State,
 			HeightCm:      p.HeightCm,
 			PreferredFoot: p.PreferredFoot,
-			ThumbnailURL:  p.ThumbnailURL,
+			ThumbnailURL:  thumbnailURL,
 			IsVerified:    p.IsVerified(),
 		}
 		if p.Tournament != nil {
