@@ -31,7 +31,7 @@
     </template>
 
     <!-- Academy Info Card -->
-    <AcademyInfoCard v-if="academy" :academy="academy" class="mb-6" />
+    <AdminAcademyInfoCard v-if="academy" :academy="academy" class="mb-6" />
 
     <!-- Verify Mode Content -->
     <template v-if="isVerifyMode">

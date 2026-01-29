@@ -1,150 +1,130 @@
 <template>
   <div class="max-w-7xl mx-auto">
     <!-- Page Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-      <div>
-        <h1 class="font-display text-2xl lg:text-3xl font-bold text-neutral-900">
+    <div class="flex items-center justify-between gap-4 mb-6">
+      <div class="min-w-0">
+        <h1 class="font-display text-xl sm:text-2xl font-bold text-neutral-900">
           Videos
         </h1>
-        <p class="mt-1 text-neutral-600">Manage player highlight videos and reels for review.</p>
+        <p class="text-sm text-neutral-500 hidden sm:block">Manage player highlight videos and reels</p>
       </div>
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2">
         <button
           @click="fetchVideos"
-          class="inline-flex items-center gap-2 px-4 py-2.5 border border-neutral-300 rounded-xl text-sm font-medium text-neutral-700 bg-white hover:bg-neutral-50 transition-colors"
+          class="w-9 h-9 sm:w-auto sm:h-auto sm:px-4 sm:py-2 flex items-center justify-center gap-2 border border-neutral-200 rounded-xl text-sm font-medium text-neutral-600 bg-white hover:bg-neutral-50 transition-colors"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
-          Refresh
+          <span class="hidden sm:inline">Refresh</span>
         </button>
         <NuxtLink
           to="/admin/videos/new"
-          class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-primary-600 to-emerald-600 text-white rounded-xl text-sm font-semibold hover:from-primary-700 hover:to-emerald-700 transition-all shadow-lg shadow-primary-600/25"
+          class="w-9 h-9 sm:w-auto sm:h-auto sm:px-4 sm:py-2 flex items-center justify-center gap-2 bg-gradient-to-r from-primary-600 to-emerald-600 text-white rounded-xl text-sm font-semibold hover:from-primary-700 hover:to-emerald-700 transition-all shadow-lg shadow-primary-600/25"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
           </svg>
-          Upload Video
+          <span class="hidden sm:inline">Upload Video</span>
         </NuxtLink>
       </div>
     </div>
 
-    <!-- Stats Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <!-- Stats Cards - Horizontal scroll on mobile -->
+    <div class="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-4 sm:overflow-visible mb-6">
       <!-- Total Videos -->
-      <div class="bg-gradient-to-br from-rose-500 to-pink-600 rounded-2xl p-5 text-white shadow-lg shadow-rose-500/25">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-rose-100 text-sm font-medium">Total Videos</p>
-            <p class="text-3xl font-bold mt-1">{{ total }}</p>
-          </div>
-          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-            </svg>
-          </div>
-        </div>
-      </div>
+      <button
+        @click="statusFilter = ''; fetchVideos()"
+        :class="[
+          'flex-shrink-0 w-[140px] sm:w-auto bg-white rounded-xl border p-4 text-left transition-all hover:shadow-md',
+          statusFilter === '' ? 'border-primary-500 ring-1 ring-primary-500' : 'border-neutral-200'
+        ]"
+      >
+        <p class="text-xs font-medium text-rose-600">Total Videos</p>
+        <p class="text-2xl font-bold text-neutral-900 mt-1">{{ total }}</p>
+      </button>
 
       <!-- Pending Review -->
-      <div class="bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl p-5 text-white shadow-lg shadow-amber-500/25">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-amber-100 text-sm font-medium">Pending Review</p>
-            <p class="text-3xl font-bold mt-1">{{ pendingCount }}</p>
-          </div>
-          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-        </div>
-      </div>
+      <button
+        @click="statusFilter = 'pending'; fetchVideos()"
+        :class="[
+          'flex-shrink-0 w-[140px] sm:w-auto bg-white rounded-xl border p-4 text-left transition-all hover:shadow-md',
+          statusFilter === 'pending' ? 'border-amber-500 ring-1 ring-amber-500' : 'border-neutral-200'
+        ]"
+      >
+        <p class="text-xs font-medium text-amber-600">Pending</p>
+        <p class="text-2xl font-bold text-neutral-900 mt-1">{{ pendingCount }}</p>
+      </button>
 
       <!-- Approved -->
-      <div class="bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl p-5 text-white shadow-lg shadow-emerald-500/25">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-emerald-100 text-sm font-medium">Approved</p>
-            <p class="text-3xl font-bold mt-1">{{ approvedCount }}</p>
-          </div>
-          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-        </div>
-      </div>
+      <button
+        @click="statusFilter = 'approved'; fetchVideos()"
+        :class="[
+          'flex-shrink-0 w-[140px] sm:w-auto bg-white rounded-xl border p-4 text-left transition-all hover:shadow-md',
+          statusFilter === 'approved' ? 'border-emerald-500 ring-1 ring-emerald-500' : 'border-neutral-200'
+        ]"
+      >
+        <p class="text-xs font-medium text-emerald-600">Approved</p>
+        <p class="text-2xl font-bold text-neutral-900 mt-1">{{ approvedCount }}</p>
+      </button>
 
       <!-- Rejected -->
-      <div class="bg-gradient-to-br from-slate-500 to-gray-600 rounded-2xl p-5 text-white shadow-lg shadow-slate-500/25">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-slate-200 text-sm font-medium">Rejected</p>
-            <p class="text-3xl font-bold mt-1">{{ rejectedCount }}</p>
-          </div>
-          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
-            </svg>
-          </div>
-        </div>
-      </div>
+      <button
+        @click="statusFilter = 'rejected'; fetchVideos()"
+        :class="[
+          'flex-shrink-0 w-[140px] sm:w-auto bg-white rounded-xl border p-4 text-left transition-all hover:shadow-md',
+          statusFilter === 'rejected' ? 'border-neutral-500 ring-1 ring-neutral-500' : 'border-neutral-200'
+        ]"
+      >
+        <p class="text-xs font-medium text-neutral-500">Rejected</p>
+        <p class="text-2xl font-bold text-neutral-900 mt-1">{{ rejectedCount }}</p>
+      </button>
     </div>
 
     <!-- Filters & Search -->
-    <div class="bg-white rounded-2xl border border-neutral-200 p-4 mb-6 shadow-sm">
-      <div class="flex flex-col lg:flex-row gap-4">
+    <div class="bg-white rounded-xl border border-neutral-200 p-4 mb-6">
+      <div class="space-y-3">
         <!-- Search Input -->
-        <div class="flex-1 relative">
-          <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
           <input
             v-model="searchQuery"
             type="text"
-            placeholder="Search by player name or video title..."
-            class="w-full pl-12 pr-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+            placeholder="Search by player or title..."
+            class="w-full pl-10 pr-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+            @input="debouncedSearch"
             @keyup.enter="fetchVideos"
           />
         </div>
 
-        <!-- Status Filter -->
-        <div class="flex flex-wrap items-center gap-2">
+        <!-- Status Filter Pills - Horizontal scroll -->
+        <div class="flex items-center gap-2 overflow-x-auto -mx-1 px-1 pb-1 sm:overflow-visible sm:flex-wrap">
           <button
             v-for="status in statusOptions"
             :key="status.value"
             @click="statusFilter = status.value; fetchVideos()"
             :class="[
-              'px-4 py-2.5 rounded-xl text-sm font-medium transition-all',
+              'flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-all',
               statusFilter === status.value
-                ? status.activeClass
+                ? 'bg-gradient-to-r from-primary-600 to-emerald-600 text-white'
                 : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
             ]"
           >
             {{ status.label }}
           </button>
+          
+          <button
+            v-if="hasActiveFilters"
+            @click="clearFilters"
+            class="flex-shrink-0 px-3 py-1.5 text-neutral-500 hover:text-neutral-700 text-xs font-medium transition-colors"
+          >
+            Clear
+          </button>
         </div>
-
-        <!-- Search Button -->
-        <button
-          @click="fetchVideos"
-          class="px-6 py-2.5 bg-primary-600 text-white rounded-xl text-sm font-semibold hover:bg-primary-700 transition-colors shadow-lg shadow-primary-600/25"
-        >
-          Search
-        </button>
-
-        <!-- Clear Filters -->
-        <button
-          v-if="hasActiveFilters"
-          @click="clearFilters"
-          class="px-4 py-2.5 text-neutral-600 hover:text-neutral-900 text-sm font-medium transition-colors"
-        >
-          Clear
-        </button>
       </div>
     </div>
 
@@ -423,11 +403,20 @@ const rejectedCount = computed(() => stats.value.rejected)
 
 const hasActiveFilters = computed(() => searchQuery.value || statusFilter.value)
 
+// Debounced search
+let searchTimeout: ReturnType<typeof setTimeout> | null = null
+function debouncedSearch() {
+  if (searchTimeout) clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => {
+    fetchVideos()
+  }, 300)
+}
+
 const statusOptions = [
-  { value: '', label: 'All', activeClass: 'bg-neutral-900 text-white' },
-  { value: 'pending', label: 'Pending', activeClass: 'bg-amber-500 text-white' },
-  { value: 'approved', label: 'Approved', activeClass: 'bg-emerald-500 text-white' },
-  { value: 'rejected', label: 'Rejected', activeClass: 'bg-neutral-500 text-white' },
+  { value: '', label: 'All' },
+  { value: 'pending', label: 'Pending' },
+  { value: 'approved', label: 'Approved' },
+  { value: 'rejected', label: 'Rejected' },
 ]
 
 const visiblePages = computed(() => {

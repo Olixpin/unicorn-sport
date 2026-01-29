@@ -1,118 +1,92 @@
 <template>
   <div class="max-w-7xl mx-auto">
     <!-- Page Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+    <div class="flex items-center justify-between gap-4 mb-6">
       <div>
-        <h1 class="font-display text-2xl lg:text-3xl font-bold text-neutral-900">
+        <h1 class="font-display text-xl sm:text-2xl lg:text-3xl font-bold text-neutral-900">
           Contact Requests
         </h1>
-        <p class="mt-1 text-neutral-600">Manage and review scout contact requests to players.</p>
+        <p class="hidden sm:block mt-1 text-neutral-600">Manage and review scout contact requests to players.</p>
       </div>
-      <div class="flex items-center gap-3">
-        <button
-          @click="fetchContacts"
-          class="inline-flex items-center gap-2 px-4 py-2.5 border border-neutral-300 rounded-xl text-sm font-medium text-neutral-700 bg-white hover:bg-neutral-50 transition-colors"
-        >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
-          Refresh
-        </button>
-      </div>
+      <button
+        @click="fetchContacts"
+        class="inline-flex items-center justify-center gap-2 w-10 h-10 sm:w-auto sm:h-auto sm:px-4 sm:py-2.5 border border-neutral-200 rounded-xl text-sm font-medium text-neutral-700 bg-white hover:bg-neutral-50 transition-colors"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        <span class="hidden sm:inline">Refresh</span>
+      </button>
     </div>
 
-    <!-- Stats Cards -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+    <!-- Stats Cards - Horizontal scroll on mobile -->
+    <div class="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-4 sm:overflow-visible mb-6">
       <!-- Total Requests -->
-      <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl sm:rounded-2xl p-4 sm:p-5 text-white shadow-lg shadow-blue-500/25">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-blue-100 text-xs sm:text-sm font-medium">Total Requests</p>
-            <p class="text-2xl sm:text-3xl font-bold mt-1">{{ total }}</p>
-          </div>
-          <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-lg sm:rounded-xl flex items-center justify-center">
-            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-2m-4-1v8m0 0l3-3m-3 3L9 8m-5 5h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293h3.172a1 1 0 00.707-.293l2.414-2.414a1 1 0 01.707-.293H20" />
-            </svg>
-          </div>
-        </div>
+      <div class="flex-shrink-0 w-[130px] sm:w-auto bg-white rounded-xl border border-neutral-200 p-3 sm:p-4">
+        <p class="text-[10px] sm:text-xs font-medium text-neutral-500 uppercase tracking-wide">Total</p>
+        <p class="text-xl sm:text-2xl font-bold text-neutral-900 mt-0.5">{{ total }}</p>
       </div>
 
       <!-- Pending -->
-      <div class="bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl sm:rounded-2xl p-4 sm:p-5 text-white shadow-lg shadow-amber-500/25">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-amber-100 text-xs sm:text-sm font-medium">Pending Review</p>
-            <p class="text-2xl sm:text-3xl font-bold mt-1">{{ pendingCount }}</p>
-          </div>
-          <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-lg sm:rounded-xl flex items-center justify-center">
-            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-        </div>
-      </div>
+      <button 
+        @click="statusFilter = 'pending'; fetchContacts()"
+        class="flex-shrink-0 w-[130px] sm:w-auto bg-white rounded-xl border border-neutral-200 p-3 sm:p-4 text-left hover:border-amber-300 hover:bg-amber-50/50 transition-all"
+        :class="{ 'border-amber-400 bg-amber-50': statusFilter === 'pending' }"
+      >
+        <p class="text-[10px] sm:text-xs font-medium text-amber-600 uppercase tracking-wide">Pending</p>
+        <p class="text-xl sm:text-2xl font-bold text-neutral-900 mt-0.5">{{ pendingCount }}</p>
+      </button>
 
       <!-- Approved -->
-      <div class="bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl sm:rounded-2xl p-4 sm:p-5 text-white shadow-lg shadow-emerald-500/25">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-emerald-100 text-xs sm:text-sm font-medium">Approved</p>
-            <p class="text-2xl sm:text-3xl font-bold mt-1">{{ approvedCount }}</p>
-          </div>
-          <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-lg sm:rounded-xl flex items-center justify-center">
-            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-        </div>
-      </div>
+      <button 
+        @click="statusFilter = 'approved'; fetchContacts()"
+        class="flex-shrink-0 w-[130px] sm:w-auto bg-white rounded-xl border border-neutral-200 p-3 sm:p-4 text-left hover:border-emerald-300 hover:bg-emerald-50/50 transition-all"
+        :class="{ 'border-emerald-400 bg-emerald-50': statusFilter === 'approved' }"
+      >
+        <p class="text-[10px] sm:text-xs font-medium text-emerald-600 uppercase tracking-wide">Approved</p>
+        <p class="text-xl sm:text-2xl font-bold text-neutral-900 mt-0.5">{{ approvedCount }}</p>
+      </button>
 
       <!-- Rejected -->
-      <div class="bg-gradient-to-br from-rose-500 to-red-600 rounded-xl sm:rounded-2xl p-4 sm:p-5 text-white shadow-lg shadow-rose-500/25">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-rose-100 text-xs sm:text-sm font-medium">Rejected</p>
-            <p class="text-2xl sm:text-3xl font-bold mt-1">{{ rejectedCount }}</p>
-          </div>
-          <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-lg sm:rounded-xl flex items-center justify-center">
-            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-        </div>
-      </div>
+      <button 
+        @click="statusFilter = 'rejected'; fetchContacts()"
+        class="flex-shrink-0 w-[130px] sm:w-auto bg-white rounded-xl border border-neutral-200 p-3 sm:p-4 text-left hover:border-rose-300 hover:bg-rose-50/50 transition-all"
+        :class="{ 'border-rose-400 bg-rose-50': statusFilter === 'rejected' }"
+      >
+        <p class="text-[10px] sm:text-xs font-medium text-rose-600 uppercase tracking-wide">Rejected</p>
+        <p class="text-xl sm:text-2xl font-bold text-neutral-900 mt-0.5">{{ rejectedCount }}</p>
+      </button>
     </div>
 
     <!-- Filters & Search -->
-    <div class="bg-white rounded-2xl border border-neutral-200 p-4 mb-6 shadow-sm">
-      <div class="flex flex-col lg:flex-row gap-4">
+    <div class="bg-white rounded-xl border border-neutral-200 p-3 sm:p-4 mb-6">
+      <div class="flex flex-col sm:flex-row gap-3">
         <!-- Search Input -->
         <div class="flex-1 relative">
-          <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
           <input
             v-model="searchQuery"
             type="text"
-            placeholder="Search by player name, scout name, or email..."
-            class="w-full pl-12 pr-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+            placeholder="Search by name or email..."
+            class="w-full pl-10 pr-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
             @keyup.enter="fetchContacts"
           />
         </div>
 
-        <!-- Status Filter -->
-        <div class="flex flex-wrap items-center gap-2">
+        <!-- Status Filter Pills - Hidden on mobile since stats are clickable -->
+        <div class="hidden sm:flex items-center gap-2">
           <button
             v-for="status in statusOptions"
             :key="status.value"
             @click="statusFilter = status.value; fetchContacts()"
             :class="[
-              'px-4 py-2.5 rounded-xl text-sm font-medium transition-all',
+              'px-3 py-2 rounded-lg text-xs font-medium transition-all',
               statusFilter === status.value
-                ? status.activeClass
+                ? 'bg-primary-600 text-white'
                 : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
             ]"
           >
@@ -123,7 +97,7 @@
         <!-- Search Button -->
         <button
           @click="fetchContacts"
-          class="px-6 py-2.5 bg-primary-600 text-white rounded-xl text-sm font-semibold hover:bg-primary-700 transition-colors shadow-lg shadow-primary-600/25"
+          class="w-full sm:w-auto px-5 py-2.5 bg-gradient-to-r from-primary-600 to-emerald-600 text-white rounded-lg text-sm font-semibold hover:from-primary-700 hover:to-emerald-700 transition-all shadow-lg shadow-primary-600/25"
         >
           Search
         </button>
@@ -132,7 +106,7 @@
         <button
           v-if="hasActiveFilters"
           @click="clearFilters"
-          class="px-4 py-2.5 text-neutral-600 hover:text-neutral-900 text-sm font-medium transition-colors"
+          class="hidden sm:block px-3 py-2 text-neutral-500 hover:text-neutral-700 text-sm font-medium transition-colors"
         >
           Clear
         </button>
@@ -440,10 +414,10 @@ const rejectedCount = computed(() => contacts.value.filter(c => c.status === 're
 const hasActiveFilters = computed(() => searchQuery.value || statusFilter.value)
 
 const statusOptions = [
-  { value: '', label: 'All', activeClass: 'bg-neutral-900 text-white' },
-  { value: 'pending', label: 'Pending', activeClass: 'bg-amber-500 text-white' },
-  { value: 'approved', label: 'Approved', activeClass: 'bg-emerald-500 text-white' },
-  { value: 'rejected', label: 'Rejected', activeClass: 'bg-rose-500 text-white' },
+  { value: '', label: 'All' },
+  { value: 'pending', label: 'Pending' },
+  { value: 'approved', label: 'Approved' },
+  { value: 'rejected', label: 'Rejected' },
 ]
 
 const visiblePages = computed(() => {

@@ -1,131 +1,107 @@
 <template>
   <div class="max-w-7xl mx-auto">
     <!-- Page Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+    <div class="flex items-center justify-between gap-4 mb-6">
       <div>
-        <h1 class="font-display text-2xl lg:text-3xl font-bold text-neutral-900">
+        <h1 class="font-display text-xl sm:text-2xl lg:text-3xl font-bold text-neutral-900">
           Academies
         </h1>
-        <p class="mt-1 text-neutral-600">Manage football academies and training centers worldwide.</p>
+        <p class="hidden sm:block mt-1 text-neutral-600">Manage football academies and training centers worldwide.</p>
       </div>
       <NuxtLink to="/admin/academies/new">
-        <button class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary-600 to-emerald-600 text-white rounded-xl text-sm font-semibold hover:from-primary-700 hover:to-emerald-700 transition-all shadow-lg shadow-primary-600/25">
+        <button class="inline-flex items-center gap-2 px-4 py-2.5 bg-primary-600 text-white rounded-xl text-sm font-semibold hover:bg-primary-700 transition-all shadow-md">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
           </svg>
-          Add Academy
+          <span class="hidden sm:inline">Add Academy</span>
+          <span class="sm:hidden">Add</span>
         </button>
       </NuxtLink>
     </div>
 
-    <!-- Stats Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <!-- Stats Cards - Compact horizontal scroll on mobile -->
+    <div class="flex gap-3 mb-5 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-4 sm:overflow-visible scrollbar-hide">
       <!-- Total Academies -->
-      <div class="bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl p-5 text-white shadow-lg shadow-violet-500/25">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-violet-100 text-sm font-medium">Total Academies</p>
-            <p class="text-3xl font-bold mt-1">{{ stats.totalAcademies }}</p>
-          </div>
-          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-            </svg>
-          </div>
-        </div>
+      <div class="flex-shrink-0 w-[140px] sm:w-auto bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl p-4 text-white">
+        <p class="text-violet-100 text-xs font-medium">Total</p>
+        <p class="text-2xl font-bold">{{ stats.totalAcademies }}</p>
       </div>
 
       <!-- Verified -->
       <button 
         @click="setStatusFilter('verified')"
-        class="bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl p-5 text-white shadow-lg shadow-emerald-500/25 text-left transition-all hover:scale-[1.02] hover:shadow-xl"
-        :class="{ 'ring-4 ring-white/50': statusFilter === 'verified' }"
+        class="flex-shrink-0 w-[140px] sm:w-auto bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl p-4 text-white text-left transition-all active:scale-95"
+        :class="{ 'ring-2 ring-white/60 ring-offset-2 ring-offset-emerald-600': statusFilter === 'verified' }"
       >
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-emerald-100 text-sm font-medium">Verified</p>
-            <p class="text-3xl font-bold mt-1">{{ stats.verifiedCount }}</p>
-          </div>
-          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-            </svg>
-          </div>
-        </div>
+        <p class="text-emerald-100 text-xs font-medium">Verified</p>
+        <p class="text-2xl font-bold">{{ stats.verifiedCount }}</p>
       </button>
 
       <!-- Pending -->
       <button 
         @click="setStatusFilter('pending')"
-        class="bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl p-5 text-white shadow-lg shadow-amber-500/25 text-left transition-all hover:scale-[1.02] hover:shadow-xl"
-        :class="{ 'ring-4 ring-white/50': statusFilter === 'pending' }"
+        class="flex-shrink-0 w-[140px] sm:w-auto bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl p-4 text-white text-left transition-all active:scale-95"
+        :class="{ 'ring-2 ring-white/60 ring-offset-2 ring-offset-amber-600': statusFilter === 'pending' }"
       >
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-amber-100 text-sm font-medium">Pending Review</p>
-            <p class="text-3xl font-bold mt-1">{{ stats.pendingCount }}</p>
-          </div>
-          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-        </div>
+        <p class="text-amber-100 text-xs font-medium">Pending</p>
+        <p class="text-2xl font-bold">{{ stats.pendingCount }}</p>
       </button>
 
       <!-- Total Players -->
-      <div class="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl p-5 text-white shadow-lg shadow-blue-500/25">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-blue-100 text-sm font-medium">Total Players</p>
-            <p class="text-3xl font-bold mt-1">{{ stats.totalPlayers }}</p>
-          </div>
-          <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
-          </div>
-        </div>
+      <div class="flex-shrink-0 w-[140px] sm:w-auto bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl p-4 text-white">
+        <p class="text-blue-100 text-xs font-medium">Players</p>
+        <p class="text-2xl font-bold">{{ stats.totalPlayers }}</p>
       </div>
     </div>
 
-    <!-- Active Filters Indicator -->
-    <div v-if="hasActiveFilters" class="mb-4 flex items-center gap-2 flex-wrap">
-      <span class="text-sm text-neutral-500">Filtering by:</span>
-      <span v-if="searchQuery" class="inline-flex items-center gap-1 px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-medium">
-        Search: "{{ searchQuery }}"
-        <button @click="searchQuery = ''; fetchAcademies()" class="hover:text-primary-900">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+    <!-- Mobile: Compact Search & Filter -->
+    <div class="sm:hidden mb-4 space-y-3">
+      <!-- Search -->
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
+        </div>
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Search academies..."
+          class="w-full pl-10 pr-4 py-2.5 bg-white border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+          @keyup.enter="fetchAcademies"
+        />
+      </div>
+      
+      <!-- Filters Row -->
+      <div class="flex gap-2">
+        <div class="flex-1 relative">
+          <select
+            v-model="countryFilter"
+            class="w-full appearance-none pl-3 pr-10 py-2.5 bg-white border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+            @change="page = 1; fetchAcademies()"
+          >
+            <option value="">All Countries</option>
+            <option v-for="country in AFRICAN_COUNTRIES" :key="country" :value="country">
+              {{ country }}
+            </option>
+          </select>
+          <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+            <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
+        <button
+          @click="fetchAcademies"
+          class="px-5 py-2.5 bg-primary-600 text-white rounded-xl text-sm font-semibold"
+        >
+          Go
         </button>
-      </span>
-      <span v-if="countryFilter" class="inline-flex items-center gap-1 px-3 py-1 bg-violet-100 text-violet-700 rounded-full text-sm font-medium">
-        {{ countryFilter }}
-        <button @click="countryFilter = ''; fetchAcademies()" class="hover:text-violet-900">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </span>
-      <span v-if="statusFilter" class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium"
-        :class="statusFilter === 'verified' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'"
-      >
-        {{ statusFilter === 'verified' ? 'Verified' : 'Pending' }}
-        <button @click="statusFilter = ''; fetchAcademies()" :class="statusFilter === 'verified' ? 'hover:text-emerald-900' : 'hover:text-amber-900'">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </span>
-      <button @click="clearFilters" class="text-sm text-neutral-500 hover:text-neutral-700 underline">
-        Clear all
-      </button>
-      <span class="text-sm text-neutral-400 ml-auto">{{ total }} result{{ total !== 1 ? 's' : '' }}</span>
+      </div>
     </div>
 
-    <!-- Filters & Search -->
-    <div class="bg-white rounded-2xl border border-neutral-200 p-4 mb-6 shadow-sm">
+    <!-- Desktop: Full Filter Bar -->
+    <div class="hidden sm:block bg-white rounded-2xl border border-neutral-200 p-4 mb-6 shadow-sm">
       <div class="flex flex-col lg:flex-row gap-4">
         <!-- Search Input -->
         <div class="flex-1 relative">
@@ -212,6 +188,41 @@
           Clear
         </button>
       </div>
+    </div>
+
+    <!-- Active Filters Chips (visible when filtering) -->
+    <div v-if="hasActiveFilters" class="mb-4 flex items-center gap-2 flex-wrap">
+      <span class="text-xs text-neutral-500">Filters:</span>
+      <span v-if="searchQuery" class="inline-flex items-center gap-1 px-2 py-0.5 bg-primary-100 text-primary-700 rounded-full text-xs font-medium">
+        "{{ searchQuery }}"
+        <button @click="searchQuery = ''; fetchAcademies()" class="hover:text-primary-900">
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </span>
+      <span v-if="countryFilter" class="inline-flex items-center gap-1 px-2 py-0.5 bg-violet-100 text-violet-700 rounded-full text-xs font-medium">
+        {{ countryFilter }}
+        <button @click="countryFilter = ''; fetchAcademies()" class="hover:text-violet-900">
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </span>
+      <span v-if="statusFilter" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium"
+        :class="statusFilter === 'verified' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'"
+      >
+        {{ statusFilter === 'verified' ? 'Verified' : 'Pending' }}
+        <button @click="statusFilter = ''; fetchAcademies()" :class="statusFilter === 'verified' ? 'hover:text-emerald-900' : 'hover:text-amber-900'">
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </span>
+      <button @click="clearFilters" class="text-xs text-neutral-500 hover:text-neutral-700 underline">
+        Clear
+      </button>
+      <span class="text-xs text-neutral-400 ml-auto">{{ total }} result{{ total !== 1 ? 's' : '' }}</span>
     </div>
 
     <!-- Loading State -->

@@ -174,12 +174,12 @@
       </div>
 
       <!-- Thumbnail Upload -->
-      <div class="bg-white rounded-2xl border border-neutral-200 p-6 shadow-sm">
-        <h2 class="text-lg font-semibold text-neutral-900 mb-4">Thumbnail (Optional)</h2>
+      <div class="bg-white rounded-xl border border-neutral-200 p-4 sm:p-6">
+        <h2 class="text-sm sm:text-base font-semibold text-neutral-900 mb-3">Thumbnail (Optional)</h2>
         
-        <div class="flex gap-6">
+        <div class="flex flex-col sm:flex-row gap-4">
           <!-- Thumbnail Preview -->
-          <div class="w-48 h-28 bg-neutral-100 rounded-xl overflow-hidden flex-shrink-0">
+          <div class="w-full sm:w-40 h-24 bg-neutral-100 rounded-lg overflow-hidden flex-shrink-0">
             <img
               v-if="thumbnailPreview"
               :src="thumbnailPreview"
@@ -187,14 +187,14 @@
               class="w-full h-full object-cover"
             />
             <div v-else class="w-full h-full flex items-center justify-center">
-              <svg class="w-10 h-10 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-8 h-8 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
             </div>
           </div>
           
-          <!-- Upload Button -->
-          <div class="flex-1">
+          <!-- Upload Button & Info -->
+          <div class="flex flex-col justify-center">
             <input
               ref="thumbnailInput"
               type="file"
@@ -205,11 +205,11 @@
             <button
               type="button"
               @click="thumbnailInput?.click()"
-              class="px-4 py-2.5 border border-neutral-300 rounded-xl text-sm font-medium text-neutral-700 hover:bg-neutral-50 transition-colors"
+              class="w-full sm:w-auto px-4 py-2 border border-neutral-200 rounded-lg text-sm font-medium text-neutral-700 hover:bg-neutral-50 transition-colors"
             >
-              {{ thumbnailPreview ? 'Change Thumbnail' : 'Upload Thumbnail' }}
+              {{ thumbnailPreview ? 'Change' : 'Upload' }}
             </button>
-            <p class="mt-2 text-sm text-neutral-500">JPG, PNG, or WebP • Max 10MB • 16:9 ratio recommended</p>
+            <p class="mt-2 text-[11px] text-neutral-400">JPG, PNG, WebP • Max 10MB • 16:9</p>
           </div>
         </div>
       </div>
@@ -350,8 +350,8 @@
         </p>
       </div>
 
-      <!-- Submit Button -->
-      <div class="flex items-center justify-end gap-4 pt-4">
+      <!-- Submit Button - Desktop only -->
+      <div class="hidden lg:flex items-center justify-end gap-4 pt-4">
         <NuxtLink
           to="/admin/videos"
           class="px-6 py-3 text-neutral-700 font-medium hover:bg-neutral-100 rounded-xl transition-colors"
@@ -361,7 +361,12 @@
         <button
           type="submit"
           :disabled="!isFormValid || submitting"
-          class="px-8 py-3 bg-gradient-to-r from-primary-600 to-emerald-600 text-white font-semibold rounded-xl hover:from-primary-700 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-primary-600/25"
+          :class="[
+            'px-8 py-3 font-semibold rounded-xl transition-all',
+            isFormValid 
+              ? 'bg-gradient-to-r from-primary-600 to-emerald-600 text-white hover:from-primary-700 hover:to-emerald-700 shadow-lg shadow-primary-600/25' 
+              : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
+          ]"
         >
           <span v-if="submitting" class="flex items-center gap-2">
             <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -370,10 +375,44 @@
             </svg>
             Uploading...
           </span>
-          <span v-else>Upload Video</span>
+          <span v-else>{{ isFormValid ? 'Upload Video' : 'Fill Required Fields' }}</span>
         </button>
       </div>
     </form>
+
+    <!-- Mobile Fixed Action Bar -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-lg border-t border-neutral-200 p-4 z-50 lg:hidden">
+      <div class="flex gap-3 max-w-md mx-auto">
+        <NuxtLink to="/admin/videos" class="w-auto">
+          <button
+            type="button"
+            class="px-4 py-3 border border-neutral-300 text-neutral-700 rounded-xl text-sm font-medium hover:bg-neutral-50 transition-colors"
+          >
+            Cancel
+          </button>
+        </NuxtLink>
+        <button
+          type="button"
+          @click="handleSubmit"
+          :disabled="!isFormValid || submitting"
+          :class="[
+            'flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold transition-all',
+            isFormValid 
+              ? 'bg-gradient-to-r from-primary-600 to-emerald-600 text-white shadow-lg shadow-primary-600/25' 
+              : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
+          ]"
+        >
+          <svg v-if="submitting" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          {{ submitting ? 'Uploading...' : (isFormValid ? 'Upload Video' : 'Fill Required Fields') }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Spacer for mobile fixed bar -->
+    <div class="lg:hidden h-24"></div>
   </div>
 </template>
 

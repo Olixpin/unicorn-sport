@@ -290,26 +290,29 @@
                   type="checkbox"
                   class="sr-only peer"
                 />
-                <div class="w-12 h-7 bg-neutral-300 rounded-full peer-checked:bg-emerald-500 transition-colors"></div>
-                <div class="absolute left-1 top-1 w-5 h-5 bg-white rounded-full shadow peer-checked:translate-x-5 transition-transform"></div>
+                <div class="w-10 h-5 bg-neutral-300 rounded-full peer-checked:bg-emerald-500 transition-colors"></div>
+                <div class="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow peer-checked:translate-x-5 transition-transform"></div>
               </div>
               <div class="flex-1">
                 <span class="text-sm font-semibold text-neutral-900">Mark as Verified</span>
                 <p class="text-xs text-neutral-500 mt-0.5">Pre-approve this academy for immediate visibility</p>
               </div>
-              <div class="w-8 h-8 rounded-full flex items-center justify-center" :class="form.is_verified ? 'bg-emerald-100 text-emerald-600' : 'bg-neutral-200 text-neutral-400'">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              <div class="w-7 h-7 rounded-full flex items-center justify-center" :class="form.is_verified ? 'bg-emerald-100 text-emerald-600' : 'bg-neutral-200 text-neutral-400'">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
                 </svg>
               </div>
             </label>
 
-            <!-- Action Buttons -->
-            <div class="flex flex-col sm:flex-row gap-3 pt-2">
+            <!-- Action Buttons - Hidden on mobile (fixed bar used instead) -->
+            <div class="hidden lg:flex flex-col sm:flex-row gap-3 pt-2">
               <button
                 type="submit"
                 :disabled="submitting"
-                class="flex-1 inline-flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-primary-600 to-emerald-600 text-white rounded-xl text-base font-semibold hover:from-primary-700 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-primary-600/25"
+                class="flex-1 inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl text-base font-semibold transition-all"
+                :class="isFormValid 
+                  ? 'bg-gradient-to-r from-primary-600 to-emerald-600 text-white shadow-lg shadow-primary-600/25 hover:from-primary-700 hover:to-emerald-700' 
+                  : 'bg-neutral-100 text-neutral-400'"
               >
                 <svg v-if="submitting" class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" />
@@ -318,7 +321,7 @@
                 <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
-                {{ submitting ? 'Creating Academy...' : 'Create Academy' }}
+                {{ submitting ? 'Creating Academy...' : (isFormValid ? 'Create Academy' : 'Fill Required Fields') }}
               </button>
               
               <NuxtLink to="/admin/academies" class="sm:w-auto">
@@ -385,10 +388,10 @@
     <!-- Mobile Fixed Action Bar - Always visible on smaller screens -->
     <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-200 p-4 shadow-lg z-50 lg:hidden">
       <div class="flex gap-3 max-w-md mx-auto">
-        <NuxtLink to="/admin/academies" class="flex-1">
+        <NuxtLink to="/admin/academies" class="w-auto">
           <button
             type="button"
-            class="w-full px-4 py-3 border border-neutral-300 text-neutral-700 rounded-xl text-sm font-medium hover:bg-neutral-50 transition-colors"
+            class="px-4 py-3 border border-neutral-300 text-neutral-700 rounded-xl text-sm font-medium hover:bg-neutral-50 transition-colors"
           >
             Cancel
           </button>
@@ -397,19 +400,22 @@
           type="button"
           @click="handleSubmit"
           :disabled="submitting"
-          class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-primary-600 to-emerald-600 text-white rounded-xl text-sm font-semibold hover:from-primary-700 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-primary-600/25"
+          class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold transition-all"
+          :class="isFormValid 
+            ? 'bg-gradient-to-r from-primary-600 to-emerald-600 text-white shadow-lg shadow-primary-600/25 hover:from-primary-700 hover:to-emerald-700' 
+            : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'"
         >
           <svg v-if="submitting" class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" />
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
           </svg>
-          {{ submitting ? 'Creating...' : 'Create Academy' }}
+          {{ submitting ? 'Creating...' : (isFormValid ? 'Create Academy' : 'Fill Required Fields') }}
         </button>
       </div>
     </div>
 
     <!-- Spacer for mobile fixed bar -->
-    <div class="lg:hidden h-20"></div>
+    <div class="lg:hidden h-24"></div>
   </div>
 </template>
 
@@ -445,6 +451,11 @@ const form = reactive<Partial<AcademyFormData> & { is_verified?: boolean }>({
 
 const errors = reactive<Record<string, string>>({})
 const submitting = ref(false)
+
+// Check if minimum required fields are filled
+const isFormValid = computed(() => {
+  return form.name && form.name.length >= 2 && form.country && form.country.length >= 2
+})
 
 // Computed states based on selected country
 const availableStates = computed(() => {

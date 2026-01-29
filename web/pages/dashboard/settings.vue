@@ -70,8 +70,8 @@
           <div class="flex justify-end pt-2">
             <button 
               type="submit" 
-              :disabled="saving"
-              class="px-6 py-3 bg-primary-500 text-white font-semibold rounded-xl hover:bg-primary-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              :disabled="saving || !isProfileDirty"
+              class="w-full sm:w-auto px-6 py-3 bg-primary-500 text-white font-semibold rounded-xl hover:bg-primary-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               <svg v-if="saving" class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -203,13 +203,13 @@
           </div>
         </div>
 
-        <div class="px-6 pb-6 flex justify-end">
+        <div class="px-6 pb-6">
           <button 
             @click="saveNotifications" 
-            :disabled="savingNotifications"
-            class="px-5 py-2.5 border-2 border-neutral-200 text-neutral-700 font-semibold rounded-xl hover:bg-neutral-50 hover:border-neutral-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-sm"
+            :disabled="savingNotifications || !isNotificationsDirty"
+            class="w-full sm:w-auto sm:ml-auto sm:flex px-6 py-3 bg-primary-500 text-white font-semibold rounded-xl hover:bg-primary-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            <svg v-if="savingNotifications" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+            <svg v-if="savingNotifications" class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
             </svg>
@@ -262,8 +262,8 @@
           <div class="flex justify-end pt-2">
             <button 
               type="submit" 
-              :disabled="changingPassword"
-              class="px-6 py-3 bg-primary-500 text-white font-semibold rounded-xl hover:bg-primary-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              :disabled="changingPassword || !isPasswordFormValid"
+              class="w-full sm:w-auto px-6 py-3 bg-primary-500 text-white font-semibold rounded-xl hover:bg-primary-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               <svg v-if="changingPassword" class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -281,14 +281,14 @@
           <h2 class="font-semibold text-red-700">Danger Zone</h2>
         </div>
 
-        <div class="p-6 flex items-center justify-between">
+        <div class="p-6 flex flex-col sm:flex-row sm:items-center gap-4 sm:justify-between">
           <div>
             <p class="font-medium text-neutral-900">Delete Account</p>
             <p class="text-sm text-neutral-500 mt-0.5">Permanently delete your account and all data</p>
           </div>
           <button 
             @click="showDeleteModal = true"
-            class="px-5 py-2.5 border-2 border-red-200 text-red-600 font-semibold rounded-xl hover:bg-red-50 hover:border-red-300 transition-all duration-200 text-sm"
+            class="w-full sm:w-auto px-6 py-3 border-2 border-red-200 text-red-600 font-semibold rounded-xl hover:bg-red-50 hover:border-red-300 transition-all duration-200 whitespace-nowrap"
           >
             Delete Account
           </button>
@@ -360,6 +360,20 @@ const subscriptionStore = useSubscriptionStore()
 const api = useApi()
 const router = useRouter()
 
+// Original values for comparison
+const originalProfile = reactive({
+  firstName: '',
+  lastName: '',
+  organization: '',
+  role: '',
+})
+
+const originalNotifications = reactive({
+  newPlayers: true,
+  contactUpdates: true,
+  weeklyDigest: false,
+})
+
 const profile = reactive({
   firstName: '',
   lastName: '',
@@ -378,6 +392,26 @@ const passwordForm = reactive({
   current: '',
   new: '',
   confirm: '',
+})
+
+// Dirty state computed properties
+const isProfileDirty = computed(() => {
+  return profile.firstName !== originalProfile.firstName ||
+    profile.lastName !== originalProfile.lastName ||
+    profile.organization !== originalProfile.organization ||
+    profile.role !== originalProfile.role
+})
+
+const isNotificationsDirty = computed(() => {
+  return notifications.newPlayers !== originalNotifications.newPlayers ||
+    notifications.contactUpdates !== originalNotifications.contactUpdates ||
+    notifications.weeklyDigest !== originalNotifications.weeklyDigest
+})
+
+const isPasswordFormValid = computed(() => {
+  return passwordForm.current.length > 0 &&
+    passwordForm.new.length >= 8 &&
+    passwordForm.confirm.length > 0
 })
 
 const saving = ref(false)
@@ -426,7 +460,12 @@ async function updateProfile() {
   saving.value = true
   try {
     // API call to update profile
-    await api.put('/profile', profile, true)
+    await api.put('/auth/profile', profile, true)
+    // Update original values after successful save
+    originalProfile.firstName = profile.firstName
+    originalProfile.lastName = profile.lastName
+    originalProfile.organization = profile.organization
+    originalProfile.role = profile.role
   } catch (error) {
     console.error('Failed to update profile:', error)
   } finally {
@@ -437,7 +476,11 @@ async function updateProfile() {
 async function saveNotifications() {
   savingNotifications.value = true
   try {
-    await api.put('/profile/notifications', notifications, true)
+    await api.put('/auth/profile/notifications', notifications, true)
+    // Update original values after successful save
+    originalNotifications.newPlayers = notifications.newPlayers
+    originalNotifications.contactUpdates = notifications.contactUpdates
+    originalNotifications.weeklyDigest = notifications.weeklyDigest
   } catch (error) {
     console.error('Failed to save notifications:', error)
   } finally {
@@ -455,7 +498,7 @@ async function changePassword() {
   changingPassword.value = true
   
   try {
-    await api.put('/auth/password', {
+    await api.post('/auth/change-password', {
       current_password: passwordForm.current,
       new_password: passwordForm.new,
     }, true)

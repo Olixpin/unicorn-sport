@@ -317,6 +317,19 @@
               </button>
             </NuxtLink>
           </div>
+
+          <!-- Mobile Sign Out - Easy access at bottom of sidebar -->
+          <div class="lg:hidden p-4 border-t border-neutral-200">
+            <button 
+              @click="logout"
+              class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-50 text-red-600 font-semibold rounded-xl hover:bg-red-100 active:bg-red-200 transition-all duration-200 min-h-[48px]"
+            >
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+              Sign Out
+            </button>
+          </div>
         </div>
       </aside>
 
@@ -354,6 +367,25 @@ const logout = () => {
   router.push('/auth/login')
 }
 
+// Session health check interval
+let sessionCheckInterval: ReturnType<typeof setInterval> | null = null
+
+const checkSession = async () => {
+  // If no token, redirect to login
+  if (!authStore.accessToken) {
+    logout()
+    return
+  }
+  
+  // Try to validate session by fetching current user
+  try {
+    await authStore.fetchCurrentUser()
+  } catch {
+    // Session is invalid, force logout
+    logout()
+  }
+}
+
 // Close profile dropdown when clicking outside
 onMounted(() => {
   document.addEventListener('click', (e) => {
@@ -362,6 +394,29 @@ onMounted(() => {
       profileOpen.value = false
     }
   })
+  
+  // Check session health every 2 minutes to prevent zombie sessions
+  sessionCheckInterval = setInterval(checkSession, 2 * 60 * 1000)
+  
+  // Also check on visibility change (user returns to tab)
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      checkSession()
+    }
+  })
+})
+
+onUnmounted(() => {
+  if (sessionCheckInterval) {
+    clearInterval(sessionCheckInterval)
+  }
+})
+
+// Watch for auth state changes - if user becomes null, redirect
+watch(() => authStore.isAuthenticated, (isAuth) => {
+  if (!isAuth) {
+    router.push('/auth/login')
+  }
 })
 
 // Close sidebar on route change (mobile)

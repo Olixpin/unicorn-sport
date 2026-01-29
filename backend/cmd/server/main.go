@@ -174,6 +174,8 @@ func setupRouter(
 				authProtected.POST("/change-password", authModule.ChangePassword)
 				authProtected.POST("/verify-email", authModule.VerifyEmail)
 				authProtected.POST("/send-verification", authModule.SendVerificationEmail)
+				authProtected.PUT("/profile", authModule.UpdateProfile)
+				authProtected.PUT("/profile/notifications", authModule.UpdateNotifications)
 			}
 		}
 

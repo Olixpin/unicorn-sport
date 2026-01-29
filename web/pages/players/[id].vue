@@ -35,8 +35,157 @@
           <div class="absolute top-0 left-1/4 w-[600px] h-[400px] bg-gradient-to-b from-primary-500/10 via-transparent to-transparent blur-3xl"></div>
         </div>
         
-        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 lg:pt-28 pb-8 lg:pb-12">
-          <div class="flex flex-col lg:flex-row gap-8 lg:gap-12">
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24 lg:pt-28 pb-6 sm:pb-8 lg:pb-12">
+          <!-- Mobile Layout: Horizontal compact -->
+          <div class="flex sm:hidden gap-3.5 mb-4">
+            <!-- Smaller photo on mobile with subtle glow -->
+            <div class="flex-shrink-0">
+              <div class="w-[88px] h-[120px] rounded-2xl overflow-hidden bg-neutral-800 ring-2 ring-white/10 shadow-2xl shadow-primary-500/10">
+                <img
+                  v-if="player.profile_photo_url"
+                  :src="player.profile_photo_url"
+                  :alt="`${player.first_name} ${playerLastInitial}.`"
+                  class="w-full h-full object-cover"
+                />
+                <div v-else class="w-full h-full flex items-center justify-center bg-gradient-to-br from-neutral-700 to-neutral-800">
+                  <svg class="h-10 w-10 text-neutral-500" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- Info beside photo on mobile -->
+            <div class="flex-1 min-w-0 py-0.5">
+              <h1 class="font-display text-[22px] font-bold text-white leading-tight mb-1.5">
+                {{ player.first_name }} {{ playerLastInitial }}.
+                <span 
+                  v-if="player.verification_status === 'verified'" 
+                  class="inline-flex align-middle ml-1 w-5 h-5 bg-primary-500/30 rounded-full items-center justify-center"
+                  title="Age Verified"
+                >
+                  <svg class="w-3 h-3 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                  </svg>
+                </span>
+              </h1>
+              
+              <!-- Compact tags on mobile - tighter spacing -->
+              <div class="flex flex-wrap items-center gap-1.5 mb-2.5">
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-white/[0.08] rounded-lg text-[13px] text-neutral-200 font-medium">
+                  <svg class="w-3.5 h-3.5 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  </svg>
+                  {{ player.position }}
+                </span>
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-white/[0.08] rounded-lg text-[13px] text-neutral-200 font-medium">
+                  <span class="text-base leading-none">{{ countryFlag }}</span>
+                  {{ player.country }}
+                </span>
+                <span v-if="player.preferred_foot" class="px-2.5 py-1 bg-white/[0.08] rounded-lg text-[13px] text-neutral-200 font-medium">
+                  {{ player.preferred_foot }} foot
+                </span>
+              </div>
+
+              <!-- Location on mobile -->
+              <div v-if="player.city || player.state" class="text-[13px] text-neutral-400 flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                </svg>
+                {{ [player.city, player.state].filter(Boolean).join(', ') }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Mobile Stats Row - Equal width grid, better proportions -->
+          <div class="grid sm:hidden grid-cols-4 gap-2 mb-4">
+            <div class="bg-white/[0.06] backdrop-blur-sm rounded-xl px-2 py-2.5 border border-white/[0.08] text-center">
+              <div class="text-[10px] uppercase tracking-wider text-neutral-500 mb-0.5">Age</div>
+              <div class="text-lg font-bold text-white leading-tight">{{ playerAge ?? '-' }}</div>
+            </div>
+            <div class="bg-white/[0.06] backdrop-blur-sm rounded-xl px-2 py-2.5 border border-white/[0.08] text-center">
+              <div class="text-[10px] uppercase tracking-wider text-neutral-500 mb-0.5">Height</div>
+              <div class="text-lg font-bold text-white leading-tight">{{ player.height_cm || '-' }}<span v-if="player.height_cm" class="text-[11px] font-normal text-neutral-400">cm</span></div>
+            </div>
+            <div class="bg-white/[0.06] backdrop-blur-sm rounded-xl px-2 py-2.5 border border-white/[0.08] text-center">
+              <div class="text-[10px] uppercase tracking-wider text-neutral-500 mb-0.5">Weight</div>
+              <div class="text-lg font-bold text-white leading-tight">{{ player.weight_kg || '-' }}<span v-if="player.weight_kg" class="text-[11px] font-normal text-neutral-400">kg</span></div>
+            </div>
+            <div class="bg-white/[0.06] backdrop-blur-sm rounded-xl px-2 py-2.5 border border-white/[0.08] text-center">
+              <div class="text-[10px] uppercase tracking-wider text-neutral-500 mb-0.5">Year</div>
+              <div class="text-lg font-bold text-white leading-tight">{{ player.tournament_year || player.tournament?.year || '-' }}</div>
+            </div>
+          </div>
+
+          <!-- Mobile CTA Buttons - Shorter text, no wrapping -->
+          <div class="flex sm:hidden gap-2">
+            <!-- Save Button -->
+            <button 
+              v-if="authStore.isAuthenticated && subStore.canSavePlayers"
+              :disabled="savingPlayer"
+              :class="[
+                'flex-1 h-[52px] rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2 text-[15px] whitespace-nowrap',
+                isSaved 
+                  ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/20' 
+                  : 'bg-white/[0.08] text-white border border-white/[0.12] active:bg-white/[0.12]'
+              ]"
+              @click="toggleSavePlayer"
+            >
+              <svg v-if="savingPlayer" class="w-5 h-5 animate-spin flex-shrink-0" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+              </svg>
+              <svg v-else class="w-5 h-5 flex-shrink-0" :fill="isSaved ? 'currentColor' : 'none'" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+              {{ isSaved ? 'Saved' : 'Save' }}
+            </button>
+
+            <!-- Save Upgrade -->
+            <NuxtLink v-else-if="authStore.isAuthenticated && !subStore.canSavePlayers" to="/pricing" class="flex-1">
+              <button class="w-full h-[52px] bg-white/[0.08] text-white rounded-xl font-semibold border border-white/[0.12] flex items-center justify-center gap-2 text-[15px] whitespace-nowrap active:bg-white/[0.12]">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+                <span class="truncate">Upgrade to Save</span>
+              </button>
+            </NuxtLink>
+
+            <!-- Contact Button -->
+            <button 
+              v-if="authStore.isAuthenticated && subStore.canRequestContact"
+              class="flex-1 h-[52px] bg-primary-500 text-white rounded-xl font-semibold flex items-center justify-center gap-2 text-[15px] whitespace-nowrap shadow-lg shadow-primary-500/25 active:bg-primary-600"
+              @click="showContactModal = true"
+            >
+              <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              Contact
+            </button>
+
+            <!-- Contact Upgrade -->
+            <NuxtLink v-else-if="authStore.isAuthenticated && !subStore.canRequestContact" to="/pricing" class="flex-1">
+              <button class="w-full h-[52px] bg-secondary-500 text-neutral-900 rounded-xl font-semibold flex items-center justify-center gap-2 text-[15px] whitespace-nowrap shadow-lg shadow-secondary-500/20 active:bg-secondary-400">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                <span class="truncate">Upgrade to Con...</span>
+              </button>
+            </NuxtLink>
+
+            <!-- Not Auth -->
+            <NuxtLink v-if="!authStore.isAuthenticated" to="/auth/register" class="flex-1">
+              <button class="w-full h-[52px] bg-secondary-500 text-neutral-900 rounded-xl font-semibold flex items-center justify-center gap-2 text-[15px] whitespace-nowrap shadow-lg shadow-secondary-500/20 active:bg-secondary-400">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                </svg>
+                Sign Up
+              </button>
+            </NuxtLink>
+          </div>
+
+          <!-- Desktop Layout: Original vertical -->
+          <div class="hidden sm:flex flex-col lg:flex-row gap-8 lg:gap-12">
             <!-- Photo -->
             <div class="flex-shrink-0">
               <div class="w-48 lg:w-64 mx-auto lg:mx-0">
@@ -132,7 +281,7 @@
                 </span>
               </div>
 
-              <!-- Action Buttons -->
+              <!-- Action Buttons - Desktop -->
               <div class="mt-8 flex flex-wrap items-center justify-center lg:justify-start gap-4">
                 <!-- Save Button - Scout+ -->
                 <button 

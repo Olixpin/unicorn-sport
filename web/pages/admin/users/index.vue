@@ -102,6 +102,7 @@
           >
             <option value="">All Roles</option>
             <option value="user">User</option>
+            <option value="player">Player</option>
             <option value="scout">Scout</option>
             <option value="admin">Admin</option>
           </select>
@@ -113,12 +114,12 @@
         <!-- Search Button -->
         <button 
           @click="fetchUsers"
-          class="flex items-center gap-2 px-5 py-2.5 bg-neutral-900 text-white font-medium rounded-xl hover:bg-neutral-800 transition-colors"
+          class="flex items-center justify-center gap-2 w-full sm:w-auto px-5 py-2.5 bg-gradient-to-r from-primary-600 to-emerald-600 text-white font-semibold rounded-xl hover:from-primary-700 hover:to-emerald-700 transition-all shadow-lg shadow-primary-600/25"
         >
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
-          Search
+          <span class="sm:inline">Search</span>
         </button>
       </div>
     </div>
@@ -182,19 +183,20 @@
               <td class="px-6 py-4">
                 <div class="relative inline-block">
                   <select
-                    :value="user.role"
+                    :value="user.role || 'user'"
                     @change="updateUserRole(user.id, ($event.target as HTMLSelectElement).value)"
                     :class="[
-                      'appearance-none px-3 py-1.5 pr-8 text-xs font-medium rounded-lg border cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-1',
-                      getRoleBadgeClass(user.role)
+                      'appearance-none px-3 py-1.5 pr-8 text-xs font-semibold rounded-lg border cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-1 min-w-[80px]',
+                      getRoleBadgeClass(user.role || 'user')
                     ]"
                   >
-                    <option value="user">User</option>
-                    <option value="scout">Scout</option>
-                    <option value="admin">Admin</option>
+                    <option value="user" class="text-neutral-900 bg-white">User</option>
+                    <option value="player" class="text-neutral-900 bg-white">Player</option>
+                    <option value="scout" class="text-neutral-900 bg-white">Scout</option>
+                    <option value="admin" class="text-neutral-900 bg-white">Admin</option>
                   </select>
-                  <svg class="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-current pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  <svg class="absolute right-2.5 top-1/2 -translate-y-1/2 w-3 h-3 pointer-events-none opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
                   </svg>
                 </div>
               </td>
@@ -342,8 +344,11 @@ function getRoleBadgeClass(role: string): string {
       return 'bg-red-50 border-red-200 text-red-700 focus:ring-red-500/20'
     case 'scout':
       return 'bg-blue-50 border-blue-200 text-blue-700 focus:ring-blue-500/20'
+    case 'player':
+      return 'bg-emerald-50 border-emerald-200 text-emerald-700 focus:ring-emerald-500/20'
+    case 'user':
     default:
-      return 'bg-neutral-50 border-neutral-200 text-neutral-700 focus:ring-neutral-500/20'
+      return 'bg-neutral-100 border-neutral-300 text-neutral-700 focus:ring-neutral-500/20'
   }
 }
 

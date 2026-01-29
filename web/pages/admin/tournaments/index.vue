@@ -1,86 +1,42 @@
 <template>
   <div class="max-w-7xl mx-auto">
-    <!-- Page Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+    <!-- Page Header - Compact on mobile -->
+    <div class="flex items-center justify-between gap-4 mb-6">
       <div>
-        <h1 class="font-display text-2xl lg:text-3xl font-bold text-neutral-900">
-          Tournaments & Videos
+        <h1 class="font-display text-xl sm:text-2xl lg:text-3xl font-bold text-neutral-900">
+          Tournaments
         </h1>
-        <p class="mt-1 text-neutral-600">Manage tournaments, matches, and player highlights</p>
+        <p class="hidden sm:block mt-1 text-neutral-600">Manage tournaments, matches, and player highlights</p>
       </div>
       <button
         @click="openCreateModal"
-        class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary-600 to-emerald-600 text-white rounded-xl text-sm font-semibold hover:from-primary-700 hover:to-emerald-700 transition-all shadow-lg shadow-primary-600/25"
+        class="inline-flex items-center gap-2 px-4 py-2.5 bg-primary-600 text-white rounded-xl text-sm font-semibold hover:bg-primary-700 transition-all shadow-md"
       >
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
-        Create Tournament
+        <span class="hidden sm:inline">Create Tournament</span>
+        <span class="sm:hidden">New</span>
       </button>
     </div>
 
-    <!-- Stats Cards -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
-      <!-- Total Tournaments -->
-      <div class="bg-gradient-to-br from-primary-500 to-emerald-600 rounded-xl sm:rounded-2xl p-3 sm:p-5 text-white shadow-lg shadow-primary-500/25">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-primary-100 text-xs sm:text-sm font-medium">Tournaments</p>
-            <p class="text-xl sm:text-3xl font-bold mt-1">{{ tournaments.length }}</p>
-          </div>
-          <div class="w-9 h-9 sm:w-12 sm:h-12 bg-white/20 rounded-lg sm:rounded-xl flex items-center justify-center">
-            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-            </svg>
-          </div>
-        </div>
+    <!-- Stats Cards - Horizontal scroll on mobile -->
+    <div class="flex gap-3 mb-5 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-4 sm:overflow-visible scrollbar-hide">
+      <div class="flex-shrink-0 w-[130px] sm:w-auto bg-gradient-to-br from-primary-500 to-emerald-600 rounded-xl p-4 text-white">
+        <p class="text-primary-100 text-xs font-medium">Tournaments</p>
+        <p class="text-2xl font-bold">{{ tournaments.length }}</p>
       </div>
-
-      <!-- Total Matches -->
-      <div class="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl sm:rounded-2xl p-3 sm:p-5 text-white shadow-lg shadow-blue-500/25">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-blue-100 text-xs sm:text-sm font-medium">Total Matches</p>
-            <p class="text-xl sm:text-3xl font-bold mt-1">{{ stats.total_matches }}</p>
-          </div>
-          <div class="w-9 h-9 sm:w-12 sm:h-12 bg-white/20 rounded-lg sm:rounded-xl flex items-center justify-center">
-            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-          </div>
-        </div>
+      <div class="flex-shrink-0 w-[130px] sm:w-auto bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl p-4 text-white">
+        <p class="text-blue-100 text-xs font-medium">Matches</p>
+        <p class="text-2xl font-bold">{{ stats.total_matches }}</p>
       </div>
-
-      <!-- Full Match Videos (PAID) -->
-      <div class="bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl sm:rounded-2xl p-3 sm:p-5 text-white shadow-lg shadow-amber-500/25">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-amber-100 text-xs sm:text-sm font-medium">Match Videos</p>
-            <p class="text-xl sm:text-3xl font-bold mt-1">{{ stats.total_match_videos }}</p>
-            <p class="text-[10px] sm:text-xs text-amber-200 mt-0.5 hidden sm:block">💰 Paid content</p>
-          </div>
-          <div class="w-9 h-9 sm:w-12 sm:h-12 bg-white/20 rounded-lg sm:rounded-xl flex items-center justify-center">
-            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-            </svg>
-          </div>
-        </div>
+      <div class="flex-shrink-0 w-[130px] sm:w-auto bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl p-4 text-white">
+        <p class="text-amber-100 text-xs font-medium">Videos 💰</p>
+        <p class="text-2xl font-bold">{{ stats.total_match_videos }}</p>
       </div>
-
-      <!-- Player Highlights (FREE) -->
-      <div class="bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl sm:rounded-2xl p-3 sm:p-5 text-white shadow-lg shadow-emerald-500/25">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-emerald-100 text-xs sm:text-sm font-medium">Highlights</p>
-            <p class="text-xl sm:text-3xl font-bold mt-1">{{ stats.total_highlights }}</p>
-            <p class="text-[10px] sm:text-xs text-emerald-200 mt-0.5 hidden sm:block">🆓 Free content</p>
-          </div>
-          <div class="w-9 h-9 sm:w-12 sm:h-12 bg-white/20 rounded-lg sm:rounded-xl flex items-center justify-center">
-            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-          </div>
-        </div>
+      <div class="flex-shrink-0 w-[130px] sm:w-auto bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl p-4 text-white">
+        <p class="text-emerald-100 text-xs font-medium">Highlights 🆓</p>
+        <p class="text-2xl font-bold">{{ stats.total_highlights }}</p>
       </div>
     </div>
 
@@ -141,76 +97,121 @@
     </div>
 
     <!-- Tournaments Grid -->
-    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
       <NuxtLink
         v-for="tournament in tournaments"
         :key="tournament.id"
         :to="`/admin/tournaments/${tournament.id}`"
-        class="group bg-white rounded-xl sm:rounded-2xl border border-neutral-200 overflow-hidden hover:shadow-lg hover:border-primary-200 transition-all"
+        class="group bg-white rounded-xl sm:rounded-2xl border border-neutral-200 overflow-hidden hover:shadow-xl hover:border-primary-200 hover:-translate-y-0.5 transition-all duration-200 shadow-sm"
       >
-        <!-- Thumbnail - smaller aspect ratio on mobile -->
-        <div class="aspect-[4/3] sm:aspect-video bg-gradient-to-br from-primary-500 to-emerald-600 relative">
-          <img
-            v-if="tournament.thumbnail_url"
-            :src="tournament.thumbnail_url"
-            :alt="tournament.name"
-            class="w-full h-full object-cover"
-          />
-          <div v-else class="w-full h-full flex items-center justify-center">
-            <svg class="w-12 h-12 sm:w-16 sm:h-16 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-            </svg>
-          </div>
-          <!-- Status Badge -->
-          <span
-            :class="getStatusClass(tournament.status)"
-            class="absolute top-2 right-2 sm:top-3 sm:right-3 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-medium capitalize"
-          >
-            {{ tournament.status }}
-          </span>
-        </div>
-
-        <!-- Content -->
-        <div class="p-3 sm:p-5">
-          <h3 class="font-semibold text-sm sm:text-base text-neutral-900 group-hover:text-primary-600 transition-colors mb-2">
-            {{ tournament.name }}
-          </h3>
-          <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs sm:text-sm text-neutral-500">
-            <span v-if="tournament.location" class="flex items-center gap-1">
-              <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+        <!-- Mobile: Compact list style -->
+        <div class="flex sm:hidden p-3 gap-3">
+          <!-- Small thumbnail -->
+          <div class="w-16 h-16 bg-gradient-to-br from-primary-500 to-emerald-600 rounded-lg relative flex-shrink-0 overflow-hidden">
+            <img
+              v-if="tournament.thumbnail_url"
+              :src="tournament.thumbnail_url"
+              :alt="tournament.name"
+              class="w-full h-full object-cover"
+            />
+            <div v-else class="w-full h-full flex items-center justify-center">
+              <svg class="w-6 h-6 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
               </svg>
-              <span class="truncate">{{ tournament.location }}</span>
-            </span>
-            <span class="flex items-center gap-1">
-              <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              {{ formatDateRange(tournament.start_date, tournament.end_date) }}
-            </span>
+            </div>
           </div>
           
-          <!-- Video Stats -->
-          <div class="flex items-center justify-between sm:justify-start gap-2 sm:gap-4 mt-3 pt-3 border-t border-neutral-100">
-            <span class="flex items-center gap-1 text-xs sm:text-sm">
-              <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <span class="text-neutral-700 font-medium">{{ tournament.match_count || 0 }}</span>
-              <span class="text-neutral-500 hidden sm:inline">matches</span>
+          <!-- Content -->
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-2">
+              <h3 class="font-semibold text-sm text-neutral-900 line-clamp-1">
+                {{ tournament.name }}
+              </h3>
+              <span
+                :class="getMobileStatusClass(tournament.status)"
+                class="px-2 py-0.5 rounded-full text-[10px] font-medium capitalize flex-shrink-0"
+              >
+                {{ tournament.status }}
+              </span>
+            </div>
+            <p class="text-xs text-neutral-500 mt-0.5 truncate">
+              {{ tournament.location || 'No location' }} · {{ formatDateRange(tournament.start_date, tournament.end_date) }}
+            </p>
+            <!-- Labeled stats -->
+            <div class="flex items-center gap-3 mt-2 text-[11px] text-neutral-500">
+              <span><span class="font-medium text-neutral-700">{{ tournament.match_count || 0 }}</span> matches</span>
+              <span><span class="font-medium text-neutral-700">{{ tournament.video_count || 0 }}</span> videos</span>
+              <span><span class="font-medium text-neutral-700">{{ tournament.highlight_count || 0 }}</span> clips</span>
+            </div>
+          </div>
+          
+          <!-- Arrow -->
+          <svg class="w-4 h-4 text-neutral-400 flex-shrink-0 self-center" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </div>
+        
+        <!-- Desktop: Card layout -->
+        <div class="hidden sm:block">
+          <!-- Thumbnail -->
+          <div class="w-full aspect-video bg-gradient-to-br from-primary-500 to-emerald-600 relative overflow-hidden">
+            <img
+              v-if="tournament.thumbnail_url"
+              :src="tournament.thumbnail_url"
+              :alt="tournament.name"
+              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+            <div v-else class="w-full h-full flex items-center justify-center">
+              <div class="w-20 h-20 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-sm">
+                <svg class="w-10 h-10 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                </svg>
+              </div>
+            </div>
+            <!-- Status Badge -->
+            <span
+              :class="getMobileStatusClass(tournament.status)"
+              class="absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-semibold capitalize shadow-lg"
+            >
+              {{ tournament.status }}
             </span>
-            <span class="flex items-center gap-1 text-xs sm:text-sm">
-              <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-              </svg>
-              <span class="text-neutral-700 font-medium">{{ tournament.video_count || 0 }}</span>
-            </span>
-            <span class="flex items-center gap-1 text-xs sm:text-sm">
-              <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-              <span class="text-neutral-700 font-medium">{{ tournament.highlight_count || 0 }}</span>
-            </span>
+          </div>
+
+          <!-- Content -->
+          <div class="p-5">
+            <h3 class="font-bold text-base text-neutral-900 group-hover:text-primary-600 transition-colors mb-2">
+              {{ tournament.name }}
+            </h3>
+            <div class="flex flex-col gap-1.5 text-sm text-neutral-500">
+              <span v-if="tournament.location" class="flex items-center gap-1.5">
+                <svg class="w-4 h-4 flex-shrink-0 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                </svg>
+                <span class="truncate">{{ tournament.location }}</span>
+              </span>
+              <span class="flex items-center gap-1.5">
+                <svg class="w-4 h-4 flex-shrink-0 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span>{{ formatDateRange(tournament.start_date, tournament.end_date) }}</span>
+              </span>
+            </div>
+            
+            <!-- Video Stats -->
+            <div class="flex items-center gap-4 mt-3 pt-3 border-t border-neutral-100">
+              <span class="flex items-center gap-1.5 text-sm">
+                <span class="text-neutral-700 font-medium">{{ tournament.match_count || 0 }}</span>
+                <span class="text-neutral-500">matches</span>
+              </span>
+              <span class="flex items-center gap-1.5 text-sm">
+                <span class="text-neutral-700 font-medium">{{ tournament.video_count || 0 }}</span>
+                <span class="text-neutral-500">videos</span>
+              </span>
+              <span class="flex items-center gap-1.5 text-sm">
+                <span class="text-neutral-700 font-medium">{{ tournament.highlight_count || 0 }}</span>
+                <span class="text-neutral-500">clips</span>
+              </span>
+            </div>
           </div>
         </div>
       </NuxtLink>
@@ -412,23 +413,25 @@
                     <button
                       type="button"
                       @click="closeCreateModal"
-                      class="flex-1 px-4 py-3 border border-neutral-300 text-neutral-700 rounded-xl text-sm font-medium hover:bg-neutral-50 transition-colors"
+                      class="w-auto px-6 py-3 border border-neutral-300 text-neutral-700 rounded-xl text-sm font-medium hover:bg-neutral-50 transition-colors"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
-                      :disabled="creating"
-                      class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-primary-600 to-emerald-600 text-white rounded-xl text-sm font-semibold hover:from-primary-700 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-primary-600/25"
+                      :disabled="creating || !isFormValid"
+                      :class="[
+                        'flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold transition-all',
+                        isFormValid
+                          ? 'bg-gradient-to-r from-primary-600 to-emerald-600 text-white hover:from-primary-700 hover:to-emerald-700 shadow-lg shadow-primary-600/25'
+                          : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
+                      ]"
                     >
-                      <svg v-if="creating" class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg v-if="creating" class="w-4 h-4 animate-spin flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" />
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                       </svg>
-                      <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                      </svg>
-                      {{ creating ? 'Creating...' : 'Create Tournament' }}
+                      <span class="whitespace-nowrap">{{ creating ? 'Creating...' : 'Create' }}</span>
                     </button>
                   </div>
                 </form>
@@ -499,6 +502,11 @@ const form = reactive({
 const countryHasLocationData = computed(() => hasLocationData(form.country))
 const availableStates = computed(() => getStatesForCountry(form.country))
 const availableCities = computed(() => getCitiesForState(form.country, form.state))
+
+// Form validation - all required fields must be filled
+const isFormValid = computed(() => {
+  return form.name.trim() && form.start_date && form.end_date
+})
 
 function onCountryChange() {
   form.state = ''
@@ -607,6 +615,17 @@ function getStatusClass(status: string): string {
     upcoming: 'bg-blue-100 text-blue-700',
     active: 'bg-emerald-100 text-emerald-700',
     completed: 'bg-amber-100 text-amber-700',
+  }
+  return classes[status] || classes.draft!
+}
+
+// High contrast status badge for mobile (white background with colored text)
+function getMobileStatusClass(status: string): string {
+  const classes: Record<string, string> = {
+    draft: 'bg-white text-neutral-700 border border-neutral-200',
+    upcoming: 'bg-white text-blue-600 border border-blue-200',
+    active: 'bg-white text-emerald-600 border border-emerald-200',
+    completed: 'bg-white text-amber-600 border border-amber-200',
   }
   return classes[status] || classes.draft!
 }

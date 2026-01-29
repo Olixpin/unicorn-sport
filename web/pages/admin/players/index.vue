@@ -1,30 +1,30 @@
 <template>
   <div class="max-w-7xl mx-auto">
     <!-- Page Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+    <div class="flex items-center justify-between gap-4 mb-6 sm:mb-8">
       <div>
-        <h1 class="font-display text-2xl lg:text-3xl font-bold text-neutral-900">
+        <h1 class="font-display text-xl sm:text-2xl lg:text-3xl font-bold text-neutral-900">
           Players
         </h1>
-        <p class="mt-1 text-neutral-600">Manage all players in the platform</p>
+        <p class="hidden sm:block mt-1 text-neutral-600">Manage all players in the platform</p>
       </div>
-      <div class="flex items-center gap-3">
-        <!-- Export Button -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Export Button - icon only on mobile -->
         <button
           @click="exportPlayers"
-          class="inline-flex items-center gap-2 px-4 py-2.5 border border-neutral-200 bg-white text-neutral-700 rounded-xl text-sm font-medium hover:bg-neutral-50 transition-all"
+          class="inline-flex items-center justify-center gap-2 w-10 h-10 sm:w-auto sm:h-auto sm:px-4 sm:py-2.5 border border-neutral-200 bg-white text-neutral-700 rounded-xl text-sm font-medium hover:bg-neutral-50 transition-all"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
           </svg>
-          Export CSV
+          <span class="hidden sm:inline">Export CSV</span>
         </button>
         <NuxtLink to="/admin/players/new">
-          <button class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary-600 to-emerald-600 text-white rounded-xl text-sm font-semibold hover:from-primary-700 hover:to-emerald-700 transition-all shadow-lg shadow-primary-600/25">
+          <button class="inline-flex items-center justify-center gap-2 w-10 h-10 sm:w-auto sm:h-auto sm:px-5 sm:py-2.5 bg-gradient-to-r from-primary-600 to-emerald-600 text-white rounded-xl text-sm font-semibold hover:from-primary-700 hover:to-emerald-700 transition-all shadow-lg shadow-primary-600/25">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
-            Add Player
+            <span class="hidden sm:inline">Add Player</span>
           </button>
         </NuxtLink>
       </div>
@@ -190,7 +190,7 @@
         <div class="relative">
           <select
             v-model="countryFilter"
-            class="appearance-none px-4 py-3 pr-10 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all min-w-[180px]"
+            class="appearance-none pl-4 pr-10 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all min-w-[180px]"
             @change="page = 1; fetchPlayers()"
           >
             <option value="">All Countries</option>
@@ -248,8 +248,81 @@
         </NuxtLink>
       </div>
 
-      <!-- Table -->
-      <div v-else class="overflow-x-auto">
+      <!-- Mobile List View -->
+      <div v-else class="md:hidden">
+        <!-- Mobile Select All Header -->
+        <div class="flex items-center gap-3 px-4 py-2.5 border-b border-neutral-100 bg-neutral-50/50">
+          <div class="relative">
+            <input
+              type="checkbox"
+              :checked="isAllSelected"
+              @change="toggleSelectAll"
+              class="peer w-[18px] h-[18px] rounded-md border-2 border-neutral-300 text-primary-600 focus:ring-2 focus:ring-primary-500/20 focus:ring-offset-0 transition-all cursor-pointer"
+            />
+          </div>
+          <span class="text-[11px] font-semibold text-neutral-400 uppercase tracking-widest">Select All</span>
+        </div>
+        
+        <!-- Player Rows -->
+        <div class="divide-y divide-neutral-50">
+          <div
+            v-for="player in players"
+            :key="player.id"
+            class="flex items-center gap-3 px-4 py-3 active:bg-neutral-50 transition-colors"
+            :class="{ 'bg-primary-50/50': selectedPlayers.includes(player.id) }"
+          >
+            <!-- Checkbox -->
+            <div class="relative flex-shrink-0">
+              <input
+                type="checkbox"
+                :checked="selectedPlayers.includes(player.id)"
+                @change="togglePlayer(player.id)"
+                class="w-[18px] h-[18px] rounded-md border-2 border-neutral-300 text-primary-600 focus:ring-2 focus:ring-primary-500/20 focus:ring-offset-0 transition-all cursor-pointer"
+              />
+            </div>
+            
+            <!-- Player Info - Clickable -->
+            <NuxtLink :to="`/admin/players/${player.id}`" class="flex items-center gap-2.5 flex-1 min-w-0">
+              <!-- Small Photo -->
+              <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-neutral-100 to-neutral-200 overflow-hidden flex-shrink-0 shadow-sm">
+                <img 
+                  v-if="player.profile_photo_url"
+                  :src="player.profile_photo_url"
+                  :alt="player.first_name"
+                  class="w-full h-full object-cover"
+                />
+                <div v-else class="w-full h-full flex items-center justify-center text-neutral-400 text-[10px] font-bold">
+                  {{ player.first_name?.charAt(0) }}{{ player.last_name?.charAt(0) }}
+                </div>
+              </div>
+              
+              <!-- Name & Meta -->
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-1.5">
+                  <p class="font-semibold text-[13px] text-neutral-900 truncate">{{ player.first_name }} {{ player.last_name }}</p>
+                  <svg 
+                    v-if="player.verification_status === 'verified'"
+                    class="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" 
+                    viewBox="0 0 20 20" 
+                    fill="currentColor"
+                  >
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+                  </svg>
+                </div>
+                <p class="text-[11px] text-neutral-400 truncate mt-0.5">{{ player.position || 'No position' }} · {{ player.country }}</p>
+              </div>
+            </NuxtLink>
+            
+            <!-- Chevron -->
+            <svg class="w-4 h-4 text-neutral-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Desktop Table -->
+      <div v-if="players.length > 0" class="hidden md:block overflow-x-auto">
         <table class="w-full">
           <thead>
             <tr class="border-b border-neutral-200 bg-neutral-50">
@@ -367,27 +440,24 @@
       </div>
 
       <!-- Pagination -->
-      <div v-if="players.length > 0" class="flex flex-col sm:flex-row items-center justify-between gap-4 p-6 border-t border-neutral-100">
-        <p class="text-sm text-neutral-500">
-          Showing <span class="font-medium text-neutral-900">{{ (page - 1) * perPage + 1 }}</span> to 
-          <span class="font-medium text-neutral-900">{{ Math.min(page * perPage, total) }}</span> of 
-          <span class="font-medium text-neutral-900">{{ total }}</span> players
+      <div v-if="players.length > 0" class="flex items-center justify-between gap-3 px-4 py-3 sm:p-6 border-t border-neutral-100">
+        <p class="text-[11px] sm:text-sm text-neutral-400">
+          <span class="font-semibold text-neutral-700">{{ (page - 1) * perPage + 1 }}</span>–<span class="font-semibold text-neutral-700">{{ Math.min(page * perPage, total) }}</span> of <span class="font-semibold text-neutral-700">{{ total }}</span>
         </p>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1">
           <button
             :disabled="page === 1"
             @click="page--; fetchPlayers()"
             :class="[
-              'flex items-center gap-1 px-4 py-2 text-sm font-medium rounded-lg transition-colors',
+              'flex items-center justify-center w-8 h-8 rounded-lg transition-all',
               page === 1 
-                ? 'text-neutral-300 cursor-not-allowed' 
-                : 'text-neutral-600 hover:bg-neutral-100'
+                ? 'text-neutral-200 cursor-not-allowed' 
+                : 'text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 active:scale-95'
             ]"
           >
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
-            Previous
           </button>
           
           <!-- Page Numbers -->
@@ -397,10 +467,10 @@
               :key="pageNum"
               @click="page = pageNum; fetchPlayers()"
               :class="[
-                'w-9 h-9 text-sm font-medium rounded-lg transition-colors',
+                'w-8 h-8 text-sm font-medium rounded-lg transition-all',
                 page === pageNum 
-                  ? 'bg-primary-500 text-white' 
-                  : 'text-neutral-600 hover:bg-neutral-100'
+                  ? 'bg-primary-500 text-white shadow-sm' 
+                  : 'text-neutral-500 hover:bg-neutral-100'
               ]"
             >
               {{ pageNum }}
@@ -411,15 +481,14 @@
             :disabled="page >= totalPages"
             @click="page++; fetchPlayers()"
             :class="[
-              'flex items-center gap-1 px-4 py-2 text-sm font-medium rounded-lg transition-colors',
+              'flex items-center justify-center w-8 h-8 rounded-lg transition-all',
               page >= totalPages 
-                ? 'text-neutral-300 cursor-not-allowed' 
-                : 'text-neutral-600 hover:bg-neutral-100'
+                ? 'text-neutral-200 cursor-not-allowed' 
+                : 'text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 active:scale-95'
             ]"
           >
-            Next
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
             </svg>
           </button>
         </div>

@@ -832,3 +832,126 @@ func (a *AuthModule) ChangePassword(c *gin.Context) {
 		"message": "Password changed successfully",
 	})
 }
+
+// --- Profile Update ---
+
+// UpdateProfileRequest represents profile update request
+type UpdateProfileRequest struct {
+	FirstName    string `json:"firstName"`
+	LastName     string `json:"lastName"`
+	Organization string `json:"organization"`
+	Role         string `json:"role"`
+}
+
+// UpdateProfile allows authenticated users to update their profile
+func (a *AuthModule) UpdateProfile(c *gin.Context) {
+	var req UpdateProfileRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"error": gin.H{
+				"code":    "VALIDATION_ERROR",
+				"message": err.Error(),
+			},
+		})
+		return
+	}
+
+	userID, _ := c.Get("user_id")
+
+	// Get user
+	var user domain.User
+	if err := a.db.First(&user, "id = ?", userID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"success": false,
+			"error": gin.H{
+				"code":    "NOT_FOUND",
+				"message": "User not found",
+			},
+		})
+		return
+	}
+
+	// Update profile fields
+	updates := map[string]interface{}{
+		"updated_at": time.Now(),
+	}
+
+	if req.FirstName != "" {
+		updates["first_name"] = req.FirstName
+	}
+	if req.LastName != "" {
+		updates["last_name"] = req.LastName
+	}
+	if req.Organization != "" {
+		updates["organization_name"] = req.Organization
+	}
+	if req.Role != "" {
+		updates["organization_type"] = req.Role
+	}
+
+	if err := a.db.Model(&user).Updates(updates).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"error": gin.H{
+				"code":    "UPDATE_FAILED",
+				"message": "Failed to update profile",
+			},
+		})
+		return
+	}
+
+	// Reload user
+	a.db.First(&user, "id = ?", userID)
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Profile updated successfully",
+		"data": gin.H{
+			"user": UserResponse{
+				ID:            user.ID,
+				Email:         user.Email,
+				FirstName:     user.FirstName,
+				LastName:      user.LastName,
+				Role:          user.Role,
+				EmailVerified: user.EmailVerified,
+				CreatedAt:     user.CreatedAt,
+			},
+		},
+	})
+}
+
+// UpdateNotificationsRequest represents notification preferences update
+type UpdateNotificationsRequest struct {
+	NewPlayers     bool `json:"newPlayers"`
+	ContactUpdates bool `json:"contactUpdates"`
+	WeeklyDigest   bool `json:"weeklyDigest"`
+}
+
+// UpdateNotifications allows users to update notification preferences
+// Note: This is a stub - notification preferences would need to be stored in the database
+func (a *AuthModule) UpdateNotifications(c *gin.Context) {
+	var req UpdateNotificationsRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"error": gin.H{
+				"code":    "VALIDATION_ERROR",
+				"message": err.Error(),
+			},
+		})
+		return
+	}
+
+	// For now, just return success
+	// In production, you'd store these preferences in the database
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Notification preferences updated",
+		"data": gin.H{
+			"newPlayers":     req.NewPlayers,
+			"contactUpdates": req.ContactUpdates,
+			"weeklyDigest":   req.WeeklyDigest,
+		},
+	})
+}

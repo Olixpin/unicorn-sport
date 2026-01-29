@@ -1,49 +1,48 @@
 <template>
   <div class="max-w-6xl mx-auto">
     <!-- Page Header -->
-    <div class="mb-8">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div class="flex items-center gap-4">
+    <div class="mb-6">
+      <!-- Mobile: Stacked layout -->
+      <div class="flex flex-col gap-4">
+        <!-- Back + Title row -->
+        <div class="flex items-center gap-3">
           <NuxtLink 
             to="/admin/players" 
-            class="w-10 h-10 flex items-center justify-center rounded-xl bg-neutral-100 hover:bg-neutral-200 text-neutral-600 transition-colors"
+            class="w-9 h-9 flex items-center justify-center rounded-xl bg-neutral-100 hover:bg-neutral-200 text-neutral-500 transition-colors flex-shrink-0"
           >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
           </NuxtLink>
-          <div>
-            <h1 class="font-display text-2xl lg:text-3xl font-bold text-neutral-900">
-              Add New Player
-            </h1>
-            <p class="mt-1 text-neutral-600">Create a new player profile in the system.</p>
-          </div>
+          <h1 class="font-display text-xl sm:text-2xl font-bold text-neutral-900">
+            Add New Player
+          </h1>
         </div>
         
-        <!-- Progress Indicator -->
-        <div class="flex items-center gap-2 px-4 py-2 bg-neutral-100 rounded-xl">
-          <div class="flex items-center gap-1.5">
+        <!-- Progress Indicator - Horizontal scroll on mobile -->
+        <div class="flex items-center gap-3 px-3 py-2 bg-neutral-50 rounded-xl overflow-x-auto -mx-1 sm:mx-0 sm:self-start">
+          <div class="flex items-center gap-1.5 flex-shrink-0">
             <div :class="[
-              'w-2.5 h-2.5 rounded-full transition-colors',
+              'w-2 h-2 rounded-full transition-colors',
               form.first_name && form.last_name ? 'bg-emerald-500' : 'bg-neutral-300'
             ]"></div>
-            <span class="text-xs font-medium text-neutral-600">Identity</span>
+            <span class="text-[11px] font-medium text-neutral-600">Identity</span>
           </div>
-          <div class="w-4 h-px bg-neutral-300"></div>
-          <div class="flex items-center gap-1.5">
+          <div class="w-4 h-px bg-neutral-200 flex-shrink-0"></div>
+          <div class="flex items-center gap-1.5 flex-shrink-0">
             <div :class="[
-              'w-2.5 h-2.5 rounded-full transition-colors',
+              'w-2 h-2 rounded-full transition-colors',
               form.position && form.date_of_birth ? 'bg-emerald-500' : 'bg-neutral-300'
             ]"></div>
-            <span class="text-xs font-medium text-neutral-600">Details</span>
+            <span class="text-[11px] font-medium text-neutral-600">Details</span>
           </div>
-          <div class="w-4 h-px bg-neutral-300"></div>
-          <div class="flex items-center gap-1.5">
+          <div class="w-4 h-px bg-neutral-200 flex-shrink-0"></div>
+          <div class="flex items-center gap-1.5 flex-shrink-0">
             <div :class="[
-              'w-2.5 h-2.5 rounded-full transition-colors',
+              'w-2 h-2 rounded-full transition-colors',
               form.country ? 'bg-emerald-500' : 'bg-neutral-300'
             ]"></div>
-            <span class="text-xs font-medium text-neutral-600">Location</span>
+            <span class="text-[11px] font-medium text-neutral-600">Location</span>
           </div>
         </div>
       </div>
@@ -299,14 +298,14 @@
               </div>
             </div>
 
-            <div class="p-6">
+            <div class="p-4">
               <div class="relative">
                 <select
                   v-model="form.academy_id"
                   :disabled="loadingAcademies || !form.country"
                   :class="[
-                    'appearance-none w-full px-4 py-3 pr-10 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all',
-                    loadingAcademies || !form.country ? 'bg-neutral-100 cursor-not-allowed' : 'bg-neutral-50'
+                    'appearance-none w-full pl-4 pr-10 py-3 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all',
+                    loadingAcademies || !form.country ? 'bg-neutral-100 text-neutral-400 cursor-not-allowed border-neutral-200' : 'bg-neutral-50 border-neutral-200'
                   ]"
                 >
                   <option value="" disabled v-if="loadingAcademies">Loading academies...</option>
@@ -318,32 +317,29 @@
                   </option>
                 </select>
                 <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                  <svg v-if="loadingAcademies" class="w-5 h-5 text-neutral-400 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <svg v-if="loadingAcademies" class="w-4 h-4 text-neutral-400 animate-spin" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  <svg v-else class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg v-else class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                   </svg>
                 </div>
               </div>
               
-              <!-- Create new academy link -->
-              <div class="mt-3 flex items-center justify-between">
-                <p class="text-xs text-neutral-500 flex items-center gap-1.5">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Links player to an academy for tracking.
+              <!-- Helper text with create link -->
+              <div class="mt-2.5 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-0 sm:justify-between">
+                <p class="text-[11px] text-neutral-400">
+                  Optional. Links player to an academy.
                 </p>
                 <NuxtLink 
                   to="/admin/academies/new" 
-                  class="text-xs font-medium text-primary-600 hover:text-primary-700 flex items-center gap-1 hover:underline"
+                  class="inline-flex items-center gap-1 text-[11px] font-medium text-primary-600 hover:text-primary-700"
                 >
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                   </svg>
-                  Create new academy
+                  New academy
                 </NuxtLink>
               </div>
             </div>
@@ -374,26 +370,29 @@
                     type="checkbox"
                     class="sr-only peer"
                   />
-                  <div class="w-12 h-7 bg-neutral-300 rounded-full peer-checked:bg-emerald-500 transition-colors"></div>
-                  <div class="absolute left-1 top-1 w-5 h-5 bg-white rounded-full shadow peer-checked:translate-x-5 transition-transform"></div>
+                  <div class="w-10 h-5 bg-neutral-300 rounded-full peer-checked:bg-emerald-500 transition-colors"></div>
+                  <div class="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow peer-checked:translate-x-5 transition-transform"></div>
                 </div>
                 <div class="flex-1">
                   <span class="text-sm font-semibold text-neutral-900">Mark as Verified</span>
                   <p class="text-xs text-neutral-500 mt-0.5">Pre-approve this player for immediate visibility to scouts</p>
                 </div>
-                <div class="w-8 h-8 rounded-full flex items-center justify-center" :class="form.is_verified ? 'bg-emerald-100 text-emerald-600' : 'bg-neutral-200 text-neutral-400'">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                <div class="w-7 h-7 rounded-full flex items-center justify-center" :class="form.is_verified ? 'bg-emerald-100 text-emerald-600' : 'bg-neutral-200 text-neutral-400'">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
               </label>
 
-              <!-- Action Buttons -->
-              <div class="flex flex-col sm:flex-row gap-3 pt-2">
+              <!-- Action Buttons - Hidden on mobile (fixed bar used instead) -->
+              <div class="hidden lg:flex flex-col sm:flex-row gap-3 pt-2">
                 <button
                   type="submit"
-                  :disabled="submitting"
-                  class="flex-1 inline-flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-primary-600 to-emerald-600 text-white rounded-xl text-base font-semibold hover:from-primary-700 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-primary-600/25"
+                  :disabled="submitting || !isFormValid"
+                  class="flex-1 inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl text-base font-semibold transition-all"
+                  :class="isFormValid 
+                    ? 'bg-gradient-to-r from-primary-600 to-emerald-600 text-white shadow-lg shadow-primary-600/25 hover:from-primary-700 hover:to-emerald-700' 
+                    : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'"
                 >
                   <svg v-if="submitting" class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" />
@@ -402,7 +401,7 @@
                   <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                   </svg>
-                  {{ submitting ? 'Creating Player...' : 'Create Player' }}
+                  {{ submitting ? 'Creating Player...' : (isFormValid ? 'Create Player' : 'Fill Required Fields') }}
                 </button>
                 
                 <NuxtLink to="/admin/players" class="sm:w-auto">
@@ -498,13 +497,45 @@
           </div>
 
           <!-- Keyboard Shortcuts -->
-          <div class="text-center text-xs text-neutral-400 space-y-1">
+          <div class="text-center text-xs text-neutral-400 space-y-1 hidden lg:block">
             <p><kbd class="px-1.5 py-0.5 bg-neutral-100 rounded text-neutral-500">⌘</kbd> + <kbd class="px-1.5 py-0.5 bg-neutral-100 rounded text-neutral-500">Enter</kbd> to submit</p>
             <p><kbd class="px-1.5 py-0.5 bg-neutral-100 rounded text-neutral-500">Esc</kbd> to cancel</p>
           </div>
         </div>
       </div>
     </form>
+
+    <!-- Mobile Fixed Action Bar - Always visible on smaller screens -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-lg border-t border-neutral-200 p-4 shadow-lg z-50 lg:hidden">
+      <div class="flex gap-3 max-w-md mx-auto">
+        <NuxtLink to="/admin/players" class="w-auto">
+          <button
+            type="button"
+            class="px-4 py-3 border border-neutral-300 text-neutral-700 rounded-xl text-sm font-medium hover:bg-neutral-50 transition-colors"
+          >
+            Cancel
+          </button>
+        </NuxtLink>
+        <button
+          type="button"
+          @click="handleSubmit"
+          :disabled="submitting || !isFormValid"
+          class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold transition-all"
+          :class="isFormValid 
+            ? 'bg-gradient-to-r from-primary-600 to-emerald-600 text-white shadow-lg shadow-primary-600/25 hover:from-primary-700 hover:to-emerald-700' 
+            : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'"
+        >
+          <svg v-if="submitting" class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" />
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+          </svg>
+          {{ submitting ? 'Creating...' : (isFormValid ? 'Create Player' : 'Fill Required Fields') }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Spacer for mobile fixed bar -->
+    <div class="lg:hidden h-24"></div>
   </div>
 </template>
 
@@ -548,6 +579,15 @@ const submitting = ref(false)
 const loadingAcademies = ref(true)
 const academies = ref<Academy[]>([])
 const allAcademies = ref<Academy[]>([])
+
+// Check if minimum required fields are filled
+const isFormValid = computed(() => {
+  return form.first_name && form.first_name.length >= 2 && 
+         form.last_name && form.last_name.length >= 2 && 
+         form.date_of_birth && 
+         form.position && 
+         form.country
+})
 
 // Computed states based on selected country
 const availableStates = computed(() => {

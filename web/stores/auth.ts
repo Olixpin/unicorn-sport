@@ -95,7 +95,10 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async fetchCurrentUser(): Promise<void> {
-      if (!this.accessToken) return
+      if (!this.accessToken) {
+        this.clearAuth()
+        return
+      }
 
       try {
         const config = useRuntimeConfig()
@@ -109,10 +112,22 @@ export const useAuthStore = defineStore('auth', {
 
         if (response.success && response.data) {
           this.user = response.data
+        } else {
+          // Invalid response, clear auth
+          this.clearAuth()
         }
-      } catch (error) {
+      } catch (error: unknown) {
         console.error('Fetch user failed:', error)
-        this.clearAuth()
+        // Check if it's a 401 - token expired
+        if (error && typeof error === 'object' && 'statusCode' in error && error.statusCode === 401) {
+          // Try to refresh
+          const refreshed = await this.refreshAccessToken()
+          if (!refreshed) {
+            this.clearAuth()
+          }
+        } else {
+          this.clearAuth()
+        }
       }
     },
 

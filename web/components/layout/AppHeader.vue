@@ -199,7 +199,7 @@
                 Dashboard
               </NuxtLink>
               <button 
-                @click="handleLogout; mobileMenuOpen = false" 
+                @click="() => { handleLogout(); mobileMenuOpen = false }" 
                 class="font-medium text-lg text-white hover:text-red-400 transition-colors text-left py-3"
               >
                 Logout

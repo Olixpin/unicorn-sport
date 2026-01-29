@@ -38,65 +38,64 @@
     <!-- Match Content -->
     <div v-else-if="match" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Match Header -->
-      <div class="bg-white rounded-2xl border border-neutral-200 p-6 mb-6">
-        <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-          <div>
-            <h1 class="text-2xl font-bold text-neutral-900">{{ match.title }}</h1>
-            <div class="flex items-center gap-4 mt-2 text-neutral-600">
-              <span class="flex items-center gap-1">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                {{ formatDate(match.match_date) }}
-              </span>
-              <span v-if="match.stage" class="flex items-center gap-1">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-                </svg>
-                {{ formatStage(match.stage) }}
-              </span>
-              <span v-if="match.location" class="flex items-center gap-1">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                </svg>
-                {{ match.location }}
-              </span>
-            </div>
-            <div v-if="match.home_team && match.away_team" class="mt-3 text-lg font-medium">
-              {{ match.home_team }} 
-              <span v-if="match.home_score !== null" class="text-primary-600">{{ match.home_score }}</span>
-              <span class="text-neutral-400 mx-2">vs</span>
-              <span v-if="match.away_score !== null" class="text-primary-600">{{ match.away_score }}</span>
-              {{ match.away_team }}
-            </div>
+      <div class="bg-white rounded-2xl border border-neutral-200 p-4 sm:p-6 mb-6">
+        <div class="flex flex-col gap-4">
+          <div class="flex items-start justify-between gap-3">
+            <h1 class="text-xl sm:text-2xl font-bold text-neutral-900">{{ match.title }}</h1>
+            <button
+              @click="showEditModal = true"
+              class="flex-shrink-0 w-9 h-9 sm:w-auto sm:h-auto sm:px-4 sm:py-2 flex items-center justify-center gap-2 bg-neutral-100 text-neutral-700 rounded-lg hover:bg-neutral-200 transition-colors"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
+              <span class="hidden sm:inline">Edit Match</span>
+            </button>
           </div>
-          <button
-            @click="showEditModal = true"
-            class="flex items-center gap-2 px-4 py-2 bg-neutral-100 text-neutral-700 rounded-lg hover:bg-neutral-200 transition-colors"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-            </svg>
-            Edit Match
-          </button>
+          
+          <!-- Metadata - compact on mobile -->
+          <div class="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm text-neutral-600">
+            <span class="flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              {{ formatDate(match.match_date) }}
+            </span>
+            <span v-if="match.stage" class="flex items-center gap-1.5">
+              <span class="text-neutral-300">•</span>
+              {{ formatStage(match.stage) }}
+            </span>
+            <span v-if="match.location" class="flex items-center gap-1.5">
+              <span class="text-neutral-300">•</span>
+              {{ match.location }}
+            </span>
+          </div>
+          
+          <!-- Score -->
+          <div v-if="match.home_team && match.away_team" class="text-base sm:text-lg font-semibold">
+            {{ match.home_team }} 
+            <span v-if="match.home_score !== null" class="text-primary-600">{{ match.home_score }}</span>
+            <span class="text-neutral-400 mx-1.5">vs</span>
+            <span v-if="match.away_score !== null" class="text-primary-600">{{ match.away_score }}</span>
+            {{ match.away_team }}
+          </div>
         </div>
       </div>
 
       <!-- Full Match Video Section -->
-      <div class="bg-white rounded-2xl border border-neutral-200 p-6 mb-6">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-semibold text-neutral-900 flex items-center gap-2">
-            <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-            </svg>
-            Full Match Video
-            <span class="bg-amber-100 text-amber-700 text-xs px-2 py-0.5 rounded-full">PAID</span>
-          </h2>
+      <div class="bg-white rounded-2xl border border-neutral-200 p-4 sm:p-6 mb-6">
+        <div class="flex items-center gap-2 mb-4">
+          <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+          <h2 class="text-base sm:text-lg font-semibold text-neutral-900">Full Match Video</h2>
+          <span class="bg-amber-100 text-amber-700 text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-medium">PAID</span>
         </div>
 
         <!-- Video Exists -->
-        <div v-if="matchVideo" class="flex flex-col md:flex-row gap-6">
-          <div class="w-full md:w-72 h-40 bg-neutral-100 rounded-xl overflow-hidden relative group">
+        <div v-if="matchVideo" class="space-y-4">
+          <!-- Video Thumbnail -->
+          <div class="w-full aspect-video sm:aspect-auto sm:h-44 bg-neutral-100 rounded-xl overflow-hidden relative group">
             <img
               v-if="matchVideo.thumbnail_url"
               :src="matchVideo.thumbnail_url"
@@ -104,16 +103,16 @@
               class="w-full h-full object-cover"
             />
             <div v-else class="w-full h-full flex items-center justify-center bg-gradient-to-br from-neutral-200 to-neutral-300">
-              <svg class="w-12 h-12 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-10 h-10 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
               </svg>
             </div>
-            <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
+            <div class="absolute inset-0 bg-black/30 flex items-center justify-center">
               <button
                 @click="previewVideo"
-                class="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center hover:bg-white transition-colors"
+                class="w-11 h-11 bg-white/95 rounded-full flex items-center justify-center hover:bg-white hover:scale-105 transition-all shadow-lg"
               >
-                <svg class="w-5 h-5 text-neutral-900" fill="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 text-neutral-900 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M8 5v14l11-7z" />
                 </svg>
               </button>
@@ -126,7 +125,7 @@
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-              {{ matchVideo.thumbnail_url ? 'Change' : 'Add' }} Thumbnail
+              {{ matchVideo.thumbnail_url ? 'Change' : 'Add' }}
             </button>
             <input
               ref="thumbnailInput"
@@ -136,39 +135,41 @@
               @change="handleThumbnailUpload"
             />
           </div>
-          <div class="flex-1">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div>
-                <span class="text-xs text-neutral-500">Duration</span>
-                <p class="font-medium">{{ formatDuration(matchVideo.duration_seconds) }}</p>
-              </div>
-              <div>
-                <span class="text-xs text-neutral-500">File Size</span>
-                <p class="font-medium">{{ formatFileSize(matchVideo.file_size_bytes) }}</p>
-              </div>
-              <div>
-                <span class="text-xs text-neutral-500">Status</span>
-                <p class="font-medium capitalize">{{ matchVideo.status }}</p>
-              </div>
-              <div>
-                <span class="text-xs text-neutral-500">Price</span>
-                <p class="font-medium">${{ (matchVideo.price_cents / 100).toFixed(2) }}</p>
-              </div>
+          
+          <!-- Video Stats Grid -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div class="bg-neutral-50 rounded-lg p-3">
+              <span class="text-[11px] text-neutral-500 uppercase tracking-wide">Duration</span>
+              <p class="font-semibold text-neutral-900 mt-0.5">{{ formatDuration(matchVideo.duration_seconds) }}</p>
             </div>
-            <div class="flex gap-3 mt-4">
-              <button
-                @click="showReplaceVideoModal = true"
-                class="px-4 py-2 bg-neutral-100 text-neutral-700 rounded-lg hover:bg-neutral-200 transition-colors text-sm"
-              >
-                Replace Video
-              </button>
-              <button
-                @click="deleteMatchVideo"
-                class="px-4 py-2 bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-100 transition-colors text-sm"
-              >
-                Delete Video
-              </button>
+            <div class="bg-neutral-50 rounded-lg p-3">
+              <span class="text-[11px] text-neutral-500 uppercase tracking-wide">File Size</span>
+              <p class="font-semibold text-neutral-900 mt-0.5">{{ formatFileSize(matchVideo.file_size_bytes) }}</p>
             </div>
+            <div class="bg-neutral-50 rounded-lg p-3">
+              <span class="text-[11px] text-neutral-500 uppercase tracking-wide">Status</span>
+              <p class="font-semibold text-neutral-900 mt-0.5 capitalize">{{ matchVideo.status }}</p>
+            </div>
+            <div class="bg-neutral-50 rounded-lg p-3">
+              <span class="text-[11px] text-neutral-500 uppercase tracking-wide">Price</span>
+              <p class="font-semibold text-neutral-900 mt-0.5">${{ (matchVideo.price_cents / 100).toFixed(2) }}</p>
+            </div>
+          </div>
+          
+          <!-- Action Buttons -->
+          <div class="flex gap-2">
+            <button
+              @click="showReplaceVideoModal = true"
+              class="flex-1 sm:flex-none px-4 py-2.5 bg-neutral-100 text-neutral-700 rounded-xl hover:bg-neutral-200 transition-colors text-sm font-medium"
+            >
+              Replace Video
+            </button>
+            <button
+              @click="deleteMatchVideo"
+              class="flex-1 sm:flex-none px-4 py-2.5 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 transition-colors text-sm font-medium border border-rose-100"
+            >
+              Delete Video
+            </button>
           </div>
         </div>
 
@@ -209,34 +210,35 @@
       </div>
 
       <!-- Match Players Section -->
-      <div class="bg-white rounded-2xl border border-neutral-200 p-6 mb-6">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-semibold text-neutral-900 flex items-center gap-2">
-            <svg class="w-5 h-5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="bg-white rounded-2xl border border-neutral-200 p-4 sm:p-6 mb-6">
+        <div class="flex items-center justify-between gap-3 mb-4">
+          <h2 class="text-base sm:text-lg font-semibold text-neutral-900 flex items-center gap-2">
+            <svg class="w-5 h-5 text-primary-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
-            Match Players ({{ players.length }})
+            <span>Players <span class="text-neutral-500">({{ players.length }})</span></span>
           </h2>
           <button
             @click="navigateToRoster"
-            class="flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors text-sm"
+            class="flex-shrink-0 w-9 h-9 sm:w-auto sm:h-auto sm:px-4 sm:py-2 flex items-center justify-center gap-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors text-sm"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
             </svg>
-            Manage Roster
+            <span class="hidden sm:inline">Manage Roster</span>
           </button>
         </div>
 
         <!-- Players List -->
-        <div v-if="players.length > 0" class="space-y-3">
+        <div v-if="players.length > 0" class="space-y-2">
           <div
             v-for="player in players"
             :key="player.player_id"
-            class="flex items-center justify-between p-4 bg-neutral-50 rounded-xl hover:bg-neutral-100 transition-colors"
+            class="p-3 sm:p-4 bg-neutral-50 rounded-xl hover:bg-neutral-100 transition-colors"
           >
-            <div class="flex items-center gap-4">
-              <div class="w-12 h-12 rounded-full bg-gradient-to-br from-primary-500 to-emerald-600 flex items-center justify-center text-white font-semibold overflow-hidden">
+            <!-- Mobile: stacked layout -->
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 rounded-full bg-gradient-to-br from-primary-500 to-emerald-600 flex items-center justify-center text-white text-sm sm:text-base font-semibold overflow-hidden">
                 <img
                   v-if="player.profile_photo_url"
                   :src="player.profile_photo_url"
@@ -245,56 +247,36 @@
                 />
                 <span v-else>{{ getInitials(player.first_name, player.last_name) }}</span>
               </div>
-              <div>
-                <p class="font-medium text-neutral-900">{{ player.first_name }} {{ player.last_name }}</p>
-                <p class="text-sm text-neutral-500">
-                  {{ player.position_played || player.position }}
-                  <span v-if="player.minutes_played" class="ml-2">• {{ player.minutes_played }} min</span>
-                </p>
-              </div>
-            </div>
-
-            <div class="flex items-center gap-6">
-              <!-- Stats -->
-              <div class="flex items-center gap-4 text-sm">
-                <span v-if="player.goals > 0" class="flex items-center gap-1 text-amber-600 font-medium">
-                  ⚽ {{ player.goals }}
-                </span>
-                <span v-if="player.assists > 0" class="flex items-center gap-1 text-blue-600 font-medium">
-                  🎯 {{ player.assists }}
-                </span>
-                <span class="flex items-center gap-1 text-neutral-600">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                  </svg>
-                  {{ player.highlight_count }} highlights
-                </span>
+              
+              <div class="flex-1 min-w-0">
+                <p class="font-medium text-neutral-900 text-sm sm:text-base truncate">{{ player.first_name }} {{ player.last_name }}</p>
+                <div class="flex items-center gap-2 text-xs sm:text-sm text-neutral-500">
+                  <span>{{ player.position_played || player.position }}</span>
+                  <span class="text-neutral-300">•</span>
+                  <span class="flex items-center gap-1">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    {{ player.highlight_count }}
+                  </span>
+                </div>
               </div>
 
-              <!-- Actions -->
-              <div class="flex items-center gap-2">
+              <!-- Action buttons - always visible -->
+              <div class="flex items-center gap-1.5">
                 <button
                   v-if="!isFutureMatch"
                   @click="openHighlightUpload(player)"
-                  class="p-2 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100 transition-colors"
+                  class="w-8 h-8 flex items-center justify-center bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100 transition-colors"
                   title="Add Highlight"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                   </svg>
                 </button>
-                <span
-                  v-else
-                  class="p-2 bg-neutral-100 text-neutral-400 rounded-lg cursor-not-allowed"
-                  title="Available after match date"
-                >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                  </svg>
-                </span>
                 <button
                   @click="viewPlayerHighlights(player)"
-                  class="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
+                  class="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
                   title="View Highlights"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -304,7 +286,7 @@
                 </button>
                 <button
                   @click="removePlayer(player)"
-                  class="p-2 bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-100 transition-colors"
+                  class="w-8 h-8 flex items-center justify-center bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-100 transition-colors"
                   title="Remove from Match"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -338,58 +320,66 @@
       </div>
 
       <!-- Match Highlights Section -->
-      <div data-highlights class="bg-white rounded-2xl border border-neutral-200 p-6">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-semibold text-neutral-900 flex items-center gap-2">
-            <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-            Player Highlights
-            <span class="bg-emerald-100 text-emerald-700 text-xs px-2 py-0.5 rounded-full">FREE</span>
-          </h2>
-          <div class="flex items-center gap-3">
+      <div data-highlights class="bg-white rounded-2xl border border-neutral-200 p-4 sm:p-6">
+        <!-- Header -->
+        <div class="flex flex-col gap-3 mb-4">
+          <div class="flex items-center justify-between gap-3">
+            <h2 class="text-base sm:text-lg font-semibold text-neutral-900 flex items-center gap-2">
+              <svg class="w-5 h-5 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              <span>Highlights</span>
+              <span class="bg-emerald-100 text-emerald-700 text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-medium">FREE</span>
+            </h2>
             <!-- Add Highlight Button -->
             <button
               v-if="players.length > 0 && !isFutureMatch"
               @click="handleAddHighlight"
-              class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors text-sm font-medium"
+              class="flex-shrink-0 w-9 h-9 sm:w-auto sm:h-auto sm:px-4 sm:py-2 flex items-center justify-center gap-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors text-sm font-medium"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
               </svg>
-              Add Highlight
+              <span class="hidden sm:inline">Add Highlight</span>
             </button>
+          </div>
+          
+          <!-- Filters Row - Equal width on mobile -->
+          <div class="grid grid-cols-2 gap-2">
             <!-- Player Filter -->
-            <select
-              v-model="highlightPlayerFilter"
-              class="px-3 py-2 border border-neutral-200 rounded-lg text-sm bg-white"
-            >
-              <option value="">All Players</option>
-              <option v-for="player in players" :key="player.id" :value="player.player_id">
-                {{ player.first_name }} {{ player.last_name }}
-              </option>
-            </select>
+            <div class="relative">
+              <select
+                v-model="highlightPlayerFilter"
+                class="w-full appearance-none pl-3 pr-8 py-2.5 border border-neutral-200 rounded-xl text-sm bg-white truncate"
+              >
+                <option value="">All Players</option>
+                <option v-for="player in players" :key="player.id" :value="player.player_id">
+                  {{ player.first_name }} {{ player.last_name?.charAt(0) }}.
+                </option>
+              </select>
+              <div class="absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none">
+                <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
             <!-- Type Filter -->
-            <select
-              v-model="highlightTypeFilter"
-              class="px-3 py-2 border border-neutral-200 rounded-lg text-sm bg-white"
-            >
-              <option value="">All Types</option>
-              <option v-for="type in highlightTypes" :key="type.value" :value="type.value">
-                {{ type.icon }} {{ type.label }}
-              </option>
-            </select>
-            <!-- Clear Filters -->
-            <button
-              v-if="highlightTypeFilter || highlightPlayerFilter"
-              @click="highlightTypeFilter = ''; highlightPlayerFilter = ''"
-              class="p-2 text-neutral-500 hover:text-neutral-700 hover:bg-neutral-100 rounded-lg transition-colors"
-              title="Clear Filters"
-            >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+            <div class="relative">
+              <select
+                v-model="highlightTypeFilter"
+                class="w-full appearance-none pl-3 pr-8 py-2.5 border border-neutral-200 rounded-xl text-sm bg-white"
+              >
+                <option value="">All Types</option>
+                <option v-for="type in highlightTypes" :key="type.value" :value="type.value">
+                  {{ type.icon }} {{ type.label }}
+                </option>
+              </select>
+              <div class="absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none">
+                <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
           </div>
         </div>
 

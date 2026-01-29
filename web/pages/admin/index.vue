@@ -217,47 +217,45 @@
         </div>
 
         <div v-else class="divide-y divide-neutral-100">
-          <div 
+          <NuxtLink 
             v-for="player in recentPlayers" 
             :key="player.id" 
-            class="flex items-center justify-between p-4 hover:bg-neutral-50 transition-colors"
+            :to="`/admin/players/${player.id}`"
+            class="flex items-center gap-3 p-4 hover:bg-neutral-50 transition-colors"
           >
-            <div class="flex items-center gap-4">
-              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-neutral-100 to-neutral-200 overflow-hidden flex-shrink-0">
-                <img 
-                  v-if="player.profile_photo_url"
-                  :src="player.profile_photo_url"
-                  :alt="player.first_name"
-                  class="w-full h-full object-cover"
-                />
-                <div v-else class="w-full h-full flex items-center justify-center text-neutral-400 font-semibold">
-                  {{ player.first_name?.charAt(0) }}{{ player.last_name?.charAt(0) }}
-                </div>
-              </div>
-              <div>
-                <p class="font-medium text-neutral-900">{{ player.first_name }} {{ player.last_name }}</p>
-                <div class="flex items-center gap-2 text-sm text-neutral-500">
-                  <span>{{ player.position }}</span>
-                  <span class="text-neutral-300">•</span>
-                  <span>{{ player.country }}</span>
-                  <template v-if="player.academy">
-                    <span class="text-neutral-300">•</span>
-                    <span class="text-amber-600">{{ player.academy.name }}</span>
-                  </template>
-                </div>
+            <!-- Photo -->
+            <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-neutral-100 to-neutral-200 overflow-hidden flex-shrink-0">
+              <img 
+                v-if="player.profile_photo_url"
+                :src="player.profile_photo_url"
+                :alt="player.first_name"
+                class="w-full h-full object-cover"
+              />
+              <div v-else class="w-full h-full flex items-center justify-center text-neutral-400 font-medium text-sm">
+                {{ player.first_name?.charAt(0) }}{{ player.last_name?.charAt(0) }}
               </div>
             </div>
+            
+            <!-- Info -->
+            <div class="flex-1 min-w-0">
+              <p class="font-medium text-neutral-900 truncate">{{ player.first_name }} {{ player.last_name }}</p>
+              <p class="text-sm text-neutral-500 truncate">
+                {{ player.position }} · {{ player.country }}
+              </p>
+            </div>
+            
+            <!-- Status Badge -->
             <span 
               :class="[
-                'px-3 py-1 rounded-full text-xs font-medium',
+                'flex-shrink-0 px-2 py-0.5 rounded-full text-xs font-medium',
                 player.verification_status === 'verified'
-                  ? 'bg-primary-100 text-primary-700' 
+                  ? 'bg-emerald-100 text-emerald-700' 
                   : 'bg-amber-100 text-amber-700'
               ]"
             >
               {{ player.verification_status === 'verified' ? 'Verified' : 'Pending' }}
             </span>
-          </div>
+          </NuxtLink>
         </div>
       </div>
 

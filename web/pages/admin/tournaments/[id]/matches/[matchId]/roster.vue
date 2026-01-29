@@ -63,41 +63,37 @@
 
     <div v-else class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Match Info Banner -->
-      <div class="bg-gradient-to-r from-primary-600 to-emerald-600 rounded-2xl p-6 mb-8 text-white">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <h1 class="text-2xl font-bold">{{ match?.title }}</h1>
-            <div class="flex items-center gap-4 mt-2 text-white/80">
-              <span class="flex items-center gap-1">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                {{ formatDate(match?.match_date) }}
-              </span>
-              <span v-if="match?.location" class="flex items-center gap-1">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                </svg>
-                {{ match.location }}
-              </span>
-            </div>
-            <div v-if="match?.home_team && match?.away_team" class="mt-2 text-lg font-medium">
-              {{ match.home_team }} vs {{ match.away_team }}
-            </div>
+      <div class="bg-gradient-to-r from-primary-600 to-emerald-600 rounded-2xl p-4 sm:p-6 mb-6 sm:mb-8 text-white">
+        <h1 class="text-xl sm:text-2xl font-bold">{{ match?.title }}</h1>
+        <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-sm text-white/80">
+          <span class="flex items-center gap-1">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            {{ formatDate(match?.match_date) }}
+          </span>
+          <span v-if="match?.location" class="flex items-center gap-1">
+            <span class="text-white/40">•</span>
+            {{ match.location }}
+          </span>
+        </div>
+        <div v-if="match?.home_team && match?.away_team" class="mt-2 text-base sm:text-lg font-medium">
+          {{ match.home_team }} vs {{ match.away_team }}
+        </div>
+        
+        <!-- Stats Cards -->
+        <div class="flex gap-2 sm:gap-3 mt-4">
+          <div class="flex-1 text-center px-3 py-2 bg-white/15 rounded-xl">
+            <div class="text-2xl sm:text-3xl font-bold">{{ rosterPlayers.length }}</div>
+            <div class="text-xs text-white/70">Players</div>
           </div>
-          <div class="flex items-center gap-4">
-            <div class="text-center px-4 py-2 bg-white/10 rounded-xl">
-              <div class="text-3xl font-bold">{{ rosterPlayers.length }}</div>
-              <div class="text-sm text-white/70">Players</div>
-            </div>
-            <div class="text-center px-4 py-2 bg-white/10 rounded-xl">
-              <div class="text-3xl font-bold">{{ totalGoals }}</div>
-              <div class="text-sm text-white/70">Goals</div>
-            </div>
-            <div class="text-center px-4 py-2 bg-white/10 rounded-xl">
-              <div class="text-3xl font-bold">{{ totalAssists }}</div>
-              <div class="text-sm text-white/70">Assists</div>
-            </div>
+          <div class="flex-1 text-center px-3 py-2 bg-white/15 rounded-xl">
+            <div class="text-2xl sm:text-3xl font-bold">{{ totalGoals }}</div>
+            <div class="text-xs text-white/70">Goals</div>
+          </div>
+          <div class="flex-1 text-center px-3 py-2 bg-white/15 rounded-xl">
+            <div class="text-2xl sm:text-3xl font-bold">{{ totalAssists }}</div>
+            <div class="text-xs text-white/70">Assists</div>
           </div>
         </div>
       </div>
@@ -239,38 +235,36 @@
 
         <!-- Right Column: Roster List -->
         <div class="lg:col-span-2">
-          <div class="bg-white rounded-2xl border border-neutral-200 overflow-hidden">
-            <div class="px-6 py-4 border-b border-neutral-200 bg-gradient-to-r from-neutral-50 to-white">
-              <div class="flex items-center justify-between">
-                <h2 class="text-lg font-semibold text-neutral-900 flex items-center gap-2">
-                  <svg class="w-5 h-5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                  Match Roster
-                </h2>
-                
-                <!-- View Toggle -->
-                <div class="flex items-center gap-2 bg-neutral-100 rounded-lg p-1">
-                  <button
-                    @click="viewMode = 'list'"
-                    class="px-3 py-1.5 rounded-md text-sm font-medium transition-all"
-                    :class="viewMode === 'list' ? 'bg-white shadow text-primary-600' : 'text-neutral-600 hover:text-neutral-900'"
-                  >
-                    List
-                  </button>
-                  <button
-                    @click="viewMode = 'formation'"
-                    class="px-3 py-1.5 rounded-md text-sm font-medium transition-all"
-                    :class="viewMode === 'formation' ? 'bg-white shadow text-primary-600' : 'text-neutral-600 hover:text-neutral-900'"
-                  >
-                    Formation
-                  </button>
-                </div>
-              </div>
+          <!-- Roster Header -->
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-base sm:text-lg font-semibold text-neutral-900 flex items-center gap-2">
+              <svg class="w-5 h-5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              Match Roster
+            </h2>
+            
+            <!-- View Toggle -->
+            <div class="flex items-center gap-1 bg-neutral-100 rounded-lg p-1">
+              <button
+                @click="viewMode = 'list'"
+                class="px-3 py-1.5 rounded-md text-sm font-medium transition-all"
+                :class="viewMode === 'list' ? 'bg-white shadow text-primary-600' : 'text-neutral-600 hover:text-neutral-900'"
+              >
+                List
+              </button>
+              <button
+                @click="viewMode = 'formation'"
+                class="px-3 py-1.5 rounded-md text-sm font-medium transition-all"
+                :class="viewMode === 'formation' ? 'bg-white shadow text-primary-600' : 'text-neutral-600 hover:text-neutral-900'"
+              >
+                Formation
+              </button>
             </div>
+          </div>
 
-            <!-- List View -->
-            <div v-if="viewMode === 'list'" class="divide-y divide-neutral-100">
+          <!-- List View -->
+          <div v-if="viewMode === 'list'" class="bg-white rounded-2xl border border-neutral-200 divide-y divide-neutral-100">
               <!-- Position Groups -->
               <div v-for="group in positionGroups" :key="group.name" class="px-6 py-4">
                 <div class="flex items-center gap-2 mb-3">
@@ -292,69 +286,107 @@
                   <div
                     v-for="rp in group.players"
                     :key="rp.id"
-                    class="flex items-center gap-4 p-4 bg-neutral-50 rounded-xl hover:bg-neutral-100 transition-colors group"
+                    class="p-3 sm:p-4 bg-neutral-50 rounded-xl hover:bg-neutral-100 transition-colors group"
                   >
-                    <!-- Player Info -->
-                    <div class="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-primary-500 to-emerald-600 flex items-center justify-center text-white font-medium flex-shrink-0">
-                      <img v-if="rp.player?.profile_photo_url" :src="rp.player.profile_photo_url" class="w-full h-full object-cover" />
-                      <span v-else>{{ getInitials(rp.player?.first_name, rp.player?.last_name) }}</span>
+                    <!-- Mobile: Two rows, Desktop: Single row -->
+                    <div class="flex items-center gap-3">
+                      <!-- Player Avatar -->
+                      <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden bg-gradient-to-br from-primary-500 to-emerald-600 flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
+                        <img v-if="rp.player?.profile_photo_url" :src="rp.player.profile_photo_url" class="w-full h-full object-cover" />
+                        <span v-else>{{ getInitials(rp.player?.first_name, rp.player?.last_name) }}</span>
+                      </div>
+                      
+                      <!-- Name & Position -->
+                      <div class="flex-1 min-w-0">
+                        <p class="font-semibold text-neutral-900 text-sm sm:text-base truncate">
+                          {{ rp.player?.first_name }} {{ rp.player?.last_name }}
+                        </p>
+                        <p class="text-xs sm:text-sm text-neutral-500">
+                          {{ rp.position_played || rp.player?.position || 'Position TBD' }}
+                        </p>
+                      </div>
+
+                      <!-- Desktop Stats -->
+                      <div class="hidden sm:flex items-center gap-3">
+                        <div class="flex items-center gap-1">
+                          <span class="text-xs text-neutral-500">Min</span>
+                          <input
+                            v-model.number="rp.minutes_played"
+                            type="number"
+                            class="w-14 px-2 py-1 text-center border border-neutral-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
+                            placeholder="90"
+                            @change="markAsChanged(rp)"
+                          />
+                        </div>
+                        <div class="flex items-center gap-1">
+                          <span class="text-xs text-neutral-500">⚽</span>
+                          <input
+                            v-model.number="rp.goals"
+                            type="number"
+                            class="w-12 px-2 py-1 text-center border border-neutral-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
+                            placeholder="0"
+                            @change="markAsChanged(rp)"
+                          />
+                        </div>
+                        <div class="flex items-center gap-1">
+                          <span class="text-xs text-neutral-500">🅰️</span>
+                          <input
+                            v-model.number="rp.assists"
+                            type="number"
+                            class="w-12 px-2 py-1 text-center border border-neutral-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
+                            placeholder="0"
+                            @change="markAsChanged(rp)"
+                          />
+                        </div>
+                      </div>
+
+                      <!-- Remove Button -->
+                      <button
+                        @click="removePlayer(rp)"
+                        :disabled="removingPlayerId === rp.player_id"
+                        class="p-2 text-neutral-400 hover:text-rose-500 sm:opacity-0 sm:group-hover:opacity-100 transition-all disabled:opacity-100"
+                        title="Remove from roster"
+                      >
+                        <div v-if="removingPlayerId === rp.player_id" class="w-5 h-5 border-2 border-rose-400 border-t-transparent rounded-full animate-spin"></div>
+                        <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
                     </div>
                     
-                    <div class="flex-1 min-w-0">
-                      <p class="font-semibold text-neutral-900">
-                        {{ rp.player?.first_name }} {{ rp.player?.last_name }}
-                      </p>
-                      <p class="text-sm text-neutral-500">
-                        {{ rp.position_played || rp.player?.position || 'Position TBD' }}
-                      </p>
-                    </div>
-
-                    <!-- Stats Inputs (Inline) -->
-                    <div class="flex items-center gap-3">
-                      <div class="flex items-center gap-1">
-                        <span class="text-xs text-neutral-500">Min</span>
+                    <!-- Mobile Stats Row -->
+                    <div class="flex items-center gap-2 mt-3 sm:hidden">
+                      <div class="flex items-center gap-1 flex-1">
+                        <span class="text-[10px] text-neutral-500 uppercase">Min</span>
                         <input
                           v-model.number="rp.minutes_played"
                           type="number"
-                          class="w-14 px-2 py-1 text-center border border-neutral-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
+                          class="w-full px-2 py-1.5 text-center border border-neutral-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
                           placeholder="90"
                           @change="markAsChanged(rp)"
                         />
                       </div>
-                      <div class="flex items-center gap-1">
-                        <span class="text-xs text-neutral-500">⚽</span>
+                      <div class="flex items-center gap-1 flex-1">
+                        <span class="text-[10px] text-neutral-500">⚽</span>
                         <input
                           v-model.number="rp.goals"
                           type="number"
-                          class="w-12 px-2 py-1 text-center border border-neutral-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
+                          class="w-full px-2 py-1.5 text-center border border-neutral-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
                           placeholder="0"
                           @change="markAsChanged(rp)"
                         />
                       </div>
-                      <div class="flex items-center gap-1">
-                        <span class="text-xs text-neutral-500">🅰️</span>
+                      <div class="flex items-center gap-1 flex-1">
+                        <span class="text-[10px] text-neutral-500">🅰️</span>
                         <input
                           v-model.number="rp.assists"
                           type="number"
-                          class="w-12 px-2 py-1 text-center border border-neutral-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
+                          class="w-full px-2 py-1.5 text-center border border-neutral-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
                           placeholder="0"
                           @change="markAsChanged(rp)"
                         />
                       </div>
                     </div>
-
-                    <!-- Remove Button -->
-                    <button
-                      @click="removePlayer(rp)"
-                      :disabled="removingPlayerId === rp.player_id"
-                      class="p-2 text-neutral-400 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-all disabled:opacity-100"
-                      title="Remove from roster"
-                    >
-                      <div v-if="removingPlayerId === rp.player_id" class="w-5 h-5 border-2 border-rose-400 border-t-transparent rounded-full animate-spin"></div>
-                      <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </button>
                   </div>
                 </div>
 
@@ -374,16 +406,23 @@
             </div>
 
             <!-- Formation View -->
-            <div v-else class="p-6">
+            <div v-if="viewMode === 'formation'" class="space-y-4">
               <!-- Formation Selector -->
-              <div class="flex items-center justify-center gap-4 mb-6">
+              <div class="flex items-center justify-center gap-3">
                 <label class="text-sm font-medium text-neutral-700">Formation:</label>
-                <select
-                  v-model="selectedFormation"
-                  class="px-4 py-2 bg-white border border-neutral-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                >
-                  <option v-for="f in formations" :key="f.value" :value="f.value">{{ f.label }}</option>
-                </select>
+                <div class="relative">
+                  <select
+                    v-model="selectedFormation"
+                    class="appearance-none pl-4 pr-10 py-2 bg-white border border-neutral-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  >
+                    <option v-for="f in formations" :key="f.value" :value="f.value">{{ f.label }}</option>
+                  </select>
+                  <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
               </div>
 
               <!-- Main Grid: Pitch + Bench -->
@@ -569,19 +608,19 @@
                 <!-- Substitutes Bench & Staff -->
                 <div class="space-y-4">
                   <!-- Substitutes Bench -->
-                  <div class="bg-neutral-100 rounded-2xl p-4">
+                  <div>
                     <div class="flex items-center justify-between mb-3">
-                      <h3 class="font-semibold text-neutral-900 flex items-center gap-2">
-                        <svg class="w-5 h-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <h3 class="font-semibold text-neutral-900 flex items-center gap-2 text-sm">
+                        <svg class="w-4 h-4 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
                         Substitutes
                       </h3>
-                      <span class="text-xs text-neutral-500 bg-white px-2 py-1 rounded-full">{{ substitutes.length }} players</span>
+                      <span class="text-xs text-neutral-500">{{ substitutes.length }}</span>
                     </div>
                     
                     <div 
-                      class="space-y-2 min-h-[100px] border-2 border-dashed border-neutral-300 rounded-xl p-2"
+                      class="space-y-2 min-h-[80px] border-2 border-dashed border-neutral-200 rounded-xl p-2"
                       :class="{ 'border-primary-400 bg-primary-50': draggingPlayer }"
                       @dragover.prevent
                       @drop="handleBenchDrop"
@@ -592,9 +631,9 @@
                         draggable="true"
                         @dragstart="startDrag(player)"
                         @dragend="endDrag"
-                        class="flex items-center gap-3 p-2 bg-white rounded-xl cursor-grab active:cursor-grabbing hover:shadow-md transition-all"
+                        class="flex items-center gap-3 p-2 bg-neutral-50 rounded-lg cursor-grab active:cursor-grabbing hover:bg-neutral-100 transition-all"
                       >
-                        <div class="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-neutral-400 to-neutral-500 flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
+                        <div class="w-9 h-9 rounded-full overflow-hidden bg-gradient-to-br from-neutral-400 to-neutral-500 flex items-center justify-center text-white text-xs font-medium flex-shrink-0">
                           <img v-if="player.player?.profile_photo_url" :src="player.player.profile_photo_url" class="w-full h-full object-cover" />
                           <span v-else>{{ getInitials(player.player?.first_name, player.player?.last_name) }}</span>
                         </div>
@@ -602,78 +641,60 @@
                           <p class="font-medium text-neutral-900 text-sm truncate">{{ player.player?.first_name }} {{ player.player?.last_name }}</p>
                           <p class="text-xs text-neutral-500">{{ player.position_played || player.player?.position }}</p>
                         </div>
-                        <div v-if="player.jersey_number" class="w-6 h-6 bg-neutral-200 text-neutral-600 text-xs font-bold rounded-full flex items-center justify-center">
-                          {{ player.jersey_number }}
-                        </div>
                       </div>
                       
-                      <p v-if="substitutes.length === 0" class="text-center text-neutral-400 text-sm py-4">
-                        Drag players here for bench
+                      <p v-if="substitutes.length === 0" class="text-center text-neutral-400 text-xs py-4">
+                        Drag players here
                       </p>
                     </div>
                   </div>
 
-                  <!-- Coaching Staff -->
-                  <div class="bg-neutral-100 rounded-2xl p-4">
-                    <h3 class="font-semibold text-neutral-900 flex items-center gap-2 mb-3">
-                      <svg class="w-5 h-5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <!-- Coaching Staff - simplified -->
+                  <div>
+                    <h3 class="font-semibold text-neutral-900 flex items-center gap-2 mb-3 text-sm">
+                      <svg class="w-4 h-4 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                       </svg>
                       Staff
                     </h3>
                     
                     <div class="space-y-2">
-                      <!-- Coach placeholder -->
-                      <div class="flex items-center gap-3 p-2 bg-white rounded-xl">
-                        <div class="w-10 h-10 rounded-full bg-neutral-200 flex items-center justify-center text-neutral-400">
-                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div class="flex items-center gap-3 p-2 border border-dashed border-neutral-200 rounded-lg">
+                        <div class="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-400">
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                           </svg>
                         </div>
-                        <div class="flex-1">
-                          <p class="text-sm text-neutral-400">Add Head Coach</p>
-                        </div>
+                        <p class="text-xs text-neutral-400">Add Head Coach</p>
                       </div>
-                      
-                      <!-- Assistant placeholder -->
-                      <div class="flex items-center gap-3 p-2 bg-white rounded-xl">
-                        <div class="w-10 h-10 rounded-full bg-neutral-200 flex items-center justify-center text-neutral-400">
-                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div class="flex items-center gap-3 p-2 border border-dashed border-neutral-200 rounded-lg">
+                        <div class="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-400">
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                           </svg>
                         </div>
-                        <div class="flex-1">
-                          <p class="text-sm text-neutral-400">Add Assistant Coach</p>
-                        </div>
+                        <p class="text-xs text-neutral-400">Add Assistant</p>
                       </div>
                     </div>
                   </div>
 
-                  <!-- Match Stats Summary -->
-                  <div class="bg-gradient-to-br from-primary-500 to-emerald-600 rounded-2xl p-4 text-white">
-                    <h3 class="font-semibold mb-3 flex items-center gap-2">
-                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                      </svg>
-                      Match Stats
-                    </h3>
-                    <div class="grid grid-cols-2 gap-3 text-sm">
-                      <div class="bg-white/20 rounded-xl p-3 text-center">
-                        <p class="text-2xl font-bold">{{ starters.length }}</p>
-                        <p class="text-white/80 text-xs">Starters</p>
-                      </div>
-                      <div class="bg-white/20 rounded-xl p-3 text-center">
-                        <p class="text-2xl font-bold">{{ substitutes.length }}</p>
-                        <p class="text-white/80 text-xs">Bench</p>
-                      </div>
-                      <div class="bg-white/20 rounded-xl p-3 text-center">
-                        <p class="text-2xl font-bold">{{ totalGoals }}</p>
-                        <p class="text-white/80 text-xs">Goals</p>
-                      </div>
-                      <div class="bg-white/20 rounded-xl p-3 text-center">
-                        <p class="text-2xl font-bold">{{ totalAssists }}</p>
-                        <p class="text-white/80 text-xs">Assists</p>
-                      </div>
+                  <!-- Match Stats - compact inline -->
+                  <div class="grid grid-cols-4 gap-2 pt-2 border-t border-neutral-100">
+                    <div class="text-center py-2">
+                      <p class="text-lg font-bold text-primary-600">{{ starters.length }}</p>
+                      <p class="text-[10px] text-neutral-500 uppercase">Starters</p>
+                    </div>
+                    <div class="text-center py-2">
+                      <p class="text-lg font-bold text-primary-600">{{ substitutes.length }}</p>
+                      <p class="text-[10px] text-neutral-500 uppercase">Bench</p>
+                    </div>
+                    <div class="text-center py-2">
+                      <p class="text-lg font-bold text-primary-600">{{ totalGoals }}</p>
+                      <p class="text-[10px] text-neutral-500 uppercase">Goals</p>
+                    </div>
+                    <div class="text-center py-2">
+                      <p class="text-lg font-bold text-primary-600">{{ totalAssists }}</p>
+                      <p class="text-[10px] text-neutral-500 uppercase">Assists</p>
                     </div>
                   </div>
                 </div>
@@ -683,7 +704,6 @@
                 Drag players between pitch and bench. Click a player to edit details.
               </p>
             </div>
-          </div>
         </div>
       </div>
     </div>

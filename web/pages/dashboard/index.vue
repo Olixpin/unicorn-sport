@@ -1,287 +1,329 @@
 <template>
   <div class="space-y-4 sm:space-y-6">
-    <!-- Hero Welcome + Quick Action - Light Theme -->
-    <div class="relative overflow-hidden bg-white rounded-2xl sm:rounded-3xl border border-neutral-200 p-4 sm:p-6 lg:p-8">
-      <!-- Subtle Background Pattern -->
-      <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-primary-100 to-transparent rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 opacity-60"></div>
-      <div class="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-secondary-100 to-transparent rounded-full blur-2xl translate-y-1/2 -translate-x-1/4 opacity-40"></div>
-      
-      <div class="relative flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 sm:gap-6">
-        <div class="flex items-center gap-3 sm:gap-5">
-          <div class="relative">
-            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br from-primary-500 to-emerald-500 flex items-center justify-center shadow-xl shadow-primary-500/25">
-              <span class="text-xl sm:text-2xl font-bold text-white">{{ userInitial }}</span>
-            </div>
-            <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full border-2 border-white flex items-center justify-center shadow-sm">
-              <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-              </svg>
-            </div>
-          </div>
-          <div>
-            <p class="text-primary-600 text-xs sm:text-sm font-medium mb-0.5 sm:mb-1">{{ getGreeting() }}</p>
-            <h1 class="font-display text-xl sm:text-2xl lg:text-3xl font-bold text-neutral-900">
-              {{ userName || 'Scout' }}
-            </h1>
-            <p class="text-neutral-500 text-sm sm:text-base mt-0.5 sm:mt-1">Ready to discover your next star?</p>
-          </div>
+    <!-- Featured Highlight Hero - Video First -->
+    <div v-if="featuredHighlight" class="relative overflow-hidden bg-neutral-950 rounded-2xl sm:rounded-3xl shadow-2xl">
+      <div class="relative aspect-[16/9] sm:aspect-[2.4/1]">
+        <!-- Auto-playing Video Background -->
+        <div class="absolute inset-0">
+          <video
+            v-if="featuredHighlight.stream_url"
+            ref="heroVideoRef"
+            class="w-full h-full object-cover"
+            :src="featuredHighlight.stream_url"
+            :poster="featuredHighlight.thumbnail_url"
+            loop
+            muted
+            playsinline
+            autoplay
+            @click="toggleHeroMute"
+          />
+          <img 
+            v-else-if="featuredHighlight.thumbnail_url"
+            :src="featuredHighlight.thumbnail_url"
+            :alt="featuredHighlight.title"
+            class="w-full h-full object-cover"
+          />
+          <div v-else class="w-full h-full bg-gradient-to-br from-primary-600 to-emerald-600" />
         </div>
         
-        <div class="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
-          <NuxtLink to="/discover" class="flex-1 sm:flex-initial">
-            <button class="w-full sm:w-auto group flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 bg-gradient-to-r from-primary-500 to-emerald-500 text-white font-semibold text-sm sm:text-base rounded-xl hover:shadow-lg hover:shadow-primary-500/30 hover:scale-[1.02] transition-all duration-200">
-              <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        <!-- Gradient Overlays -->
+        <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
+        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
+        
+        <!-- Content -->
+        <div class="absolute inset-0 flex flex-col justify-between p-4 sm:p-6 lg:p-8">
+          <!-- Top Row -->
+          <div class="flex items-start justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+              <span class="text-white/90 text-xs sm:text-sm font-medium">Featured Highlight</span>
+            </div>
+            
+            <!-- Mute/Unmute Button -->
+            <button 
+              v-if="featuredHighlight.stream_url"
+              class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center hover:bg-black/60 transition-colors"
+              @click="toggleHeroMute"
+            >
+              <svg v-if="heroMuted" class="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
               </svg>
-              Discover Players
-              <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              <svg v-else class="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
               </svg>
             </button>
-          </NuxtLink>
-          <NuxtLink to="/dashboard/saved" class="flex-1 sm:flex-initial">
-            <button class="w-full sm:w-auto flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 bg-neutral-100 text-neutral-700 font-medium text-sm sm:text-base rounded-xl border border-neutral-200 hover:bg-neutral-200 hover:border-neutral-300 transition-all duration-200">
-              <svg class="w-4 h-4 sm:w-5 sm:h-5 text-rose-500" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-              </svg>
-              My Shortlist
-            </button>
-          </NuxtLink>
-        </div>
-      </div>
-    </div>
-
-    <!-- Stats Grid - Engagement Focused -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-      <!-- Saved Players with Progress -->
-      <NuxtLink to="/dashboard/saved" class="group">
-        <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-neutral-200 hover:border-primary-300 hover:shadow-lg hover:shadow-primary-500/10 transition-all duration-300">
-          <div class="flex items-start justify-between mb-3 sm:mb-4">
-            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center shadow-lg shadow-rose-500/30">
-              <svg class="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-              </svg>
-            </div>
-            <svg class="w-5 h-5 text-neutral-300 group-hover:text-primary-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-            </svg>
           </div>
-          <div>
-            <p class="text-2xl sm:text-3xl font-bold text-neutral-900">{{ savedCount }}</p>
-            <p class="text-xs sm:text-sm text-neutral-500 mt-0.5 sm:mt-1">Saved Players</p>
-          </div>
-          <div class="mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-neutral-100">
-            <div class="flex items-center gap-1.5">
-              <div class="flex-1 h-1 sm:h-1.5 bg-neutral-100 rounded-full overflow-hidden">
-                <div class="h-full bg-gradient-to-r from-pink-500 to-rose-500 rounded-full transition-all duration-500" :style="{ width: `${Math.min((savedCount / 50) * 100, 100)}%` }"></div>
-              </div>
-              <span class="text-[10px] sm:text-xs text-neutral-400">{{ savedCount }}/50</span>
-            </div>
-          </div>
-        </div>
-      </NuxtLink>
-
-      <!-- Contact Requests with Status -->
-      <NuxtLink to="/dashboard/contacts" class="group">
-        <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-neutral-200 hover:border-amber-300 hover:shadow-lg hover:shadow-amber-500/10 transition-all duration-300">
-          <div class="flex items-start justify-between mb-3 sm:mb-4">
-            <div class="relative">
-              <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg shadow-orange-500/30">
-                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <div v-if="pendingContacts > 0" class="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-red-500 rounded-full flex items-center justify-center text-[9px] sm:text-[10px] font-bold text-white ring-2 ring-white">
-                {{ pendingContacts }}
-              </div>
-            </div>
-            <svg class="w-4 h-4 sm:w-5 sm:h-5 text-neutral-300 group-hover:text-amber-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-            </svg>
-          </div>
-          <div>
-            <p class="text-2xl sm:text-3xl font-bold text-neutral-900">{{ contactsCount }}</p>
-            <p class="text-xs sm:text-sm text-neutral-500 mt-0.5 sm:mt-1">Contact Requests</p>
-          </div>
-          <div class="mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-neutral-100">
-            <span v-if="pendingContacts > 0" class="inline-flex items-center gap-1 text-[10px] sm:text-xs font-medium text-amber-600">
-              <span class="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></span>
-              {{ pendingContacts }} pending
-            </span>
-            <span v-else class="text-[10px] sm:text-xs text-neutral-400">All caught up!</span>
-          </div>
-        </div>
-      </NuxtLink>
-
-      <!-- This Week's Activity -->
-      <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-neutral-200">
-        <div class="flex items-start justify-between mb-3 sm:mb-4">
-          <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
-            <svg class="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-          </div>
-        </div>
-        <div>
-          <p class="text-2xl sm:text-3xl font-bold text-neutral-900">{{ viewsCount }}</p>
-          <p class="text-xs sm:text-sm text-neutral-500 mt-0.5 sm:mt-1">Profiles Viewed</p>
-        </div>
-        <div class="mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-neutral-100">
-          <span class="text-[10px] sm:text-xs text-neutral-400">This week</span>
-        </div>
-      </div>
-
-      <!-- Quick Discover CTA -->
-      <NuxtLink to="/discover" class="group">
-        <div class="relative h-full bg-gradient-to-br from-primary-500 to-emerald-500 rounded-xl sm:rounded-2xl p-4 sm:p-5 overflow-hidden hover:shadow-lg hover:shadow-primary-500/30 transition-all duration-300 hover:scale-[1.02]">
-          <div class="absolute top-0 right-0 w-20 h-20 sm:w-24 sm:h-24 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-          <div class="absolute bottom-0 left-0 w-12 h-12 sm:w-16 sm:h-16 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2"></div>
-          <div class="relative h-full flex flex-col justify-between">
-            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl bg-white/20 flex items-center justify-center mb-3 sm:mb-4">
-              <svg class="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-            </div>
-            <div>
-              <p class="text-white font-bold text-base sm:text-lg">Find Talent</p>
-              <p class="text-white/70 text-xs sm:text-sm mt-0.5 sm:mt-1">500+ verified→</p>
-            </div>
-            <svg class="absolute bottom-4 right-4 sm:bottom-5 sm:right-5 w-5 h-5 sm:w-6 sm:h-6 text-white/50 group-hover:text-white group-hover:translate-x-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
-          </div>
-        </div>
-      </NuxtLink>
-    </div>
-
-    <!-- Content Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-      <!-- New Players - Featured Larger -->
-      <div class="lg:col-span-2 bg-white rounded-xl sm:rounded-2xl border border-neutral-200 shadow-sm overflow-hidden">
-        <div class="flex items-center justify-between p-4 sm:p-5 border-b border-neutral-100">
-          <div class="flex items-center gap-2 sm:gap-3">
-            <div class="w-2 h-2 bg-primary-500 rounded-full animate-pulse"></div>
-            <h2 class="font-semibold text-sm sm:text-base text-neutral-900">Fresh Talent This Week</h2>
-            <span class="px-2 py-0.5 sm:px-2.5 sm:py-1 bg-primary-100 text-primary-700 text-[10px] sm:text-xs font-bold rounded-full">{{ newPlayers.length }} NEW</span>
-          </div>
-          <NuxtLink to="/discover" class="text-xs sm:text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1 group">
-            See all
-            <svg class="w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-            </svg>
-          </NuxtLink>
-        </div>
-
-        <div v-if="loading" class="p-12 flex justify-center">
-          <div class="flex flex-col items-center gap-4">
-            <div class="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
-            <p class="text-neutral-500 text-sm">Fetching latest players...</p>
-          </div>
-        </div>
-
-        <div v-else-if="newPlayers.length === 0" class="p-12 text-center">
-          <div class="w-20 h-20 mx-auto bg-gradient-to-br from-primary-100 to-primary-50 rounded-3xl flex items-center justify-center mb-5">
-            <svg class="w-10 h-10 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-          </div>
-          <h3 class="text-lg font-semibold text-neutral-900 mb-2">New talent coming soon</h3>
-          <p class="text-neutral-500 mb-6">Check back later for fresh player profiles</p>
-          <NuxtLink to="/discover">
-            <button class="inline-flex items-center gap-2 px-5 py-2.5 bg-primary-500 text-white font-medium rounded-xl hover:bg-primary-600 transition-colors">
-              Browse All Players
-            </button>
-          </NuxtLink>
-        </div>
-
-        <div v-else class="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-neutral-100">
-          <div 
-            v-for="(player, index) in newPlayers.slice(0, 4)" 
-            :key="player.id" 
-            class="p-4 hover:bg-neutral-50 transition-colors group"
-            :class="{ 'border-t border-neutral-100': index >= 2 }"
-          >
-            <NuxtLink :to="`/players/${player.id}`" class="flex items-center gap-4">
-              <div class="relative">
-                <div class="w-14 h-14 rounded-xl bg-neutral-200 overflow-hidden ring-2 ring-primary-200 group-hover:ring-primary-400 transition-all">
-                  <img 
-                    v-if="player.profile_photo_url"
-                    :src="player.profile_photo_url"
-                    :alt="player.first_name"
-                    class="w-full h-full object-cover"
-                  />
-                  <div v-else class="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-100 to-primary-200">
-                    <span class="text-primary-600 font-bold text-lg">{{ player.first_name?.charAt(0) }}</span>
-                  </div>
+          
+          <!-- Bottom Content -->
+          <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+            <!-- Player Info -->
+            <div v-if="featuredHighlight.player" class="flex items-end gap-3 sm:gap-4">
+              <NuxtLink :to="`/players/${featuredHighlight.player.id}`">
+                <div class="w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-xl sm:rounded-2xl overflow-hidden ring-2 ring-white/20 shadow-xl flex-shrink-0 bg-gradient-to-br from-primary-500 to-emerald-500 flex items-center justify-center">
+                  <span class="text-white font-bold text-xl sm:text-2xl">{{ featuredHighlight.player.first_name?.charAt(0) }}</span>
                 </div>
-                <div v-if="player.verification_status === 'verified'" class="absolute -bottom-1 -right-1 w-5 h-5 bg-primary-500 rounded-full flex items-center justify-center ring-2 ring-white">
-                  <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </NuxtLink>
+              
+              <div class="min-w-0">
+                <div class="flex items-center gap-2 mb-1">
+                  <h2 class="text-lg sm:text-xl lg:text-2xl font-bold text-white truncate">
+                    {{ featuredHighlight.player.first_name }} {{ featuredHighlight.player.last_name?.charAt(0) || '' }}.
+                  </h2>
+                </div>
+                
+                <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                  <span class="px-2 py-0.5 sm:px-2.5 sm:py-1 bg-white/15 backdrop-blur-sm rounded-lg text-xs sm:text-sm text-white font-medium">
+                    {{ featuredHighlight.player.position }}
+                  </span>
+                  <span v-if="featuredHighlight.highlight_type" class="px-2 py-0.5 sm:px-2.5 sm:py-1 bg-primary-500/80 backdrop-blur-sm rounded-lg text-xs sm:text-sm text-white font-medium">
+                    {{ formatHighlightType(featuredHighlight.highlight_type) }}
+                  </span>
+                  <span v-if="featuredHighlight.duration_seconds" class="px-2 py-0.5 bg-black/40 backdrop-blur-sm rounded-lg text-xs text-white/80">
+                    {{ formatDuration(featuredHighlight.duration_seconds) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex items-center gap-2 sm:gap-3">
+              <NuxtLink v-if="featuredHighlight.player" :to="`/players/${featuredHighlight.player.id}`" class="flex-1 sm:flex-initial">
+                <button class="w-full sm:w-auto flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 bg-white text-neutral-900 font-semibold text-sm rounded-xl hover:bg-white/90 transition-all shadow-lg">
+                  <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
-                </div>
-              </div>
-              <div class="flex-1 min-w-0">
-                <p class="font-semibold text-neutral-900 truncate group-hover:text-primary-600 transition-colors">{{ player.first_name }} {{ getPlayerLastInitial(player) }}.</p>
-                <p class="text-sm text-neutral-500">{{ player.position }}</p>
-                <p class="text-xs text-neutral-400 mt-0.5">{{ player.country }}</p>
-              </div>
-              <svg class="w-5 h-5 text-neutral-300 group-hover:text-primary-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                  View Profile
+                </button>
+              </NuxtLink>
+              
+              <button 
+                v-if="subscriptionStore.canSavePlayers && featuredHighlight.player"
+                class="flex items-center justify-center gap-2 px-4 py-2.5 sm:py-3 rounded-xl font-semibold text-sm transition-all"
+                :class="isFeaturedSaved 
+                  ? 'bg-primary-500 text-white' 
+                  : 'bg-white/15 text-white backdrop-blur-sm border border-white/20 hover:bg-white/25'"
+                @click="toggleSaveFeatured"
+              >
+                <svg class="w-5 h-5" :fill="isFeaturedSaved ? 'currentColor' : 'none'" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+                <span class="hidden sm:inline">{{ isFeaturedSaved ? 'Saved' : 'Save' }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Loading state for featured -->
+    <div v-else-if="loading" class="relative overflow-hidden bg-neutral-200 rounded-2xl sm:rounded-3xl animate-pulse">
+      <div class="aspect-[16/9] sm:aspect-[2.4/1]" />
+    </div>
+
+    <!-- Quick Actions Row -->
+    <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+      <!-- Discover CTA -->
+      <NuxtLink to="/discover" class="flex-1">
+        <div class="h-full group flex items-center justify-between px-4 sm:px-5 py-4 bg-gradient-to-r from-primary-500 to-emerald-500 rounded-2xl hover:shadow-lg hover:shadow-primary-500/25 hover:scale-[1.01] transition-all">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-white/20 flex items-center justify-center">
+              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
+            </div>
+            <div class="text-left">
+              <p class="text-white font-bold text-sm sm:text-base">Discover Players</p>
+              <p class="text-white/70 text-xs sm:text-sm">Browse verified talent</p>
+            </div>
+          </div>
+          <svg class="w-5 h-5 text-white/70 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+        </div>
+      </NuxtLink>
+      
+      <!-- My Shortlist -->
+      <NuxtLink to="/dashboard/saved" class="flex-1">
+        <div class="h-full flex items-center justify-between px-4 sm:px-5 py-4 bg-white rounded-2xl border border-neutral-200 hover:border-primary-300 hover:shadow-lg transition-all group">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-rose-500 to-pink-500 flex items-center justify-center shadow-lg shadow-rose-500/25">
+              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+              </svg>
+            </div>
+            <div class="text-left">
+              <p class="text-neutral-900 font-bold text-sm sm:text-base">My Shortlist</p>
+              <p class="text-neutral-500 text-xs sm:text-sm">{{ savedCount }} players saved</p>
+            </div>
+          </div>
+          <svg class="w-5 h-5 text-neutral-300 group-hover:text-primary-500 group-hover:translate-x-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+        </div>
+      </NuxtLink>
+    </div>
+
+    <!-- More Highlights Grid -->
+    <div class="bg-white rounded-2xl border border-neutral-200 overflow-hidden">
+      <div class="flex items-center justify-between p-4 sm:p-5 border-b border-neutral-100">
+        <div class="flex items-center gap-2 sm:gap-3">
+          <svg class="w-5 h-5 text-primary-500" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z"/>
+          </svg>
+          <h2 class="font-semibold text-sm sm:text-base text-neutral-900">More Highlights</h2>
+          <span v-if="highlights.length" class="px-2 py-0.5 bg-primary-100 text-primary-700 text-[10px] sm:text-xs font-bold rounded-full">
+            {{ highlights.length }} clips
+          </span>
+        </div>
+        <NuxtLink to="/discover" class="text-xs sm:text-sm text-primary-600 hover:text-primary-700 font-medium">
+          See all
+        </NuxtLink>
+      </div>
+
+      <div v-if="loading" class="p-12 flex justify-center">
+        <div class="w-10 h-10 border-3 border-primary-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+
+      <div v-else-if="highlights.length === 0" class="p-12 text-center">
+        <div class="w-16 h-16 mx-auto bg-neutral-100 rounded-2xl flex items-center justify-center mb-4">
+          <svg class="w-8 h-8 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+        </div>
+        <p class="text-neutral-500 mb-4">No highlights yet</p>
+        <NuxtLink to="/discover">
+          <button class="px-4 py-2 bg-primary-500 text-white text-sm font-medium rounded-xl hover:bg-primary-600 transition-colors">
+            Browse Players
+          </button>
+        </NuxtLink>
+      </div>
+
+      <!-- Video Highlights Grid -->
+      <div v-else class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
+        <div 
+          v-for="highlight in highlights" 
+          :key="highlight.id"
+          class="group relative aspect-video overflow-hidden border-b border-r border-neutral-100 cursor-pointer"
+          @click="playHighlight(highlight)"
+        >
+          <!-- Video Thumbnail -->
+          <div class="absolute inset-0">
+            <img 
+              v-if="highlight.thumbnail_url"
+              :src="highlight.thumbnail_url"
+              :alt="highlight.title"
+              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+            <div v-else class="w-full h-full flex items-center justify-center bg-gradient-to-br from-neutral-800 to-neutral-900">
+              <svg class="w-10 h-10 text-white/30" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+            </div>
+          </div>
+          
+          <!-- Play Button Overlay -->
+          <div class="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-neutral-900 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+            </div>
+          </div>
+          
+          <!-- Duration Badge -->
+          <div v-if="highlight.duration_seconds" class="absolute top-2 right-2 px-1.5 py-0.5 bg-black/70 rounded text-[10px] text-white font-medium">
+            {{ formatDuration(highlight.duration_seconds) }}
+          </div>
+          
+          <!-- Gradient Overlay -->
+          <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent h-16" />
+          
+          <!-- Player Info -->
+          <div v-if="highlight.player" class="absolute bottom-0 left-0 right-0 p-2 sm:p-3">
+            <p class="font-semibold text-white text-xs sm:text-sm truncate">
+              {{ highlight.player.first_name }} {{ highlight.player.last_name?.charAt(0) || '' }}.
+            </p>
+            <div class="flex items-center gap-1.5 mt-0.5">
+              <span class="text-white/80 text-[10px] sm:text-xs">{{ highlight.player.position }}</span>
+              <span v-if="highlight.highlight_type" class="text-white/60 text-[10px] sm:text-xs">· {{ formatHighlightType(highlight.highlight_type) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Video Player Modal -->
+    <Teleport to="body">
+      <div 
+        v-if="playingHighlight" 
+        class="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4"
+        @click.self="closeVideoPlayer"
+      >
+        <button 
+          class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+          @click="closeVideoPlayer"
+        >
+          <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+        
+        <div class="w-full max-w-4xl">
+          <video
+            ref="modalVideoRef"
+            class="w-full rounded-xl"
+            :src="playingHighlight.stream_url"
+            :poster="playingHighlight.thumbnail_url"
+            controls
+            autoplay
+          />
+          
+          <div v-if="playingHighlight.player" class="mt-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-primary-500 to-emerald-500 flex items-center justify-center">
+                <span class="text-white font-bold">{{ playingHighlight.player.first_name?.charAt(0) }}</span>
+              </div>
+              <div>
+                <p class="text-white font-semibold">{{ playingHighlight.player.first_name }} {{ playingHighlight.player.last_name?.charAt(0) || '' }}.</p>
+                <p class="text-white/60 text-sm">{{ playingHighlight.player.position }}</p>
+              </div>
+            </div>
+            
+            <NuxtLink :to="`/players/${playingHighlight.player.id}`" @click="closeVideoPlayer">
+              <button class="px-4 py-2 bg-white text-neutral-900 font-semibold text-sm rounded-xl hover:bg-white/90 transition-colors">
+                View Profile
+              </button>
             </NuxtLink>
           </div>
         </div>
       </div>
+    </Teleport>
 
-      <!-- Activity Feed -->
-      <div class="bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden">
-        <div class="p-5 border-b border-neutral-100">
-          <h2 class="font-semibold text-neutral-900">Your Activity</h2>
+    <!-- Compact Stats Row -->
+    <div class="grid grid-cols-3 gap-3 sm:gap-4">
+      <NuxtLink to="/dashboard/saved" class="bg-white rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-neutral-200 hover:border-primary-300 hover:shadow-lg transition-all group">
+        <div class="text-center">
+          <p class="text-xl sm:text-2xl font-bold text-neutral-900">{{ savedCount }}</p>
+          <p class="text-xs text-neutral-500 mt-0.5">Saved</p>
         </div>
-
-        <div v-if="loading" class="p-8 flex justify-center">
-          <div class="w-8 h-8 border-3 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
+      </NuxtLink>
+      
+      <NuxtLink to="/dashboard/contacts" class="bg-white rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-neutral-200 hover:border-amber-300 hover:shadow-lg transition-all group">
+        <div class="text-center">
+          <p class="text-xl sm:text-2xl font-bold text-neutral-900">{{ contactsCount }}</p>
+          <p class="text-xs text-neutral-500 mt-0.5">Contacts</p>
+          <span v-if="pendingContacts > 0" class="inline-flex items-center gap-1 mt-1 text-[10px] font-medium text-amber-600">
+            <span class="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse" />
+            {{ pendingContacts }} pending
+          </span>
         </div>
-
-        <div v-else-if="recentlyViewed.length === 0" class="p-8 text-center">
-          <div class="w-14 h-14 mx-auto bg-neutral-100 rounded-2xl flex items-center justify-center mb-4">
-            <svg class="w-7 h-7 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <p class="text-neutral-600 font-medium mb-1">No activity yet</p>
-          <p class="text-neutral-400 text-sm mb-4">Start exploring players!</p>
-          <NuxtLink to="/discover">
-            <button class="text-sm text-primary-600 hover:text-primary-700 font-medium">
-              Discover Players →
-            </button>
-          </NuxtLink>
-        </div>
-
-        <div v-else class="divide-y divide-neutral-100">
-          <div 
-            v-for="player in recentlyViewed.slice(0, 5)" 
-            :key="player.id" 
-            class="p-4 hover:bg-neutral-50 transition-colors group"
-          >
-            <NuxtLink :to="`/players/${player.id}`" class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-lg bg-neutral-200 overflow-hidden flex-shrink-0">
-                <img 
-                  v-if="player.profile_photo_url"
-                  :src="player.profile_photo_url"
-                  :alt="player.first_name"
-                  class="w-full h-full object-cover"
-                />
-                <div v-else class="w-full h-full flex items-center justify-center bg-neutral-200">
-                  <span class="text-neutral-500 text-sm font-medium">{{ player.first_name?.charAt(0) }}</span>
-                </div>
-              </div>
-              <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-neutral-900 truncate group-hover:text-primary-600 transition-colors">{{ player.first_name }} {{ getPlayerLastInitial(player) }}.</p>
-                <p class="text-xs text-neutral-400">Viewed recently</p>
-              </div>
-            </NuxtLink>
-          </div>
+      </NuxtLink>
+      
+      <div class="bg-white rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-neutral-200">
+        <div class="text-center">
+          <p class="text-xl sm:text-2xl font-bold text-neutral-900">{{ viewsCount }}</p>
+          <p class="text-xs text-neutral-500 mt-0.5">Viewed</p>
         </div>
       </div>
     </div>
@@ -289,14 +331,35 @@
 </template>
 
 <script setup lang="ts">
-import type { Player, ApiResponse } from '~/types'
+import type { ApiResponse } from '~/types'
+
+// Highlight type from API
+interface Highlight {
+  id: string
+  highlight_type: string
+  title?: string
+  thumbnail_url?: string
+  stream_url: string
+  duration_seconds?: number
+  view_count: number
+  created_at: string
+  player?: {
+    id: string
+    first_name: string
+    last_name?: string
+    position: string
+  }
+  match?: {
+    id: string
+    title: string
+  }
+}
 
 definePageMeta({
   layout: 'dashboard',
   middleware: 'auth',
 })
 
-const authStore = useAuthStore()
 const subscriptionStore = useSubscriptionStore()
 const config = useRuntimeConfig()
 const api = useApi()
@@ -306,48 +369,106 @@ const savedCount = ref(0)
 const contactsCount = ref(0)
 const pendingContacts = ref(0)
 const viewsCount = ref(0)
-const recentlyViewed = ref<Player[]>([])
-const newPlayers = ref<Player[]>([])
+const savedPlayerIds = ref<string[]>([])
 
-const userName = computed(() => {
-  if (!authStore.user) return ''
-  return authStore.user.first_name || authStore.user.email.split('@')[0]
+// Video highlights
+const highlights = ref<Highlight[]>([])
+const featuredHighlight = ref<Highlight | null>(null)
+const playingHighlight = ref<Highlight | null>(null)
+const heroVideoRef = ref<HTMLVideoElement | null>(null)
+const modalVideoRef = ref<HTMLVideoElement | null>(null)
+const heroMuted = ref(true)
+
+const isFeaturedSaved = computed(() => {
+  if (!featuredHighlight.value?.player) return false
+  return savedPlayerIds.value.includes(featuredHighlight.value.player.id)
 })
 
-const userInitial = computed(() => {
-  if (!authStore.user) return 'U'
-  return (authStore.user.first_name?.charAt(0) || authStore.user.email.charAt(0)).toUpperCase()
-})
-
-// Time-based greeting
-function getGreeting(): string {
-  const hour = new Date().getHours()
-  if (hour < 12) return 'Good morning'
-  if (hour < 17) return 'Good afternoon'
-  return 'Good evening'
+// Format duration (seconds to mm:ss)
+function formatDuration(seconds?: number): string {
+  if (!seconds) return '0:00'
+  const mins = Math.floor(seconds / 60)
+  const secs = seconds % 60
+  return `${mins}:${secs.toString().padStart(2, '0')}`
 }
 
-// Helper to get player's last name initial safely
-function getPlayerLastInitial(player: Player): string {
-  if (player?.last_name_init) return player.last_name_init
-  if (player?.last_name) return player.last_name.charAt(0)
-  return ''
+// Format highlight type for display
+function formatHighlightType(type: string): string {
+  const types: Record<string, string> = {
+    'goal': 'Goal',
+    'assist': 'Assist',
+    'skill': 'Skill',
+    'save': 'Save',
+    'tackle': 'Tackle',
+    'dribble': 'Dribble',
+    'other': 'Highlight'
+  }
+  return types[type] || 'Highlight'
+}
+
+// Toggle hero video mute
+function toggleHeroMute() {
+  heroMuted.value = !heroMuted.value
+  if (heroVideoRef.value) {
+    heroVideoRef.value.muted = heroMuted.value
+  }
+}
+
+// Play highlight in modal
+function playHighlight(highlight: Highlight) {
+  playingHighlight.value = highlight
+  // Pause hero video when modal opens
+  if (heroVideoRef.value) {
+    heroVideoRef.value.pause()
+  }
+}
+
+// Close video player modal
+function closeVideoPlayer() {
+  if (modalVideoRef.value) {
+    modalVideoRef.value.pause()
+  }
+  playingHighlight.value = null
+  // Resume hero video
+  if (heroVideoRef.value) {
+    heroVideoRef.value.play()
+  }
+}
+
+// Toggle save for featured player
+async function toggleSaveFeatured() {
+  if (!featuredHighlight.value?.player) return
+  const playerId = featuredHighlight.value.player.id
+  
+  try {
+    if (isFeaturedSaved.value) {
+      await api.delete(`/players/${playerId}/save`, true)
+      savedPlayerIds.value = savedPlayerIds.value.filter(id => id !== playerId)
+      savedCount.value = Math.max(0, savedCount.value - 1)
+    } else {
+      await api.post(`/players/${playerId}/save`, {}, true)
+      savedPlayerIds.value.push(playerId)
+      savedCount.value++
+    }
+  } catch (error) {
+    console.error('Failed to toggle save:', error)
+  }
 }
 
 onMounted(async () => {
-  // Fetch subscription status
   await subscriptionStore.fetchSubscription()
   
   try {
-    // Get saved players count
+    // Get saved players with IDs for tracking
     if (subscriptionStore.canSavePlayers) {
-      const savedResponse = await api.get<ApiResponse<{ saved_players: Player[]; pagination: { total: number } }>>(
-        '/saved-players',
+      const savedResponse = await api.get<ApiResponse<{ saved_players: { player_id: string }[]; pagination: { total: number } }>>(
+        '/saved-players?limit=100',
         {},
         true
       )
       if (savedResponse.success && savedResponse.data) {
         savedCount.value = savedResponse.data.pagination?.total || savedResponse.data.saved_players?.length || 0
+        savedPlayerIds.value = savedResponse.data.saved_players?.map(sp => sp.player_id) || []
       }
     }
 
@@ -364,12 +485,20 @@ onMounted(async () => {
       }
     }
 
-    // Get new players (public)
-    const playersResponse = await $fetch<ApiResponse<{ players: Player[] }>>('/players?limit=5', {
-      baseURL: config.public.apiBase,
-    })
-    if (playersResponse.success) {
-      newPlayers.value = playersResponse.data?.players || []
+    // Fetch featured highlights (video-first approach)
+    try {
+      const highlightsResponse = await $fetch<ApiResponse<Highlight[]>>('/highlights/featured', {
+        baseURL: config.public.apiBase,
+      })
+      if (highlightsResponse.success && highlightsResponse.data?.length) {
+        const allHighlights = highlightsResponse.data
+        // First one is featured (auto-play)
+        featuredHighlight.value = allHighlights[0] ?? null
+        // Rest go in grid
+        highlights.value = allHighlights.slice(1)
+      }
+    } catch {
+      console.log('Highlights endpoint not available')
     }
   } catch (error) {
     console.error('Failed to load dashboard data:', error)
