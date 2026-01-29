@@ -734,7 +734,7 @@ func (m *Module) ListFeaturedHighlights(c *gin.Context) {
 				ID:                 h.Player.ID,
 				FirstName:          h.Player.FirstName,
 				LastName:           h.Player.LastName,
-				ProfilePhotoURL:    h.Player.ProfilePhotoURL,
+				ProfilePhotoURL:    m.getThumbnailURL(h.Player.ProfilePhotoURL),
 				Position:           h.Player.Position,
 				Country:            h.Player.Country,
 				DateOfBirth:        h.Player.DateOfBirth,
