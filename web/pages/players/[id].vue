@@ -349,11 +349,11 @@
           {{ isSaved ? 'Saved' : 'Save' }}
         </button>
         <NuxtLink v-else-if="authStore.isAuthenticated && !subStore.canSavePlayers" to="/pricing" class="flex-1">
-          <button class="w-full h-12 bg-neutral-100 text-neutral-700 rounded-xl font-semibold border border-neutral-200 flex items-center justify-center gap-2">
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <button class="w-full h-12 bg-neutral-100 text-neutral-700 rounded-xl font-semibold border border-neutral-200 flex items-center justify-center gap-2 text-sm">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
             </svg>
-            Upgrade
+            Save ⬆
           </button>
         </NuxtLink>
 
@@ -369,11 +369,11 @@
           Contact
         </button>
         <NuxtLink v-else-if="authStore.isAuthenticated && !subStore.canRequestContact" to="/pricing" class="flex-1">
-          <button class="w-full h-12 bg-primary-500 text-white rounded-xl font-semibold flex items-center justify-center gap-2">
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <button class="w-full h-12 bg-primary-500 text-white rounded-xl font-semibold flex items-center justify-center gap-2 text-sm">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
-            Upgrade
+            Contact ⬆
           </button>
         </NuxtLink>
 
