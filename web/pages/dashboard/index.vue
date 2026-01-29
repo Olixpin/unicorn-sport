@@ -28,11 +28,20 @@
       </div>
     </div>
 
-    <!-- Mobile: "For You" / "Following" tabs like TikTok -->
+    <!-- Mobile: Minimal header with logo -->
     <div class="lg:hidden absolute top-0 left-0 right-0 z-20 pt-safe">
-      <div class="flex items-center justify-center gap-6 py-3">
-        <button class="text-white font-semibold text-base border-b-2 border-white pb-1">For You</button>
-        <button class="text-white/60 font-medium text-base pb-1">Following</button>
+      <div class="flex items-center justify-between px-4 py-3">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">🦄</span>
+          <span class="text-white font-semibold text-sm drop-shadow">Talent Feed</span>
+        </div>
+        <NuxtLink to="/discover">
+          <button class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+            <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </button>
+        </NuxtLink>
       </div>
     </div>
 
@@ -185,7 +194,7 @@
           </div>
 
           <!-- Bottom Player Info -->
-          <div class="absolute bottom-20 left-4 right-16">
+          <div class="absolute bottom-24 left-4 right-16">
             <div v-if="highlight.player" class="mb-3">
               <NuxtLink :to="`/players/${highlight.player.id}`">
                 <h3 class="text-white font-bold text-base drop-shadow-lg">
@@ -227,8 +236,8 @@
             </div>
           </div>
 
-          <!-- Progress bar at bottom -->
-          <div class="absolute bottom-16 left-0 right-0 h-0.5 bg-white/30">
+          <!-- Progress bar at bottom - just above nav -->
+          <div class="absolute bottom-[72px] left-0 right-0 h-1 bg-white/20">
             <div 
               class="h-full bg-white transition-all duration-100"
               :style="{ width: `${videoProgress[index] || 0}%` }"
