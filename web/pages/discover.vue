@@ -24,110 +24,74 @@
       <!-- Search & Filters - Compact -->
       <div class="bg-white rounded-xl shadow-sm border border-neutral-200 p-3 mb-4">
         <!-- Search Row -->
-        <div class="flex flex-col lg:flex-row gap-3">
+        <div class="flex gap-2">
           <!-- Search Input -->
           <div class="flex-1 relative">
-            <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             <input
               v-model="searchQuery"
               type="text"
-              placeholder="Search by name, position..."
-              class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-neutral-200 text-neutral-900 placeholder-neutral-400 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
+              placeholder="Search..."
+              class="w-full pl-9 pr-3 py-2 rounded-lg border border-neutral-200 text-neutral-900 placeholder-neutral-400 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
               @input="debouncedSearch"
             />
-            <button
-              v-if="searchQuery"
-              @click="searchQuery = ''; debouncedSearch()"
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
-            >
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
           </div>
 
-          <!-- Inline Filters (Desktop) -->
-          <div class="hidden lg:flex items-center gap-2">
-            <select 
-              v-model="filters.position" 
-              class="px-3 py-2.5 rounded-lg border border-neutral-200 text-neutral-700 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
-              @change="handleSearch"
-            >
-              <option value="">Position</option>
-              <option value="Goalkeeper">GK</option>
-              <option value="Defender">DEF</option>
-              <option value="Midfielder">MID</option>
-              <option value="Forward">FWD</option>
-            </select>
-
-            <select 
-              v-model="filters.country" 
-              class="px-3 py-2.5 rounded-lg border border-neutral-200 text-neutral-700 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
-              @change="handleSearch"
-            >
-              <option value="">Country</option>
-              <option value="Nigeria">Nigeria</option>
-              <option value="Ghana">Ghana</option>
-              <option value="Kenya">Kenya</option>
-              <option value="South Africa">South Africa</option>
-              <option value="Cameroon">Cameroon</option>
-              <option value="Senegal">Senegal</option>
-            </select>
-
-            <select 
-              v-model="ageRange" 
-              class="px-3 py-2.5 rounded-lg border border-neutral-200 text-neutral-700 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
-              @change="handleAgeChange"
-            >
-              <option value="">Age</option>
-              <option value="14-16">14-16</option>
-              <option value="17-18">17-18</option>
-              <option value="19-21">19-21</option>
-              <option value="22-25">22+</option>
-            </select>
-
-            <button 
-              v-if="activeFiltersCount > 0"
-              class="px-3 py-2.5 text-sm text-primary-600 hover:text-primary-700 font-medium"
-              @click="resetFilters"
-            >
-              Clear
-            </button>
-          </div>
-
-          <!-- Filter Toggle (Mobile) -->
-          <button
-            class="lg:hidden flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-neutral-200 text-neutral-700 text-sm font-medium hover:bg-neutral-50"
-            @click="showFilters = !showFilters"
-          >
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-            </svg>
-            Filters
-            <span v-if="activeFiltersCount" class="w-5 h-5 rounded-full bg-primary-500 text-white text-xs font-bold flex items-center justify-center">
-              {{ activeFiltersCount }}
-            </span>
-          </button>
-        </div>
-
-        <!-- Mobile Filters -->
-        <div v-if="showFilters" class="lg:hidden mt-4 pt-4 border-t border-neutral-100 grid grid-cols-2 gap-3">
+          <!-- Quick Filters - Always Visible -->
           <select 
             v-model="filters.position" 
-            class="px-3 py-2.5 rounded-lg border border-neutral-200 text-neutral-700 text-sm"
+            class="px-2 py-2 pr-7 rounded-lg border border-neutral-200 bg-white text-neutral-700 text-sm focus:outline-none focus:border-primary-500 appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236b7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem] bg-[right_0.25rem_center] bg-no-repeat"
             @change="handleSearch"
           >
             <option value="">Position</option>
-            <option value="Goalkeeper">Goalkeeper</option>
-            <option value="Defender">Defender</option>
-            <option value="Midfielder">Midfielder</option>
-            <option value="Forward">Forward</option>
+            <option value="Goalkeeper">GK</option>
+            <option value="Defender">DEF</option>
+            <option value="Midfielder">MID</option>
+            <option value="Forward">FWD</option>
           </select>
+
           <select 
             v-model="filters.country" 
-            class="px-3 py-2.5 rounded-lg border border-neutral-200 text-neutral-700 text-sm"
+            class="hidden sm:block px-2 py-2 pr-7 rounded-lg border border-neutral-200 bg-white text-neutral-700 text-sm focus:outline-none focus:border-primary-500 appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236b7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem] bg-[right_0.25rem_center] bg-no-repeat"
+            @change="handleSearch"
+          >
+            <option value="">Country</option>
+            <option value="Nigeria">Nigeria</option>
+            <option value="Ghana">Ghana</option>
+            <option value="Kenya">Kenya</option>
+            <option value="South Africa">S. Africa</option>
+            <option value="Cameroon">Cameroon</option>
+            <option value="Senegal">Senegal</option>
+          </select>
+
+          <select 
+            v-model="ageRange" 
+            class="hidden md:block px-2 py-2 pr-7 rounded-lg border border-neutral-200 bg-white text-neutral-700 text-sm focus:outline-none focus:border-primary-500 appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236b7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem] bg-[right_0.25rem_center] bg-no-repeat"
+            @change="handleAgeChange"
+          >
+            <option value="">Age</option>
+            <option value="14-16">14-16</option>
+            <option value="17-18">17-18</option>
+            <option value="19-21">19-21</option>
+            <option value="22-25">22+</option>
+          </select>
+
+          <button 
+            v-if="activeFiltersCount > 0"
+            class="hidden sm:block px-2 py-2 text-sm text-primary-600 hover:text-primary-700 font-medium whitespace-nowrap"
+            @click="resetFilters"
+          >
+            Clear
+          </button>
+        </div>
+
+        <!-- Mobile Extra Filters Row -->
+        <div class="flex sm:hidden gap-2 mt-2">
+          <select 
+            v-model="filters.country" 
+            class="flex-1 px-2 py-2 pr-7 rounded-lg border border-neutral-200 bg-white text-neutral-700 text-sm appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236b7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem] bg-[right_0.25rem_center] bg-no-repeat"
             @change="handleSearch"
           >
             <option value="">Country</option>
@@ -137,7 +101,7 @@
           </select>
           <select 
             v-model="ageRange" 
-            class="px-3 py-2.5 rounded-lg border border-neutral-200 text-neutral-700 text-sm"
+            class="flex-1 px-2 py-2 pr-7 rounded-lg border border-neutral-200 bg-white text-neutral-700 text-sm appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236b7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem] bg-[right_0.25rem_center] bg-no-repeat"
             @change="handleAgeChange"
           >
             <option value="">Age</option>
@@ -147,10 +111,10 @@
           </select>
           <button 
             v-if="activeFiltersCount > 0"
-            class="px-3 py-2.5 text-sm text-primary-600 font-medium"
+            class="px-3 py-2 text-sm text-primary-600 font-medium"
             @click="resetFilters"
           >
-            Clear all
+            Clear
           </button>
         </div>
       </div>
@@ -159,7 +123,7 @@
       <div class="flex items-center justify-between mb-3">
         <p class="text-sm text-neutral-500">
           <span v-if="searchStore.loading" class="flex items-center gap-2">
-            <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+            <svg class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
             </svg>
@@ -167,16 +131,15 @@
           </span>
           <span v-else>
             <span class="font-semibold text-neutral-900">{{ searchStore.pagination.total }}</span> players
-            <span v-if="activeFiltersCount > 0" class="text-primary-600">(filtered)</span>
           </span>
         </p>
         <select 
           v-model="sortOrder"
-          class="px-3 py-1.5 rounded-lg border border-neutral-200 text-neutral-700 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
+          class="px-2 py-1 pr-6 rounded-md border border-neutral-200 text-neutral-600 text-xs focus:outline-none focus:border-primary-500 appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236b7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1rem] bg-[right_0.25rem_center] bg-no-repeat"
           @change="handleSearch"
         >
           <option value="newest">Newest</option>
-          <option value="name_asc">Name A-Z</option>
+          <option value="name_asc">A-Z</option>
         </select>
       </div>
 
@@ -236,13 +199,11 @@ definePageMeta({
 const searchStore = useSearchStore()
 
 const searchQuery = ref('')
-const showFilters = ref(false)
 const ageRange = ref('')
 const sortOrder = ref('newest')
 const filters = reactive({
   position: '',
   country: '',
-  verified_only: false,
 })
 
 // Count active filters
