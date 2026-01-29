@@ -57,7 +57,7 @@
             <!-- Info beside photo -->
             <div class="flex-1 min-w-0 flex flex-col justify-center">
               <!-- Name + verification -->
-              <div class="flex items-start gap-2 mb-2">
+              <div class="flex items-start gap-2 mb-1">
                 <h1 class="font-display text-xl sm:text-2xl lg:text-3xl font-bold text-white leading-tight truncate">
                   {{ playerFullName }}
                 </h1>
@@ -72,39 +72,31 @@
                 </span>
               </div>
               
-              <!-- Position · Academy (primary info line) -->
-              <p class="text-sm sm:text-base text-neutral-300 mb-2 truncate">
+              <!-- Position + Country inline -->
+              <div class="flex items-center gap-2 text-sm sm:text-base text-neutral-300 mb-2">
                 <span class="font-medium text-white">{{ player.position }}</span>
-                <span v-if="player.academy_name" class="text-neutral-500 mx-2">·</span>
-                <span v-if="player.academy_name" class="text-primary-400">{{ player.academy_name }}</span>
-              </p>
-
-              <!-- Quick stats inline: Country · Age · Height · Foot -->
-              <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-neutral-400">
+                <span class="text-neutral-600">·</span>
                 <span class="inline-flex items-center gap-1">
                   <span class="text-base">{{ countryFlag }}</span>
                   {{ player.country }}
                 </span>
-                <span v-if="playerAge" class="hidden sm:inline">·</span>
-                <span v-if="playerAge" class="hidden sm:inline">{{ playerAge }}y</span>
-                <span v-if="player.height_cm" class="hidden sm:inline">·</span>
-                <span v-if="player.height_cm" class="hidden sm:inline">{{ player.height_cm }}cm</span>
-                <span v-if="player.preferred_foot" class="hidden sm:inline">·</span>
-                <span v-if="player.preferred_foot" class="hidden sm:inline">{{ player.preferred_foot }} foot</span>
               </div>
 
-              <!-- Mobile-only: compact stat pills -->
-              <div class="flex sm:hidden flex-wrap gap-1.5 mt-2">
+              <!-- Academy (own line, smaller) -->
+              <p v-if="player.academy_name" class="text-xs sm:text-sm text-primary-400 mb-2 truncate">
+                {{ player.academy_name }}
+              </p>
+
+              <!-- Stat pills: Age · Height · Foot -->
+              <div class="flex flex-wrap gap-1.5">
                 <span v-if="playerAge" class="px-2 py-0.5 bg-white/[0.08] rounded text-xs text-neutral-300">{{ playerAge }}y</span>
                 <span v-if="player.height_cm" class="px-2 py-0.5 bg-white/[0.08] rounded text-xs text-neutral-300">{{ player.height_cm }}cm</span>
                 <span v-if="player.preferred_foot" class="px-2 py-0.5 bg-white/[0.08] rounded text-xs text-neutral-300">{{ player.preferred_foot }}</span>
               </div>
 
-              <!-- Location & School (if present) -->
-              <div v-if="player.city || player.state || player.school_name" class="mt-2 text-xs sm:text-sm text-neutral-500">
-                <span v-if="player.city || player.state">{{ [player.city, player.state].filter(Boolean).join(', ') }}</span>
-                <span v-if="(player.city || player.state) && player.school_name"> · </span>
-                <span v-if="player.school_name">{{ player.school_name }}</span>
+              <!-- Location (if present) -->
+              <div v-if="player.city || player.state" class="mt-2 text-xs text-neutral-500">
+                {{ [player.city, player.state].filter(Boolean).join(', ') }}
               </div>
             </div>
           </div>
@@ -256,13 +248,13 @@
         </div>
       </div>
 
-      <!-- Action Section - After content -->
-      <div class="bg-neutral-100 border-t border-neutral-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div class="text-center sm:text-left">
+      <!-- Desktop-only: Inline CTA section -->
+      <div class="hidden sm:block bg-neutral-100 border-t border-neutral-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div class="flex items-center justify-between">
+            <div>
               <h3 class="font-semibold text-neutral-900">Interested in {{ playerFullName }}?</h3>
-              <p class="text-sm text-neutral-600 mt-1">Save to your shortlist or request contact details</p>
+              <p class="text-sm text-neutral-500 mt-0.5">Save to your shortlist or request contact details</p>
             </div>
             <div class="flex items-center gap-3">
               <!-- Save Button -->
@@ -286,8 +278,6 @@
                 </svg>
                 {{ isSaved ? 'Saved' : 'Save' }}
               </button>
-
-              <!-- Save Upgrade -->
               <NuxtLink v-else-if="authStore.isAuthenticated && !subStore.canSavePlayers" to="/pricing">
                 <button class="px-5 py-2.5 bg-white text-neutral-700 rounded-xl font-semibold hover:bg-neutral-50 border border-neutral-300 transition-colors flex items-center gap-2 text-sm">
                   <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -308,8 +298,6 @@
                 </svg>
                 Request Contact
               </button>
-
-              <!-- Contact Upgrade -->
               <NuxtLink v-else-if="authStore.isAuthenticated && !subStore.canRequestContact" to="/pricing">
                 <button class="px-5 py-2.5 bg-primary-500 text-white rounded-xl font-semibold hover:bg-primary-600 transition-colors flex items-center gap-2 text-sm">
                   <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -319,7 +307,6 @@
                 </button>
               </NuxtLink>
 
-              <!-- Not Authenticated -->
               <NuxtLink v-if="!authStore.isAuthenticated" to="/auth/register">
                 <button class="px-5 py-2.5 bg-primary-500 text-white rounded-xl font-semibold hover:bg-primary-600 transition-colors flex items-center gap-2 text-sm shadow-lg shadow-primary-500/25">
                   <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -331,6 +318,74 @@
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- Mobile: Sticky bottom CTA bar -->
+      <div class="sm:hidden h-20"></div> <!-- Spacer for sticky bar -->
+    </div>
+
+    <!-- Mobile Sticky CTA Bar -->
+    <div class="sm:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-200 px-4 py-3 z-40 shadow-lg shadow-black/10">
+      <div class="flex gap-3">
+        <!-- Save Button -->
+        <button 
+          v-if="authStore.isAuthenticated && subStore.canSavePlayers"
+          :disabled="savingPlayer"
+          :class="[
+            'flex-1 h-12 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2',
+            isSaved 
+              ? 'bg-primary-500 text-white' 
+              : 'bg-neutral-100 text-neutral-700 border border-neutral-200'
+          ]"
+          @click="toggleSavePlayer"
+        >
+          <svg v-if="savingPlayer" class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+          </svg>
+          <svg v-else class="w-5 h-5" :fill="isSaved ? 'currentColor' : 'none'" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          </svg>
+          {{ isSaved ? 'Saved' : 'Save' }}
+        </button>
+        <NuxtLink v-else-if="authStore.isAuthenticated && !subStore.canSavePlayers" to="/pricing" class="flex-1">
+          <button class="w-full h-12 bg-neutral-100 text-neutral-700 rounded-xl font-semibold border border-neutral-200 flex items-center justify-center gap-2">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+            Upgrade
+          </button>
+        </NuxtLink>
+
+        <!-- Contact Button -->
+        <button 
+          v-if="authStore.isAuthenticated && subStore.canRequestContact"
+          class="flex-1 h-12 bg-primary-500 text-white rounded-xl font-semibold flex items-center justify-center gap-2 shadow-lg shadow-primary-500/25"
+          @click="showContactModal = true"
+        >
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          Contact
+        </button>
+        <NuxtLink v-else-if="authStore.isAuthenticated && !subStore.canRequestContact" to="/pricing" class="flex-1">
+          <button class="w-full h-12 bg-primary-500 text-white rounded-xl font-semibold flex items-center justify-center gap-2">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            Upgrade
+          </button>
+        </NuxtLink>
+
+        <!-- Not Authenticated -->
+        <NuxtLink v-if="!authStore.isAuthenticated" to="/auth/register" class="flex-1">
+          <button class="w-full h-12 bg-primary-500 text-white rounded-xl font-semibold flex items-center justify-center gap-2 shadow-lg shadow-primary-500/25">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+            Sign Up
+          </button>
+        </NuxtLink>
       </div>
     </div>
 
