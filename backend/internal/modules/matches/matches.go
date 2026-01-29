@@ -527,10 +527,16 @@ func (m *Module) AddPlayerToMatch(c *gin.Context) {
 		isStarter = *req.IsStarter
 	}
 
+	// Default position_played to player's registered position if not provided
+	positionPlayed := req.PositionPlayed
+	if positionPlayed == "" {
+		positionPlayed = player.Position
+	}
+
 	matchPlayer := domain.MatchPlayer{
 		MatchID:        mid,
 		PlayerID:       playerID,
-		PositionPlayed: stringPtr(req.PositionPlayed),
+		PositionPlayed: stringPtr(positionPlayed),
 		MinutesPlayed:  req.MinutesPlayed,
 		Goals:          req.Goals,
 		Assists:        req.Assists,

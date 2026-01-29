@@ -103,7 +103,8 @@ type Player struct {
 	FirstName           string     `json:"first_name" gorm:"not null"`
 	LastName            string     `json:"last_name" gorm:"not null"`
 	DateOfBirth         time.Time  `json:"date_of_birth" gorm:"not null"`
-	Position            string     `json:"position" gorm:"not null;index"`
+	Position            string     `json:"position" gorm:"not null;index"` // Primary/natural position
+	SecondaryPositions  *string    `json:"secondary_positions,omitempty"`  // JSON array of other positions
 	PreferredFoot       *string    `json:"preferred_foot,omitempty"`
 	HeightCm            *int       `json:"height_cm,omitempty"`
 	WeightKg            *int       `json:"weight_kg,omitempty"`
@@ -125,9 +126,30 @@ type Player struct {
 	UpdatedAt           time.Time  `json:"updated_at"`
 	DeletedAt           *time.Time `json:"-" gorm:"index"`
 
-	Tournament *Tournament `json:"tournament,omitempty" gorm:"foreignKey:TournamentID"`
-	Academy    *Academy    `json:"academy,omitempty" gorm:"foreignKey:AcademyID"`
-	Videos     []Video     `json:"videos,omitempty" gorm:"many2many:player_videos;"`
+	Tournament     *Tournament     `json:"tournament,omitempty" gorm:"foreignKey:TournamentID"`
+	Academy        *Academy        `json:"academy,omitempty" gorm:"foreignKey:AcademyID"`
+	Videos         []Video         `json:"videos,omitempty" gorm:"many2many:player_videos;"`
+	AcademyPlayers []AcademyPlayer `json:"academy_memberships,omitempty" gorm:"foreignKey:PlayerID"`
+}
+
+// AcademyPlayer represents a player's membership in an academy with their squad role
+// This allows the same player to have different roles at different academies
+// and tracks their position as assigned by the academy (which may differ from natural position)
+type AcademyPlayer struct {
+	ID           uuid.UUID  `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
+	AcademyID    uuid.UUID  `json:"academy_id" gorm:"type:uuid;not null;index"`
+	PlayerID     uuid.UUID  `json:"player_id" gorm:"type:uuid;not null;index"`
+	SquadRole    *string    `json:"squad_role,omitempty"`                       // Position as used by this academy
+	JerseyNumber *int       `json:"jersey_number,omitempty"`                    // Squad number at this academy
+	SquadStatus  string     `json:"squad_status" gorm:"default:'active';index"` // active, injured, loan, departed
+	JoinedAt     *time.Time `json:"joined_at,omitempty"`
+	DepartedAt   *time.Time `json:"departed_at,omitempty"`
+	Notes        *string    `json:"notes,omitempty"`
+	CreatedAt    time.Time  `json:"created_at"`
+	UpdatedAt    time.Time  `json:"updated_at"`
+
+	Academy *Academy `json:"academy,omitempty" gorm:"foreignKey:AcademyID"`
+	Player  *Player  `json:"player,omitempty" gorm:"foreignKey:PlayerID"`
 }
 
 // Subscription represents scout subscription management
