@@ -61,16 +61,17 @@ func (m *ProfilesModule) getPresignedURL(s3URL string) string {
 
 // PlayerListResponse is the public player list response
 type PlayerListResponse struct {
-	ID            uuid.UUID `json:"id"`
-	FirstName     string    `json:"first_name"`
-	LastNameInit  string    `json:"last_name_init"`
-	Age           int       `json:"age"`
-	Position      string    `json:"position"`
-	Country       string    `json:"country"`
-	HeightCm      *int      `json:"height_cm,omitempty"`
-	PreferredFoot *string   `json:"preferred_foot,omitempty"`
-	ThumbnailURL  *string   `json:"thumbnail_url,omitempty"`
-	IsVerified    bool      `json:"is_verified"`
+	ID              uuid.UUID `json:"id"`
+	FirstName       string    `json:"first_name"`
+	LastNameInit    string    `json:"last_name_init"`
+	Age             int       `json:"age"`
+	Position        string    `json:"position"`
+	Country         string    `json:"country"`
+	HeightCm        *int      `json:"height_cm,omitempty"`
+	PreferredFoot   *string   `json:"preferred_foot,omitempty"`
+	ThumbnailURL    *string   `json:"thumbnail_url,omitempty"`
+	ProfilePhotoURL *string   `json:"profile_photo_url,omitempty"`
+	IsVerified      bool      `json:"is_verified"`
 }
 
 // FeaturedPlayerResponse is the response for featured players on homepage
@@ -183,17 +184,25 @@ func (m *ProfilesModule) ListPlayers(c *gin.Context) {
 			thumbnailURL = &url
 		}
 
+		// Convert profile photo URL to presigned URL if it's an S3 URL
+		var profilePhotoURL *string
+		if p.ProfilePhotoURL != nil && *p.ProfilePhotoURL != "" {
+			url := m.getPresignedURL(*p.ProfilePhotoURL)
+			profilePhotoURL = &url
+		}
+
 		response[i] = PlayerListResponse{
-			ID:            p.ID,
-			FirstName:     p.FirstName,
-			LastNameInit:  p.GetLastNameInit(),
-			Age:           p.GetAge(),
-			Position:      p.Position,
-			Country:       p.Country,
-			HeightCm:      p.HeightCm,
-			PreferredFoot: p.PreferredFoot,
-			ThumbnailURL:  thumbnailURL,
-			IsVerified:    p.IsVerified(),
+			ID:              p.ID,
+			FirstName:       p.FirstName,
+			LastNameInit:    p.GetLastNameInit(),
+			Age:             p.GetAge(),
+			Position:        p.Position,
+			Country:         p.Country,
+			HeightCm:        p.HeightCm,
+			PreferredFoot:   p.PreferredFoot,
+			ThumbnailURL:    thumbnailURL,
+			ProfilePhotoURL: profilePhotoURL,
+			IsVerified:      p.IsVerified(),
 		}
 	}
 

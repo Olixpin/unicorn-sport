@@ -60,18 +60,19 @@ func (m *SearchModule) getPresignedURL(s3URL string) string {
 
 // PlayerSearchResult represents a search result
 type PlayerSearchResult struct {
-	ID             string  `json:"id"`
-	FirstName      string  `json:"first_name"`
-	LastNameInit   string  `json:"last_name_init"`
-	Age            int     `json:"age"`
-	Position       string  `json:"position"`
-	Country        string  `json:"country"`
-	State          *string `json:"state,omitempty"`
-	HeightCm       *int    `json:"height_cm,omitempty"`
-	PreferredFoot  *string `json:"preferred_foot,omitempty"`
-	ThumbnailURL   *string `json:"thumbnail_url,omitempty"`
-	IsVerified     bool    `json:"is_verified"`
-	TournamentName *string `json:"tournament_name,omitempty"`
+	ID              string  `json:"id"`
+	FirstName       string  `json:"first_name"`
+	LastNameInit    string  `json:"last_name_init"`
+	Age             int     `json:"age"`
+	Position        string  `json:"position"`
+	Country         string  `json:"country"`
+	State           *string `json:"state,omitempty"`
+	HeightCm        *int    `json:"height_cm,omitempty"`
+	PreferredFoot   *string `json:"preferred_foot,omitempty"`
+	ThumbnailURL    *string `json:"thumbnail_url,omitempty"`
+	ProfilePhotoURL *string `json:"profile_photo_url,omitempty"`
+	IsVerified      bool    `json:"is_verified"`
+	TournamentName  *string `json:"tournament_name,omitempty"`
 }
 
 // SearchPlayers performs full-text search on players
@@ -175,18 +176,26 @@ func (m *SearchModule) SearchPlayers(c *gin.Context) {
 			thumbnailURL = &url
 		}
 
+		// Convert profile photo URL to presigned URL if it's an S3 URL
+		var profilePhotoURL *string
+		if p.ProfilePhotoURL != nil && *p.ProfilePhotoURL != "" {
+			url := m.getPresignedURL(*p.ProfilePhotoURL)
+			profilePhotoURL = &url
+		}
+
 		results[i] = PlayerSearchResult{
-			ID:            p.ID.String(),
-			FirstName:     p.FirstName,
-			LastNameInit:  p.GetLastNameInit(),
-			Age:           p.GetAge(),
-			Position:      p.Position,
-			Country:       p.Country,
-			State:         p.State,
-			HeightCm:      p.HeightCm,
-			PreferredFoot: p.PreferredFoot,
-			ThumbnailURL:  thumbnailURL,
-			IsVerified:    p.IsVerified(),
+			ID:              p.ID.String(),
+			FirstName:       p.FirstName,
+			LastNameInit:    p.GetLastNameInit(),
+			Age:             p.GetAge(),
+			Position:        p.Position,
+			Country:         p.Country,
+			State:           p.State,
+			HeightCm:        p.HeightCm,
+			PreferredFoot:   p.PreferredFoot,
+			ThumbnailURL:    thumbnailURL,
+			ProfilePhotoURL: profilePhotoURL,
+			IsVerified:      p.IsVerified(),
 		}
 		if p.Tournament != nil {
 			results[i].TournamentName = &p.Tournament.Name
