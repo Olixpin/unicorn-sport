@@ -97,9 +97,9 @@
 
             <p class="mt-8 text-lg sm:text-xl text-neutral-400 max-w-xl mx-auto lg:mx-0 leading-relaxed">
               Where elite scouts discover tomorrow's superstars. 
-              <span class="text-white whitespace-nowrap">Verified players.</span> 
-              <span class="text-white whitespace-nowrap">HD highlights.</span> 
-              <span class="text-white whitespace-nowrap">Direct connections.</span>
+              <span class="text-white">Verified players</span> · 
+              <span class="text-white">HD highlights</span> · 
+              <span class="text-white">Direct connections</span>
             </p>
 
             <!-- CTA Buttons -->
