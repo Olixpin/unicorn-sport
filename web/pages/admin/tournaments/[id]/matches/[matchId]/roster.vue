@@ -88,12 +88,12 @@
             <div class="text-xs text-white/70">Players</div>
           </div>
           <div class="flex-1 text-center px-3 py-2 bg-white/15 rounded-xl">
-            <div class="text-2xl sm:text-3xl font-bold">{{ totalGoals }}</div>
-            <div class="text-xs text-white/70">Goals</div>
+            <div class="text-2xl sm:text-3xl font-bold">{{ starters.length }}</div>
+            <div class="text-xs text-white/70">Starters</div>
           </div>
           <div class="flex-1 text-center px-3 py-2 bg-white/15 rounded-xl">
-            <div class="text-2xl sm:text-3xl font-bold">{{ totalAssists }}</div>
-            <div class="text-xs text-white/70">Assists</div>
+            <div class="text-2xl sm:text-3xl font-bold">{{ totalMinutes }}</div>
+            <div class="text-xs text-white/70">Minutes</div>
           </div>
         </div>
       </div>
@@ -309,32 +309,14 @@
                       <!-- Desktop Stats -->
                       <div class="hidden sm:flex items-center gap-3">
                         <div class="flex items-center gap-1">
-                          <span class="text-xs text-neutral-500">Min</span>
+                          <span class="text-xs text-neutral-500">Minutes</span>
                           <input
                             v-model.number="rp.minutes_played"
                             type="number"
-                            class="w-14 px-2 py-1 text-center border border-neutral-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
+                            min="0"
+                            max="120"
+                            class="w-16 px-2 py-1 text-center border border-neutral-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
                             placeholder="90"
-                            @change="markAsChanged(rp)"
-                          />
-                        </div>
-                        <div class="flex items-center gap-1">
-                          <span class="text-xs text-neutral-500">⚽</span>
-                          <input
-                            v-model.number="rp.goals"
-                            type="number"
-                            class="w-12 px-2 py-1 text-center border border-neutral-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
-                            placeholder="0"
-                            @change="markAsChanged(rp)"
-                          />
-                        </div>
-                        <div class="flex items-center gap-1">
-                          <span class="text-xs text-neutral-500">🅰️</span>
-                          <input
-                            v-model.number="rp.assists"
-                            type="number"
-                            class="w-12 px-2 py-1 text-center border border-neutral-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
-                            placeholder="0"
                             @change="markAsChanged(rp)"
                           />
                         </div>
@@ -357,32 +339,14 @@
                     <!-- Mobile Stats Row -->
                     <div class="flex items-center gap-2 mt-3 sm:hidden">
                       <div class="flex items-center gap-1 flex-1">
-                        <span class="text-[10px] text-neutral-500 uppercase">Min</span>
+                        <span class="text-[10px] text-neutral-500 uppercase">Minutes Played</span>
                         <input
                           v-model.number="rp.minutes_played"
                           type="number"
+                          min="0"
+                          max="120"
                           class="w-full px-2 py-1.5 text-center border border-neutral-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
                           placeholder="90"
-                          @change="markAsChanged(rp)"
-                        />
-                      </div>
-                      <div class="flex items-center gap-1 flex-1">
-                        <span class="text-[10px] text-neutral-500">⚽</span>
-                        <input
-                          v-model.number="rp.goals"
-                          type="number"
-                          class="w-full px-2 py-1.5 text-center border border-neutral-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
-                          placeholder="0"
-                          @change="markAsChanged(rp)"
-                        />
-                      </div>
-                      <div class="flex items-center gap-1 flex-1">
-                        <span class="text-[10px] text-neutral-500">🅰️</span>
-                        <input
-                          v-model.number="rp.assists"
-                          type="number"
-                          class="w-full px-2 py-1.5 text-center border border-neutral-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
-                          placeholder="0"
                           @change="markAsChanged(rp)"
                         />
                       </div>
@@ -679,7 +643,7 @@
                   </div>
 
                   <!-- Match Stats - compact inline -->
-                  <div class="grid grid-cols-4 gap-2 pt-2 border-t border-neutral-100">
+                  <div class="grid grid-cols-3 gap-2 pt-2 border-t border-neutral-100">
                     <div class="text-center py-2">
                       <p class="text-lg font-bold text-primary-600">{{ starters.length }}</p>
                       <p class="text-[10px] text-neutral-500 uppercase">Starters</p>
@@ -689,12 +653,8 @@
                       <p class="text-[10px] text-neutral-500 uppercase">Bench</p>
                     </div>
                     <div class="text-center py-2">
-                      <p class="text-lg font-bold text-primary-600">{{ totalGoals }}</p>
-                      <p class="text-[10px] text-neutral-500 uppercase">Goals</p>
-                    </div>
-                    <div class="text-center py-2">
-                      <p class="text-lg font-bold text-primary-600">{{ totalAssists }}</p>
-                      <p class="text-[10px] text-neutral-500 uppercase">Assists</p>
+                      <p class="text-lg font-bold text-primary-600">{{ totalMinutes }}</p>
+                      <p class="text-[10px] text-neutral-500 uppercase">Minutes</p>
                     </div>
                   </div>
                 </div>
@@ -728,8 +688,6 @@ interface RosterPlayer {
   player_id: string
   position_played?: string
   minutes_played?: number
-  goals: number
-  assists: number
   player?: Player
   is_starter: boolean
   jersey_number?: number
@@ -805,12 +763,8 @@ const hasUnsavedChanges = computed(() =>
   rosterPlayers.value.some(rp => rp._isNew || rp._isChanged)
 )
 
-const totalGoals = computed(() => 
-  rosterPlayers.value.reduce((sum, rp) => sum + (rp.goals || 0), 0)
-)
-
-const totalAssists = computed(() => 
-  rosterPlayers.value.reduce((sum, rp) => sum + (rp.assists || 0), 0)
+const totalMinutes = computed(() => 
+  rosterPlayers.value.reduce((sum, rp) => sum + (rp.minutes_played || 0), 0)
 )
 
 // Split into starters and substitutes
@@ -962,8 +916,6 @@ async function savePlayerStarterStatus(player: RosterPlayer) {
         is_starter: player.is_starter,
         position_played: player.position_played,
         minutes_played: player.minutes_played,
-        goals: player.goals,
-        assists: player.assists,
         jersey_number: player.jersey_number,
       },
     })
@@ -1121,8 +1073,6 @@ async function quickAddPlayer(player: Player) {
     player_id: player.id,
     position_played: player.position,
     minutes_played: undefined,
-    goals: 0,
-    assists: 0,
     is_starter: true, // Default to starter
     player: player,
     _isNew: true,
@@ -1220,8 +1170,6 @@ async function saveAllChanges() {
         body: {
           position_played: rp.position_played,
           minutes_played: rp.minutes_played,
-          goals: rp.goals,
-          assists: rp.assists,
         },
       })
     ))

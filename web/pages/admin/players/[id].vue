@@ -330,103 +330,133 @@
           </div>
         </div>
 
-        <!-- Status & Save -->
+        <!-- Verification Status - Cleaner Card Design -->
         <div class="bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden">
           <div class="px-6 py-4 border-b border-neutral-200 bg-gradient-to-r from-amber-50 to-yellow-50">
             <div class="flex items-center gap-3">
               <div class="w-10 h-10 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-amber-500/25">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
               </div>
               <div>
-                <h2 class="font-semibold text-neutral-900">Status & Save</h2>
-                <p class="text-sm text-neutral-500">Update verification status and save changes</p>
+                <h2 class="font-semibold text-neutral-900">Verification Status</h2>
+                <p class="text-sm text-neutral-500">Control player visibility to scouts</p>
               </div>
             </div>
           </div>
 
-          <div class="p-6 space-y-6">
-            <!-- Verification Status -->
-            <div>
-              <label class="block text-sm font-medium text-neutral-700 mb-3">Verification Status</label>
-              
-              <!-- Status Card -->
-              <div class="rounded-xl border-2 overflow-hidden" :class="form.verification_status === 'verified' ? 'border-emerald-200 bg-white' : 'border-neutral-200 bg-white'">
-                <!-- Status Header -->
-                <div class="px-4 py-3 flex items-center gap-3" :class="form.verification_status === 'verified' ? 'bg-emerald-50' : 'bg-neutral-50'">
-                  <div class="w-8 h-8 rounded-full flex items-center justify-center" :class="form.verification_status === 'verified' ? 'bg-emerald-500' : 'bg-neutral-400'">
-                    <svg v-if="form.verification_status === 'verified'" class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                    </svg>
-                    <svg v-else class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+          <div class="p-6">
+            <!-- Toggle Card - Two Options Side by Side -->
+            <div class="grid grid-cols-2 gap-3">
+              <!-- Pending Option -->
+              <button
+                type="button"
+                @click="form.verification_status = 'pending'"
+                :class="[
+                  'relative p-4 rounded-xl border-2 text-left transition-all',
+                  form.verification_status !== 'verified' 
+                    ? 'border-amber-400 bg-amber-50 ring-2 ring-amber-400/20' 
+                    : 'border-neutral-200 bg-white hover:border-neutral-300'
+                ]"
+              >
+                <div class="flex items-center gap-3 mb-2">
+                  <div :class="[
+                    'w-8 h-8 rounded-full flex items-center justify-center',
+                    form.verification_status !== 'verified' ? 'bg-amber-500' : 'bg-neutral-300'
+                  ]">
+                    <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
                     </svg>
                   </div>
-                  <div class="flex-1">
-                    <p class="text-sm font-semibold" :class="form.verification_status === 'verified' ? 'text-emerald-900' : 'text-neutral-900'">
-                      {{ form.verification_status === 'verified' ? 'Verified' : 'Pending Review' }}
-                    </p>
-                  </div>
-                  <span 
-                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                    :class="form.verification_status === 'verified' ? 'bg-emerald-100 text-emerald-800' : 'bg-neutral-200 text-neutral-700'"
-                  >
-                    {{ form.verification_status === 'verified' ? 'Active' : 'Unverified' }}
-                  </span>
+                  <span :class="[
+                    'font-semibold',
+                    form.verification_status !== 'verified' ? 'text-amber-900' : 'text-neutral-600'
+                  ]">Pending</span>
                 </div>
-                
-                <!-- Status Body with Action -->
-                <div class="p-4 flex items-center justify-between gap-4">
-                  <p class="text-sm text-neutral-600">
-                    {{ form.verification_status === 'verified' 
-                      ? 'Player displays verification badge and is visible to scouts.' 
-                      : 'Complete verification to display trust badge and improve visibility.' 
-                    }}
-                  </p>
-                  <button
-                    type="button"
-                    @click="form.verification_status = form.verification_status === 'verified' ? 'pending' : 'verified'"
-                    class="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                    :class="form.verification_status === 'verified' 
-                      ? 'text-neutral-700 bg-neutral-100 hover:bg-neutral-200' 
-                      : 'text-white bg-neutral-900 hover:bg-neutral-800'"
-                  >
-                    <svg v-if="form.verification_status !== 'verified'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                <p class="text-xs text-neutral-500">Hidden from public discovery</p>
+                <!-- Selected indicator -->
+                <div v-if="form.verification_status !== 'verified'" class="absolute top-2 right-2">
+                  <svg class="w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                  </svg>
+                </div>
+              </button>
+
+              <!-- Verified Option -->
+              <button
+                type="button"
+                @click="form.verification_status = 'verified'"
+                :class="[
+                  'relative p-4 rounded-xl border-2 text-left transition-all',
+                  form.verification_status === 'verified' 
+                    ? 'border-emerald-400 bg-emerald-50 ring-2 ring-emerald-400/20' 
+                    : 'border-neutral-200 bg-white hover:border-neutral-300'
+                ]"
+              >
+                <div class="flex items-center gap-3 mb-2">
+                  <div :class="[
+                    'w-8 h-8 rounded-full flex items-center justify-center',
+                    form.verification_status === 'verified' ? 'bg-emerald-500' : 'bg-neutral-300'
+                  ]">
+                    <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                     </svg>
-                    {{ form.verification_status === 'verified' ? 'Revoke' : 'Verify Now' }}
-                  </button>
+                  </div>
+                  <span :class="[
+                    'font-semibold',
+                    form.verification_status === 'verified' ? 'text-emerald-900' : 'text-neutral-600'
+                  ]">Verified</span>
                 </div>
-              </div>
+                <p class="text-xs text-neutral-500">Visible to scouts with badge</p>
+                <!-- Selected indicator -->
+                <div v-if="form.verification_status === 'verified'" class="absolute top-2 right-2">
+                  <svg class="w-5 h-5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                  </svg>
+                </div>
+              </button>
             </div>
 
-            <!-- Action Buttons -->
-            <div class="flex flex-col sm:flex-row gap-3 pt-2">
-              <button
-                type="submit"
-                :disabled="submitting"
-                class="flex-1 inline-flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-primary-600 to-emerald-600 text-white rounded-xl text-base font-semibold hover:from-primary-700 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-primary-600/25"
-              >
-                <svg v-if="submitting" class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" />
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                </svg>
-                <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-                {{ submitting ? 'Saving...' : 'Save Changes' }}
-              </button>
-              
-              <NuxtLink to="/admin/players" class="sm:w-auto">
-                <button
-                  type="button"
-                  class="w-full px-6 py-4 border border-neutral-300 text-neutral-700 rounded-xl text-base font-medium hover:bg-neutral-50 transition-colors"
-                >
-                  Cancel
-                </button>
-              </NuxtLink>
+            <!-- Status info -->
+            <div class="mt-4 p-3 rounded-lg" :class="form.verification_status === 'verified' ? 'bg-emerald-50' : 'bg-amber-50'">
+              <p class="text-sm" :class="form.verification_status === 'verified' ? 'text-emerald-700' : 'text-amber-700'">
+                <span class="font-medium">{{ form.verification_status === 'verified' ? '✓ Verified:' : '⏳ Pending:' }}</span>
+                {{ form.verification_status === 'verified' 
+                  ? 'Player will appear in search results with a trust badge.' 
+                  : 'Player profile is not visible to scouts until verified.' 
+                }}
+              </p>
             </div>
+          </div>
+        </div>
+
+        <!-- Save Actions - Separate Clean Card -->
+        <div class="bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden">
+          <div class="p-6 space-y-3">
+            <button
+              type="submit"
+              :disabled="submitting"
+              class="w-full inline-flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-primary-600 to-emerald-600 text-white rounded-xl text-base font-semibold hover:from-primary-700 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-primary-600/25"
+            >
+              <svg v-if="submitting" class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" />
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              {{ submitting ? 'Saving...' : 'Save Changes' }}
+            </button>
+            
+            <NuxtLink to="/admin/players" class="block">
+              <button
+                type="button"
+                class="w-full px-6 py-3 border border-neutral-300 text-neutral-700 rounded-xl text-sm font-medium hover:bg-neutral-50 transition-colors"
+              >
+                Cancel
+              </button>
+            </NuxtLink>
           </div>
         </div>
       </div>
