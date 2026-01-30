@@ -715,20 +715,29 @@
               </div>
             </div>
 
-            <div class="flex justify-end gap-3 pt-4">
+            <!-- Modal Footer -->
+            <div class="flex gap-3 pt-4 border-t border-neutral-100">
               <button
                 type="button"
                 @click="showEditModal = false"
-                class="px-4 py-2.5 border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-colors"
+                class="w-auto px-6 py-3 border border-neutral-300 text-neutral-700 rounded-xl text-sm font-medium hover:bg-neutral-50 transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 :disabled="updatingTournament"
-                class="px-6 py-2.5 bg-gradient-to-r from-primary-500 to-emerald-600 text-white rounded-xl font-medium hover:from-primary-600 hover:to-emerald-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                :class="[
+                  'flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold transition-all',
+                  'bg-gradient-to-r from-primary-600 to-emerald-600 text-white hover:from-primary-700 hover:to-emerald-700 shadow-lg shadow-primary-600/25',
+                  'disabled:opacity-50 disabled:cursor-not-allowed'
+                ]"
               >
-                {{ updatingTournament ? 'Saving...' : 'Save Changes' }}
+                <svg v-if="updatingTournament" class="w-4 h-4 animate-spin flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" />
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                <span class="whitespace-nowrap">{{ updatingTournament ? 'Saving...' : 'Save Changes' }}</span>
               </button>
             </div>
           </form>
