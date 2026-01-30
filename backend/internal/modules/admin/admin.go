@@ -1126,17 +1126,71 @@ func (m *AdminModule) ListTournaments(c *gin.Context) {
 	query.Count(&total)
 	query.Offset(offset).Limit(limit).Order("year DESC, created_at DESC").Find(&tournaments)
 
-	// Get player counts for each tournament
-	type TournamentWithCount struct {
-		domain.Tournament
-		PlayerCount int64 `json:"player_count"`
+	// Build response with converted URLs
+	type TournamentResponse struct {
+		ID             uuid.UUID `json:"id"`
+		Name           string    `json:"name"`
+		Year           int       `json:"year"`
+		Location       *string   `json:"location,omitempty"`
+		StartDate      *string   `json:"start_date,omitempty"`
+		EndDate        *string   `json:"end_date,omitempty"`
+		Description    *string   `json:"description,omitempty"`
+		Status         string    `json:"status"`
+		IsPublic       bool      `json:"is_public"`
+		Featured       bool      `json:"featured"`
+		CoverImageURL  *string   `json:"cover_image_url,omitempty"`
+		MatchCount     int64     `json:"match_count"`
+		VideoCount     int64     `json:"video_count"`
+		HighlightCount int64     `json:"highlight_count"`
+		PlayerCount    int64     `json:"player_count"`
+		CreatedAt      time.Time `json:"created_at"`
 	}
 
-	results := make([]TournamentWithCount, len(tournaments))
+	results := make([]TournamentResponse, len(tournaments))
 	for i, t := range tournaments {
-		var count int64
-		m.db.Model(&domain.Player{}).Where("tournament_id = ? AND deleted_at IS NULL", t.ID).Count(&count)
-		results[i] = TournamentWithCount{Tournament: t, PlayerCount: count}
+		// Get counts
+		var playerCount, matchCount, videoCount, highlightCount int64
+		m.db.Model(&domain.Player{}).Where("tournament_id = ? AND deleted_at IS NULL", t.ID).Count(&playerCount)
+		m.db.Model(&domain.Match{}).Where("tournament_id = ?", t.ID).Count(&matchCount)
+		m.db.Model(&domain.Video{}).Where("tournament_id = ? AND video_type = 'full_match'", t.ID).Count(&videoCount)
+		m.db.Model(&domain.Video{}).Where("tournament_id = ? AND video_type = 'highlight'", t.ID).Count(&highlightCount)
+
+		// Convert cover image URL
+		var coverImageURL *string
+		if t.CoverImageURL != nil && *t.CoverImageURL != "" {
+			url := m.getPresignedURL(*t.CoverImageURL)
+			coverImageURL = &url
+		}
+
+		// Format dates as strings
+		var startDate, endDate *string
+		if t.StartDate != nil {
+			s := t.StartDate.Format("2006-01-02T15:04:05Z")
+			startDate = &s
+		}
+		if t.EndDate != nil {
+			e := t.EndDate.Format("2006-01-02T15:04:05Z")
+			endDate = &e
+		}
+
+		results[i] = TournamentResponse{
+			ID:             t.ID,
+			Name:           t.Name,
+			Year:           t.Year,
+			Location:       t.Location,
+			StartDate:      startDate,
+			EndDate:        endDate,
+			Description:    t.Description,
+			Status:         t.Status,
+			IsPublic:       t.IsPublic,
+			Featured:       t.Featured,
+			CoverImageURL:  coverImageURL,
+			MatchCount:     matchCount,
+			VideoCount:     videoCount,
+			HighlightCount: highlightCount,
+			PlayerCount:    playerCount,
+			CreatedAt:      t.CreatedAt,
+		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{

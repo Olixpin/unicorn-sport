@@ -109,8 +109,8 @@
           <!-- Small thumbnail -->
           <div class="w-16 h-16 bg-gradient-to-br from-primary-500 to-emerald-600 rounded-lg relative flex-shrink-0 overflow-hidden">
             <img
-              v-if="tournament.thumbnail_url"
-              :src="tournament.thumbnail_url"
+              v-if="tournament.cover_image_url || tournament.thumbnail_url"
+              :src="tournament.cover_image_url || tournament.thumbnail_url"
               :alt="tournament.name"
               class="w-full h-full object-cover"
             />
@@ -156,8 +156,8 @@
           <!-- Thumbnail -->
           <div class="w-full aspect-video bg-gradient-to-br from-primary-500 to-emerald-600 relative overflow-hidden">
             <img
-              v-if="tournament.thumbnail_url"
-              :src="tournament.thumbnail_url"
+              v-if="tournament.cover_image_url || tournament.thumbnail_url"
+              :src="tournament.cover_image_url || tournament.thumbnail_url"
               :alt="tournament.name"
               class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
@@ -457,6 +457,7 @@ interface Tournament {
   location?: string
   status: string
   thumbnail_url?: string
+  cover_image_url?: string
   match_count?: number
   video_count?: number
   highlight_count?: number

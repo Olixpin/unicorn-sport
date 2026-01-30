@@ -65,8 +65,8 @@
             <div class="flex sm:block gap-4">
               <div class="w-20 h-20 sm:w-64 sm:h-40 bg-gradient-to-br from-primary-500 to-emerald-600 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0">
                 <img
-                  v-if="tournament.thumbnail_url"
-                  :src="tournament.thumbnail_url"
+                  v-if="tournament.cover_image_url || tournament.thumbnail_url"
+                  :src="tournament.cover_image_url || tournament.thumbnail_url"
                   :alt="tournament.name"
                   class="w-full h-full object-cover"
                 />
