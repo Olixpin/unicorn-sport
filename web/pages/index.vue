@@ -128,24 +128,24 @@
             </div>
 
             <!-- Trust Badges -->
-            <div class="mt-12 flex flex-wrap items-center justify-center lg:justify-start gap-6 text-neutral-500">
-              <div class="flex items-center gap-2">
-                <svg class="w-5 h-5 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
+            <div class="mt-8 sm:mt-10 flex flex-wrap items-center justify-center lg:justify-start gap-x-4 gap-y-2 sm:gap-x-6 text-neutral-500">
+              <div class="flex items-center gap-1.5">
+                <svg class="w-4 h-4 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                 </svg>
-                <span class="text-sm">Verified profiles</span>
+                <span class="text-xs sm:text-sm">Verified profiles</span>
               </div>
-              <div class="flex items-center gap-2">
-                <svg class="w-5 h-5 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
+              <div class="flex items-center gap-1.5">
+                <svg class="w-4 h-4 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                 </svg>
-                <span class="text-sm">50+ Academies</span>
+                <span class="text-xs sm:text-sm">50+ Academies</span>
               </div>
-              <div class="flex items-center gap-2">
-                <svg class="w-5 h-5 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
+              <div class="flex items-center gap-1.5">
+                <svg class="w-4 h-4 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                 </svg>
-                <span class="text-sm">HD Highlights</span>
+                <span class="text-xs sm:text-sm">HD Highlights</span>
               </div>
             </div>
           </div>
@@ -305,11 +305,11 @@
         </div>
       </div>
 
-      <!-- Scroll Indicator - Premium with Mouse Icon -->
-      <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
-        <span class="text-xs text-neutral-500 uppercase tracking-widest font-medium">Scroll</span>
-        <div class="relative w-6 h-10 rounded-full border-2 border-neutral-600 flex justify-center pt-2">
-          <div class="w-1.5 h-2.5 bg-primary-500 rounded-full animate-scroll-down"></div>
+      <!-- Scroll Indicator - Hidden on small screens -->
+      <div class="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 hidden sm:flex flex-col items-center gap-1.5">
+        <span class="text-[10px] text-neutral-500 uppercase tracking-widest font-medium">Scroll</span>
+        <div class="relative w-5 h-8 rounded-full border-2 border-neutral-600 flex justify-center pt-1.5">
+          <div class="w-1 h-2 bg-primary-500 rounded-full animate-scroll-down"></div>
         </div>
       </div>
     </section>
@@ -321,57 +321,57 @@
           <!-- Glow Effect -->
           <div class="absolute -inset-1 bg-gradient-to-r from-primary-500/20 via-emerald-500/20 to-primary-500/20 rounded-3xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity duration-500"></div>
           
-          <div class="relative bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl shadow-neutral-900/10 border border-neutral-200/50 p-8 grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div class="relative bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl shadow-neutral-900/10 border border-neutral-200/50 p-5 sm:p-6 lg:p-8 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
             <div class="text-center group/stat" v-for="(stat, index) in statsData" :key="stat.label">
-              <div class="font-display text-4xl lg:text-5xl font-bold text-neutral-900 transition-transform group-hover/stat:scale-105">
+              <div class="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-900 transition-transform group-hover/stat:scale-105">
                 {{ stat.value }}<span class="text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-emerald-500">+</span>
               </div>
-              <div class="mt-2 text-neutral-500 font-medium">{{ stat.label }}</div>
+              <div class="mt-1 sm:mt-2 text-xs sm:text-sm text-neutral-500 font-medium">{{ stat.label }}</div>
               <!-- Active indicator on hover -->
-              <div class="mt-3 h-1 w-0 group-hover/stat:w-12 mx-auto bg-gradient-to-r from-primary-500 to-emerald-500 rounded-full transition-all duration-300"></div>
+              <div class="mt-2 sm:mt-3 h-1 w-0 group-hover/stat:w-10 sm:group-hover/stat:w-12 mx-auto bg-gradient-to-r from-primary-500 to-emerald-500 rounded-full transition-all duration-300"></div>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Section Divider -->
-    <div class="relative h-24 bg-white">
-      <svg class="absolute bottom-0 w-full h-24" preserveAspectRatio="none" viewBox="0 0 1440 74">
+    <!-- Section Divider - Compact -->
+    <div class="relative h-12 sm:h-16 bg-white">
+      <svg class="absolute bottom-0 w-full h-12 sm:h-16" preserveAspectRatio="none" viewBox="0 0 1440 74">
         <path fill="#fafafa" d="M0,0 C480,74 960,74 1440,0 L1440,74 L0,74 Z"></path>
       </svg>
     </div>
 
     <!-- Featured Players - Horizontal Scroll Showcase -->
-    <section class="py-24 lg:py-32 bg-neutral-50 relative overflow-hidden">
+    <section class="py-16 sm:py-20 lg:py-24 bg-neutral-50 relative overflow-hidden">
       <!-- Background decoration -->
       <div class="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-primary-100/50 to-transparent"></div>
       <div class="absolute bottom-0 left-0 w-1/4 h-1/2 bg-gradient-to-tr from-emerald-100/30 to-transparent"></div>
       
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <!-- Section Header with Line -->
-        <div class="flex items-center gap-8 mb-16">
+        <div class="flex items-center gap-4 sm:gap-8 mb-8 sm:mb-12">
           <div class="flex-1">
-            <div class="flex items-center gap-4 mb-4">
-              <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary-500 to-emerald-500 flex items-center justify-center">
-                <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div class="flex items-center gap-3 sm:gap-4 mb-2 sm:mb-3">
+              <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-primary-500 to-emerald-500 flex items-center justify-center">
+                <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                 </svg>
               </div>
-              <h2 class="font-display text-4xl lg:text-5xl font-bold text-neutral-900">
+              <h2 class="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-neutral-900">
                 Rising <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-emerald-500">Stars</span>
               </h2>
             </div>
-            <p class="text-lg text-neutral-500 max-w-xl">
-              Hand-picked by our scouts. Verified by academies. Ready for their breakthrough.
+            <p class="text-sm sm:text-base text-neutral-500 max-w-xl">
+              Hand-picked by our scouts. Verified by academies.
             </p>
           </div>
           <NuxtLink 
             to="/discover" 
-            class="hidden lg:flex items-center gap-3 px-6 py-3 bg-neutral-900 text-white rounded-full font-semibold hover:bg-neutral-800 transition-all group"
+            class="hidden sm:flex items-center gap-2 px-5 py-2.5 bg-neutral-900 text-white rounded-full text-sm font-semibold hover:bg-neutral-800 transition-all group"
           >
             <span>Explore All</span>
-            <svg class="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
             </svg>
           </NuxtLink>
@@ -385,13 +385,24 @@
           </div>
         </div>
 
-        <!-- Players Showcase - Premium Grid -->
+        <!-- Players Showcase - Horizontal Scroll -->
         <div v-else-if="featuredPlayers.length > 0">
-          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-5">
+          <!-- Section Label + Scroll hint for mobile -->
+          <div class="flex items-center justify-between mb-4 lg:hidden">
+            <span class="text-neutral-400 text-xs font-medium uppercase tracking-wide">Top Talent</span>
+            <span class="text-neutral-400 text-xs flex items-center gap-1">
+              Swipe
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </span>
+          </div>
+          
+          <div class="flex gap-3 overflow-x-auto pb-4 -mx-4 px-4 lg:mx-0 lg:px-0 lg:grid lg:grid-cols-5 lg:gap-5 lg:overflow-visible scrollbar-hide snap-x snap-mandatory">
             <div 
               v-for="(player, index) in featuredPlayers.slice(0, 5)" 
               :key="player.id"
-              class="group animate-fade-in"
+              class="flex-shrink-0 w-[calc(50%-6px)] sm:w-56 lg:w-auto group animate-fade-in snap-start"
               :style="{ animationDelay: `${index * 100}ms` }"
             >
               <NuxtLink :to="`/players/${player.id}`" class="block">
@@ -485,26 +496,6 @@
               </NuxtLink>
             </div>
           </div>
-          
-          <!-- View All CTA - Desktop Hidden, Mobile Shown Above -->
-          <div class="mt-10 flex justify-center">
-            <NuxtLink 
-              to="/discover" 
-              class="group relative inline-flex items-center gap-3 px-8 py-4 overflow-hidden rounded-2xl transition-all duration-300"
-            >
-              <!-- Button Background -->
-              <div class="absolute inset-0 bg-gradient-to-r from-primary-500 to-emerald-500 transition-all duration-300 group-hover:scale-105"></div>
-              <div class="absolute inset-0 bg-gradient-to-r from-primary-600 to-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              
-              <!-- Shine Effect -->
-              <div class="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-              
-              <span class="relative font-bold text-white text-lg">Discover All Players</span>
-              <svg class="relative w-5 h-5 text-white transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </NuxtLink>
-          </div>
         </div>
 
         <!-- Empty State -->
@@ -517,24 +508,11 @@
           <h3 class="text-2xl font-bold text-neutral-900 mb-2">Talent Coming Soon</h3>
           <p class="text-neutral-500">Our scouts are discovering amazing players. Check back soon!</p>
         </div>
-
-        <!-- Mobile CTA -->
-        <div class="lg:hidden mt-8 text-center">
-          <NuxtLink 
-            to="/discover" 
-            class="inline-flex items-center gap-3 px-8 py-4 bg-neutral-900 text-white rounded-full font-semibold"
-          >
-            <span>Explore All Players</span>
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
-          </NuxtLink>
-        </div>
       </div>
     </section>
 
     <!-- Featured Highlights Section -->
-    <section v-if="featuredHighlights.length > 0" class="py-20 lg:py-28 bg-neutral-950 relative overflow-hidden">
+    <section v-if="featuredHighlights.length > 0" class="py-16 lg:py-24 bg-neutral-950 relative overflow-hidden">
       <!-- Background Elements -->
       <div class="absolute inset-0">
         <div class="absolute top-1/4 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl"></div>
@@ -543,97 +521,179 @@
 
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <!-- Header -->
-        <div class="flex items-end justify-between mb-12">
+        <div class="flex items-end justify-between mb-6 lg:mb-8">
           <div>
-            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 mb-4">
-              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span class="text-sm text-emerald-400 font-medium">Free to Watch</span>
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 mb-3">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span class="text-xs text-emerald-400 font-medium">Free to Watch</span>
             </div>
-            <h2 class="font-display text-3xl lg:text-5xl font-bold text-white">
-              Latest <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-primary-400">Highlights</span>
+            <h2 class="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-white">
+              Featured <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-primary-400">Moments</span>
             </h2>
-            <p class="mt-3 text-neutral-400 max-w-xl">
-              Watch the best moments from our verified players - goals, skills, saves and more
-            </p>
           </div>
           <NuxtLink 
             to="/discover"
-            class="hidden lg:inline-flex items-center gap-2 text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
+            class="hidden sm:inline-flex items-center gap-2 text-emerald-400 hover:text-emerald-300 text-sm font-medium transition-colors"
           >
-            View All Players
+            Browse Players
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
             </svg>
           </NuxtLink>
         </div>
 
-        <!-- Highlights Grid -->
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
-          <div
-            v-for="highlight in featuredHighlights.slice(0, 8)"
-            :key="highlight.id"
-            class="group relative rounded-2xl overflow-hidden cursor-pointer bg-neutral-900"
-            @click="openHighlight(highlight)"
-          >
-            <!-- Thumbnail -->
-            <div class="aspect-video relative">
-              <img
-                v-if="highlight.thumbnail_url"
-                :src="highlight.thumbnail_url"
-                :alt="highlight.title || 'Highlight'"
-                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-              />
-              <div v-else class="w-full h-full bg-gradient-to-br from-neutral-800 to-neutral-900 flex items-center justify-center">
-                <span class="text-4xl">{{ getHighlightIcon(highlight.highlight_type) }}</span>
-              </div>
+        <!-- Hero Highlight (Full Width, 16:9) -->
+        <div
+          v-if="featuredHighlights[0]"
+          class="group relative rounded-2xl overflow-hidden cursor-pointer bg-neutral-900 mb-6"
+          @click="openHighlight(featuredHighlights[0])"
+        >
+          <div class="aspect-video relative">
+            <img
+              v-if="featuredHighlights[0].thumbnail_url"
+              :src="featuredHighlights[0].thumbnail_url"
+              :alt="featuredHighlights[0].title || 'Highlight'"
+              class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+            <div v-else class="w-full h-full bg-gradient-to-br from-neutral-800 to-neutral-900 flex items-center justify-center">
+              <span class="text-7xl">{{ getHighlightIcon(featuredHighlights[0].highlight_type) }}</span>
+            </div>
 
-              <!-- Play Button Overlay -->
-              <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <div class="w-14 h-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/30">
-                  <svg class="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M8 5v14l11-7z" />
-                  </svg>
-                </div>
-              </div>
+            <!-- Gradient Overlay -->
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+            <div class="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-transparent"></div>
 
-              <!-- Duration Badge -->
-              <div v-if="highlight.duration_seconds" class="absolute bottom-2 right-2 px-2 py-1 bg-black/70 rounded text-white text-xs font-mono">
-                {{ formatDuration(highlight.duration_seconds) }}
-              </div>
-
-              <!-- Type Badge -->
-              <div class="absolute top-2 left-2 px-2 py-1 bg-emerald-500/90 rounded-lg text-white text-xs font-medium flex items-center gap-1">
-                <span>{{ getHighlightIcon(highlight.highlight_type) }}</span>
-                <span class="capitalize">{{ highlight.highlight_type }}</span>
+            <!-- Play Button -->
+            <div class="absolute inset-0 flex items-center justify-center">
+              <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 group-hover:scale-110 group-hover:bg-white/20 transition-all duration-300 shadow-2xl">
+                <svg class="w-7 h-7 sm:w-8 sm:h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
               </div>
             </div>
 
-            <!-- Info -->
-            <div class="p-3">
-              <div class="flex items-center gap-2 mb-1">
-                <div class="w-6 h-6 rounded-full bg-gradient-to-br from-primary-500 to-emerald-500 flex items-center justify-center text-white text-xs font-bold">
-                  {{ highlight.player?.first_name?.charAt(0) || '?' }}
+            <!-- Type Badge -->
+            <div class="absolute top-4 left-4 px-3 py-1.5 bg-emerald-500 rounded-lg text-white text-sm font-semibold flex items-center gap-1.5 shadow-lg">
+              <span>{{ getHighlightIcon(featuredHighlights[0].highlight_type) }}</span>
+              <span class="capitalize">{{ featuredHighlights[0].highlight_type }}</span>
+            </div>
+
+            <!-- Player Info (Bottom Left) -->
+            <div class="absolute bottom-4 sm:bottom-6 left-4 sm:left-6 right-4 sm:right-auto">
+              <div class="flex items-center gap-3 sm:gap-4">
+                <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-primary-500 to-emerald-500 flex items-center justify-center text-white text-lg sm:text-xl font-bold ring-2 ring-white/20 shadow-xl">
+                  {{ featuredHighlights[0].player?.first_name?.charAt(0) || '?' }}
                 </div>
-                <div class="flex-1 min-w-0">
-                  <p class="text-white text-sm font-medium truncate">
-                    {{ highlight.player?.first_name }} {{ highlight.player?.last_name }}
+                <div>
+                  <p class="text-white text-lg sm:text-xl font-bold">
+                    {{ featuredHighlights[0].player?.first_name }} {{ featuredHighlights[0].player?.last_name }}
+                  </p>
+                  <p class="text-white/60 text-sm">
+                    {{ featuredHighlights[0].player?.position }}
                   </p>
                 </div>
               </div>
-              <p class="text-neutral-500 text-xs truncate">
-                {{ highlight.player?.position }}
-              </p>
+            </div>
+
+            <!-- Watch Now CTA (Desktop) -->
+            <div class="absolute bottom-6 right-6 hidden lg:block">
+              <div class="px-5 py-2.5 bg-white/10 backdrop-blur-md rounded-full text-white text-sm font-medium border border-white/20 group-hover:bg-white/20 transition-all">
+                Watch Now
+              </div>
             </div>
           </div>
         </div>
 
+        <!-- Horizontal Scroll Row -->
+        <div class="relative">
+          <!-- Section Label -->
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-white/80 text-sm font-medium uppercase tracking-wide">More Highlights</h3>
+            <!-- Scroll hint for mobile -->
+            <span class="text-white/40 text-xs sm:hidden flex items-center gap-1">
+              Swipe
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </span>
+          </div>
+
+          <!-- Scrollable Cards - narrower cards to show peek -->
+          <div class="flex gap-3 overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-hide snap-x snap-mandatory">
+            <div
+              v-for="highlight in featuredHighlights.slice(1, 6)"
+              :key="highlight.id"
+              class="flex-shrink-0 w-[calc(50%-6px)] sm:w-64 md:w-72 group relative rounded-xl overflow-hidden cursor-pointer bg-neutral-900 snap-start"
+              @click="openHighlight(highlight)"
+            >
+              <div class="aspect-video relative">
+                <img
+                  v-if="highlight.thumbnail_url"
+                  :src="highlight.thumbnail_url"
+                  :alt="highlight.title || 'Highlight'"
+                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+                <div v-else class="w-full h-full bg-gradient-to-br from-neutral-800 to-neutral-900 flex items-center justify-center">
+                  <span class="text-3xl">{{ getHighlightIcon(highlight.highlight_type) }}</span>
+                </div>
+
+                <!-- Gradient Overlay -->
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+
+                <!-- Play Button (on hover) -->
+                <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div class="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/30 scale-90 group-hover:scale-100 transition-transform">
+                    <svg class="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                  </div>
+                </div>
+
+                <!-- Type Badge -->
+                <div class="absolute top-2.5 left-2.5 px-2 py-1 bg-emerald-500/90 rounded-md text-white text-xs font-medium flex items-center gap-1">
+                  <span>{{ getHighlightIcon(highlight.highlight_type) }}</span>
+                  <span class="capitalize">{{ highlight.highlight_type }}</span>
+                </div>
+
+                <!-- Player Name (Bottom) -->
+                <div class="absolute bottom-0 left-0 right-0 p-3">
+                  <p class="text-white text-sm font-semibold truncate">
+                    {{ highlight.player?.first_name }} {{ highlight.player?.last_name }}
+                  </p>
+                  <p class="text-white/50 text-xs truncate">
+                    {{ highlight.player?.position }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- View All Card -->
+            <NuxtLink
+              to="/discover"
+              class="flex-shrink-0 w-[calc(50%-6px)] sm:w-64 md:w-72 group relative rounded-xl overflow-hidden cursor-pointer bg-gradient-to-br from-neutral-800 to-neutral-900 border border-neutral-700/50 hover:border-emerald-500/50 transition-all snap-start"
+            >
+              <div class="aspect-video flex flex-col items-center justify-center gap-3">
+                <div class="w-14 h-14 rounded-full bg-emerald-500/10 flex items-center justify-center group-hover:bg-emerald-500/20 group-hover:scale-110 transition-all">
+                  <svg class="w-6 h-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </div>
+                <div class="text-center">
+                  <p class="text-white font-semibold">Browse All Players</p>
+                  <p class="text-neutral-500 text-xs mt-0.5">Discover more highlights</p>
+                </div>
+              </div>
+            </NuxtLink>
+          </div>
+        </div>
+
         <!-- Mobile CTA -->
-        <div class="lg:hidden mt-8 text-center">
+        <div class="sm:hidden mt-4 text-center">
           <NuxtLink 
             to="/discover"
-            class="inline-flex items-center gap-2 text-emerald-400 font-medium"
+            class="inline-flex items-center gap-2 text-emerald-400 text-sm font-medium"
           >
-            View All Players
+            Browse All Players
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
             </svg>
@@ -925,17 +985,6 @@
             </svg>
             Browse Players
           </NuxtLink>
-        </div>
-        
-        <!-- Trust Indicators -->
-        <div class="mt-16 pt-12 border-t border-white/10">
-          <p class="text-neutral-500 text-sm mb-6">Trusted by professionals from</p>
-          <div class="flex flex-wrap justify-center items-center gap-8 lg:gap-16 opacity-40">
-            <div class="text-white font-bold text-xl tracking-wider">PREMIER LEAGUE</div>
-            <div class="text-white font-bold text-xl tracking-wider">LA LIGA</div>
-            <div class="text-white font-bold text-xl tracking-wider">BUNDESLIGA</div>
-            <div class="text-white font-bold text-xl tracking-wider">SERIE A</div>
-          </div>
         </div>
       </div>
     </section>
