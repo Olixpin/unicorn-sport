@@ -104,28 +104,91 @@
       </div>
 
       <!-- Stats Section -->
-      <div v-if="playerStats" class="bg-white border-y border-neutral-200">
+      <div v-if="playerStats && playerStats.total_highlights > 0" class="bg-white border-y border-neutral-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <h2 class="text-lg font-semibold text-neutral-900 mb-4">Season Statistics</h2>
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div class="text-center p-4 bg-neutral-50 rounded-xl">
-              <div class="text-3xl font-bold text-primary-600">{{ playerStats.matches_played }}</div>
-              <div class="text-sm text-neutral-500 mt-1">Matches</div>
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold text-neutral-900">Performance Highlights</h2>
+            <span class="text-xs text-neutral-400 bg-neutral-100 px-2 py-1 rounded-full">{{ playerStats.total_highlights }} clips</span>
+          </div>
+          
+          <!-- Primary Stats Grid - Key metrics -->
+          <div class="grid grid-cols-3 sm:grid-cols-5 gap-3 mb-4">
+            <!-- Goals -->
+            <div v-if="playerStats.goals > 0 || !isGoalkeeper" class="text-center p-3 bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl border border-emerald-100">
+              <div class="text-2xl mb-1">⚽</div>
+              <div class="text-2xl font-bold text-emerald-600">{{ playerStats.goals }}</div>
+              <div class="text-xs text-neutral-500">Goals</div>
             </div>
-            <div class="text-center p-4 bg-neutral-50 rounded-xl">
-              <div class="text-3xl font-bold text-primary-600">{{ playerStats.goals }}</div>
-              <div class="text-sm text-neutral-500 mt-1">Goals</div>
+            <!-- Assists -->
+            <div v-if="playerStats.assists > 0" class="text-center p-3 bg-gradient-to-br from-red-50 to-orange-50 rounded-xl border border-red-100">
+              <div class="text-2xl mb-1">🎯</div>
+              <div class="text-2xl font-bold text-red-500">{{ playerStats.assists }}</div>
+              <div class="text-xs text-neutral-500">Assists</div>
             </div>
-            <div class="text-center p-4 bg-neutral-50 rounded-xl">
-              <div class="text-3xl font-bold text-primary-600">{{ playerStats.assists }}</div>
-              <div class="text-sm text-neutral-500 mt-1">Assists</div>
+            <!-- Saves (Goalkeeper) -->
+            <div v-if="playerStats.saves > 0" class="text-center p-3 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-100">
+              <div class="text-2xl mb-1">🧤</div>
+              <div class="text-2xl font-bold text-green-600">{{ playerStats.saves }}</div>
+              <div class="text-xs text-neutral-500">Saves</div>
             </div>
-            <div class="text-center p-4 bg-neutral-50 rounded-xl">
-              <div class="text-3xl font-bold text-primary-600">{{ Math.round(playerStats.minutes_played / 60) }}</div>
-              <div class="text-sm text-neutral-500 mt-1">Minutes</div>
+            <!-- Dribbling -->
+            <div v-if="playerStats.dribbling > 0" class="text-center p-3 bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl border border-amber-100">
+              <div class="text-2xl mb-1">🦶</div>
+              <div class="text-2xl font-bold text-amber-600">{{ playerStats.dribbling }}</div>
+              <div class="text-xs text-neutral-500">Dribbles</div>
+            </div>
+            <!-- Shooting -->
+            <div v-if="playerStats.shooting > 0" class="text-center p-3 bg-gradient-to-br from-red-50 to-rose-50 rounded-xl border border-red-100">
+              <div class="text-2xl mb-1">🎯</div>
+              <div class="text-2xl font-bold text-rose-600">{{ playerStats.shooting }}</div>
+              <div class="text-xs text-neutral-500">Shots</div>
+            </div>
+            <!-- Passing -->
+            <div v-if="playerStats.passing > 0" class="text-center p-3 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
+              <div class="text-2xl mb-1">➡️</div>
+              <div class="text-2xl font-bold text-blue-600">{{ playerStats.passing }}</div>
+              <div class="text-xs text-neutral-500">Passes</div>
+            </div>
+            <!-- Heading -->
+            <div v-if="playerStats.heading > 0" class="text-center p-3 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl border border-indigo-100">
+              <div class="text-2xl mb-1">🗣️</div>
+              <div class="text-2xl font-bold text-indigo-600">{{ playerStats.heading }}</div>
+              <div class="text-xs text-neutral-500">Headers</div>
+            </div>
+            <!-- Speed -->
+            <div v-if="playerStats.speed > 0" class="text-center p-3 bg-gradient-to-br from-yellow-50 to-amber-50 rounded-xl border border-yellow-100">
+              <div class="text-2xl mb-1">⚡</div>
+              <div class="text-2xl font-bold text-yellow-600">{{ playerStats.speed }}</div>
+              <div class="text-xs text-neutral-500">Speed</div>
+            </div>
+            <!-- Defending -->
+            <div v-if="playerStats.defending > 0" class="text-center p-3 bg-gradient-to-br from-slate-50 to-gray-50 rounded-xl border border-slate-200">
+              <div class="text-2xl mb-1">🛡️</div>
+              <div class="text-2xl font-bold text-slate-600">{{ playerStats.defending }}</div>
+              <div class="text-xs text-neutral-500">Defense</div>
+            </div>
+            <!-- Tackling -->
+            <div v-if="playerStats.tackling > 0" class="text-center p-3 bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl border border-orange-100">
+              <div class="text-2xl mb-1">🦶</div>
+              <div class="text-2xl font-bold text-orange-600">{{ playerStats.tackling }}</div>
+              <div class="text-xs text-neutral-500">Tackles</div>
             </div>
           </div>
-          <p class="text-xs text-neutral-400 mt-3 text-center">{{ playerStats.season }} Season</p>
+          
+          <!-- Match Participation (if available) -->
+          <div v-if="playerStats.matches_played > 0" class="flex items-center justify-center gap-6 pt-4 border-t border-neutral-100">
+            <div class="text-center">
+              <span class="text-lg font-bold text-neutral-900">{{ playerStats.matches_played }}</span>
+              <span class="text-sm text-neutral-500 ml-1">matches</span>
+            </div>
+            <div class="w-px h-6 bg-neutral-200"></div>
+            <div class="text-center">
+              <span class="text-lg font-bold text-neutral-900">{{ playerStats.minutes_played }}</span>
+              <span class="text-sm text-neutral-500 ml-1">minutes</span>
+            </div>
+          </div>
+          
+          <p class="text-xs text-neutral-400 mt-3 text-center">{{ playerStats.season }} Season · Each highlight = 1 verified stat</p>
         </div>
       </div>
 
@@ -696,13 +759,28 @@
 <script setup lang="ts">
 import type { Player, Video, ApiResponse } from '~/types'
 
-// Stats from the backend
+// Stats from the backend - derived from highlight uploads
+// Each highlight type counts as 1 stat (e.g., 2 goal highlights = 2 goals)
 interface PlayerStats {
   season: string
   matches_played: number
+  matches_started: number
   minutes_played: number
+  // Offensive
   goals: number
   assists: number
+  shooting: number
+  dribbling: number
+  // Playmaking
+  passing: number
+  heading: number
+  speed: number
+  // Defensive
+  defending: number
+  tackling: number
+  saves: number  // For goalkeepers
+  // Total
+  total_highlights: number
 }
 
 // Similar player suggestion
@@ -800,6 +878,13 @@ const countryFlags: Record<string, string> = {
 }
 
 const countryFlag = computed(() => player.value ? (countryFlags[player.value.country] || '🌍') : '')
+
+// Check if player is a goalkeeper (to show saves instead of goals)
+const isGoalkeeper = computed(() => {
+  if (!player.value) return false
+  const position = player.value.position?.toLowerCase() || ''
+  return position.includes('goalkeeper') || position.includes('gk') || position === 'keeper'
+})
 
 // Full player name - uses full last_name if available
 const playerFullName = computed(() => {

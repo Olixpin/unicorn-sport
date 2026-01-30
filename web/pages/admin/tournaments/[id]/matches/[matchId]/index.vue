@@ -835,126 +835,158 @@
       <div v-if="showEditModal" class="fixed inset-0 z-50 overflow-y-auto">
         <div class="fixed inset-0 bg-black/50" @click="showEditModal = false"></div>
         <div class="relative min-h-screen flex items-center justify-center p-4">
-          <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-lg p-6">
-            <h3 class="text-xl font-semibold mb-4">Edit Match</h3>
+          <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
+            <h3 class="text-xl font-semibold mb-6">Edit Match</h3>
 
-            <form @submit.prevent="updateMatch" class="space-y-4">
+            <form @submit.prevent="updateMatch" class="space-y-5">
+              <!-- Match Title -->
               <div>
-                <label class="block text-sm font-medium text-neutral-700 mb-1">Title *</label>
+                <label class="block text-sm font-medium text-neutral-700 mb-1">Match Title *</label>
                 <input
                   v-model="editMatchForm.title"
                   type="text"
                   class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  placeholder="e.g., Group Stage - Match 1"
+                  placeholder="e.g., Semi Final - Game 1"
                   required
                 />
               </div>
 
+              <!-- Teams Section -->
+              <div class="space-y-3">
+                <div class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  <span class="text-sm font-medium text-neutral-700">Teams</span>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-xs text-neutral-500 mb-1">Home Team</label>
+                    <input
+                      v-model="editMatchForm.home_team"
+                      type="text"
+                      class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      placeholder="e.g., Nigeria U-17"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-xs text-neutral-500 mb-1">Away Team</label>
+                    <input
+                      v-model="editMatchForm.away_team"
+                      type="text"
+                      class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      placeholder="e.g., Ghana U-17"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Date & Stage Row -->
               <div class="grid grid-cols-2 gap-4">
                 <div>
-                  <label class="block text-sm font-medium text-neutral-700 mb-1">Home Team</label>
+                  <label class="block text-sm font-medium text-neutral-700 mb-1">Match Date *</label>
                   <input
-                    v-model="editMatchForm.home_team"
-                    type="text"
+                    v-model="editMatchForm.match_date"
+                    type="date"
                     class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    placeholder="Home team"
+                    required
                   />
                 </div>
                 <div>
-                  <label class="block text-sm font-medium text-neutral-700 mb-1">Away Team</label>
-                  <input
-                    v-model="editMatchForm.away_team"
-                    type="text"
-                    class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    placeholder="Away team"
-                  />
+                  <label class="block text-sm font-medium text-neutral-700 mb-1">Stage</label>
+                  <select
+                    v-model="editMatchForm.stage"
+                    class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
+                  >
+                    <option value="">Select stage</option>
+                    <option value="group">Group Stage</option>
+                    <option value="round_of_16">Round of 16</option>
+                    <option value="quarterfinal">Quarter Final</option>
+                    <option value="semifinal">Semi Final</option>
+                    <option value="third_place">3rd Place</option>
+                    <option value="final">Final</option>
+                  </select>
                 </div>
               </div>
 
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-sm font-medium text-neutral-700 mb-1">Home Score</label>
-                  <input
-                    v-model="editMatchForm.home_score"
-                    type="number"
-                    min="0"
-                    class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    placeholder="0"
-                  />
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-neutral-700 mb-1">Away Score</label>
-                  <input
-                    v-model="editMatchForm.away_score"
-                    type="number"
-                    min="0"
-                    class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    placeholder="0"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-neutral-700 mb-1">Match Date *</label>
-                <input
-                  v-model="editMatchForm.match_date"
-                  type="date"
-                  class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  required
-                />
-              </div>
-
+              <!-- Location -->
               <div>
                 <label class="block text-sm font-medium text-neutral-700 mb-1">Location</label>
                 <input
                   v-model="editMatchForm.location"
                   type="text"
                   class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  placeholder="e.g., National Stadium, Lagos"
+                  placeholder="e.g., Teslim Balogun Stadium, Lagos"
                 />
               </div>
 
-              <div>
-                <label class="block text-sm font-medium text-neutral-700 mb-1">Stage</label>
-                <select
-                  v-model="editMatchForm.stage"
-                  class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
-                >
-                  <option value="">Select stage</option>
-                  <option value="group">Group Stage</option>
-                  <option value="round_of_16">Round of 16</option>
-                  <option value="quarterfinal">Quarterfinal</option>
-                  <option value="semifinal">Semifinal</option>
-                  <option value="final">Final</option>
-                </select>
+              <!-- Status & Score Section -->
+              <div class="space-y-3">
+                <div>
+                  <label class="block text-sm font-medium text-neutral-700 mb-1">Status</label>
+                  <select
+                    v-model="editMatchForm.status"
+                    class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
+                  >
+                    <option value="scheduled">Scheduled</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="completed">Completed</option>
+                    <option value="postponed">Postponed</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
+                </div>
+
+                <!-- Score (only show when match is in progress or completed) -->
+                <div v-if="editMatchForm.status === 'completed' || editMatchForm.status === 'in_progress'" class="p-4 bg-neutral-50 rounded-xl space-y-3">
+                  <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    <span class="text-sm font-medium text-neutral-700">Final Score</span>
+                  </div>
+                  <div class="grid grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-xs text-neutral-500 mb-1">{{ editMatchForm.home_team || 'Home' }}</label>
+                      <input
+                        v-model="editMatchForm.home_score"
+                        type="number"
+                        min="0"
+                        class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent text-center text-lg font-semibold"
+                        placeholder="0"
+                      />
+                    </div>
+                    <div>
+                      <label class="block text-xs text-neutral-500 mb-1">{{ editMatchForm.away_team || 'Away' }}</label>
+                      <input
+                        v-model="editMatchForm.away_score"
+                        type="number"
+                        min="0"
+                        class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent text-center text-lg font-semibold"
+                        placeholder="0"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div>
-                <label class="block text-sm font-medium text-neutral-700 mb-1">Status</label>
-                <select
-                  v-model="editMatchForm.status"
-                  class="w-full px-4 py-3 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
-                >
-                  <option value="scheduled">Scheduled</option>
-                  <option value="in_progress">In Progress</option>
-                  <option value="completed">Completed</option>
-                  <option value="cancelled">Cancelled</option>
-                </select>
-              </div>
-
-              <div class="flex justify-end gap-3 pt-4">
+              <!-- Modal Footer -->
+              <div class="flex gap-3 pt-4 border-t border-neutral-100">
                 <button
                   type="button"
                   @click="showEditModal = false"
-                  class="px-4 py-2.5 border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-colors"
+                  class="w-auto px-6 py-3 border border-neutral-300 text-neutral-700 rounded-xl text-sm font-medium hover:bg-neutral-50 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   :disabled="updatingMatch"
-                  class="px-6 py-2.5 bg-gradient-to-r from-primary-500 to-emerald-600 text-white rounded-xl font-medium hover:from-primary-600 hover:to-emerald-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-primary-500 to-emerald-600 text-white rounded-xl text-sm font-semibold hover:from-primary-600 hover:to-emerald-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
+                  <svg v-if="updatingMatch" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
                   {{ updatingMatch ? 'Saving...' : 'Save Changes' }}
                 </button>
               </div>

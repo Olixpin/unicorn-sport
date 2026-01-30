@@ -118,13 +118,28 @@ type PlayerDetailResponse struct {
 }
 
 // PlayerStatsResponse contains aggregated player statistics
+// All stats are derived from highlight uploads (1 highlight = 1 stat)
+// This means uploading a "goal" highlight automatically counts as 1 goal
 type PlayerStatsResponse struct {
 	Season         string `json:"season"`
 	MatchesPlayed  int    `json:"matches_played"`
 	MatchesStarted int    `json:"matches_started"`
 	MinutesPlayed  int    `json:"minutes_played"`
-	Goals          int    `json:"goals"`
-	Assists        int    `json:"assists"`
+	// Offensive stats
+	Goals     int `json:"goals"`
+	Assists   int `json:"assists"`
+	Shooting  int `json:"shooting"`
+	Dribbling int `json:"dribbling"`
+	// Playmaking stats
+	Passing int `json:"passing"`
+	Heading int `json:"heading"`
+	Speed   int `json:"speed"`
+	// Defensive stats
+	Defending int `json:"defending"`
+	Tackling  int `json:"tackling"`
+	Saves     int `json:"saves"` // For goalkeepers
+	// Total highlights count
+	TotalHighlights int `json:"total_highlights"`
 }
 
 // SimilarPlayerResponse for recommendations
@@ -379,30 +394,65 @@ func (m *ProfilesModule) GetPlayer(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": true, "data": response})
 }
 
-// getPlayerStats aggregates stats from match_players table
+// getPlayerStats aggregates stats from multiple sources:
+// - Matches played/started, minutes from match_players table
+// - Goals/assists derived from player_highlights (each "goal" highlight = 1 goal, etc.)
+// This approach ensures stats are automatically calculated from uploaded highlight videos
 func (m *ProfilesModule) getPlayerStats(playerID uuid.UUID) *PlayerStatsResponse {
-	type statsResult struct {
+	// Get match participation stats from match_players
+	type matchStats struct {
 		MatchesPlayed  int `json:"matches_played"`
 		MatchesStarted int `json:"matches_started"`
 		MinutesPlayed  int `json:"minutes_played"`
-		Goals          int `json:"goals"`
-		Assists        int `json:"assists"`
 	}
 
-	var result statsResult
+	var matchResult matchStats
 	m.db.Model(&domain.MatchPlayer{}).
 		Select(`
 			COUNT(*) as matches_played,
 			SUM(CASE WHEN is_starter = true THEN 1 ELSE 0 END) as matches_started,
-			COALESCE(SUM(minutes_played), 0) as minutes_played,
-			COALESCE(SUM(goals), 0) as goals,
-			COALESCE(SUM(assists), 0) as assists
+			COALESCE(SUM(minutes_played), 0) as minutes_played
 		`).
 		Where("player_id = ?", playerID).
-		Scan(&result)
+		Scan(&matchResult)
 
-	// Only return stats if player has match data
-	if result.MatchesPlayed == 0 {
+	// Get ALL stats from highlights (each highlight = 1 stat)
+	// This is derived from highlight uploads - no manual entry needed
+	// Highlight types: goal, assist, dribbling, defending, tackling, passing, shooting, heading, speed, save
+	type highlightStats struct {
+		Goals           int `json:"goals"`
+		Assists         int `json:"assists"`
+		Shooting        int `json:"shooting"`
+		Dribbling       int `json:"dribbling"`
+		Passing         int `json:"passing"`
+		Heading         int `json:"heading"`
+		Speed           int `json:"speed"`
+		Defending       int `json:"defending"`
+		Tackling        int `json:"tackling"`
+		Saves           int `json:"saves"`
+		TotalHighlights int `json:"total_highlights"`
+	}
+
+	var highlightResult highlightStats
+	m.db.Model(&domain.PlayerHighlight{}).
+		Select(`
+			SUM(CASE WHEN LOWER(highlight_type) = 'goal' THEN 1 ELSE 0 END) as goals,
+			SUM(CASE WHEN LOWER(highlight_type) = 'assist' THEN 1 ELSE 0 END) as assists,
+			SUM(CASE WHEN LOWER(highlight_type) = 'shooting' THEN 1 ELSE 0 END) as shooting,
+			SUM(CASE WHEN LOWER(highlight_type) = 'dribbling' THEN 1 ELSE 0 END) as dribbling,
+			SUM(CASE WHEN LOWER(highlight_type) = 'passing' THEN 1 ELSE 0 END) as passing,
+			SUM(CASE WHEN LOWER(highlight_type) = 'heading' THEN 1 ELSE 0 END) as heading,
+			SUM(CASE WHEN LOWER(highlight_type) = 'speed' THEN 1 ELSE 0 END) as speed,
+			SUM(CASE WHEN LOWER(highlight_type) = 'defending' THEN 1 ELSE 0 END) as defending,
+			SUM(CASE WHEN LOWER(highlight_type) = 'tackling' THEN 1 ELSE 0 END) as tackling,
+			SUM(CASE WHEN LOWER(highlight_type) = 'save' THEN 1 ELSE 0 END) as saves,
+			COUNT(*) as total_highlights
+		`).
+		Where("player_id = ? AND status = 'approved'", playerID).
+		Scan(&highlightResult)
+
+	// Return stats if player has either match data OR highlight data
+	if matchResult.MatchesPlayed == 0 && highlightResult.TotalHighlights == 0 {
 		return nil
 	}
 
@@ -417,12 +467,21 @@ func (m *ProfilesModule) getPlayerStats(playerID uuid.UUID) *PlayerStatsResponse
 	}
 
 	return &PlayerStatsResponse{
-		Season:         season,
-		MatchesPlayed:  result.MatchesPlayed,
-		MatchesStarted: result.MatchesStarted,
-		MinutesPlayed:  result.MinutesPlayed,
-		Goals:          result.Goals,
-		Assists:        result.Assists,
+		Season:          season,
+		MatchesPlayed:   matchResult.MatchesPlayed,
+		MatchesStarted:  matchResult.MatchesStarted,
+		MinutesPlayed:   matchResult.MinutesPlayed,
+		Goals:           highlightResult.Goals,
+		Assists:         highlightResult.Assists,
+		Shooting:        highlightResult.Shooting,
+		Dribbling:       highlightResult.Dribbling,
+		Passing:         highlightResult.Passing,
+		Heading:         highlightResult.Heading,
+		Speed:           highlightResult.Speed,
+		Defending:       highlightResult.Defending,
+		Tackling:        highlightResult.Tackling,
+		Saves:           highlightResult.Saves,
+		TotalHighlights: highlightResult.TotalHighlights,
 	}
 }
 
